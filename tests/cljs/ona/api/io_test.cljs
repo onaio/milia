@@ -1,6 +1,6 @@
 (ns ona.api.io-test
-  (:require-macros [cemerick.cljs.test :refer (is deftest testing)])
-  (:require [cemerick.cljs.test :as t]
+  (:require-macros [cljs.test :refer (is deftest testing)])
+  (:require [cljs.test :as t]
             [ona.api.io :as io])
   (:use-macros [dommy.macros :only [node]]))
 

@@ -1,6 +1,6 @@
 (ns ona.api.project-test
-  (:require-macros [cemerick.cljs.test :refer (is deftest)])
-  (:require [cemerick.cljs.test :as t]
+  (:require-macros [cljs.test :refer (is deftest)])
+  (:require [cljs.test :as t]
             [ona.api.project :as project]))
 
 (deftest test-update

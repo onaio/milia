@@ -1,11 +1,18 @@
+(defn js-dir
+      "Prefix with full JavaScript directory."
+      [path]
+      (str "resources/public/js/" path))
+
 (defproject onaio/milia "0.1.0-SNAPSHOT"
   :description "The ona.io Clojure Web API"
   :dependencies [;; CORE MILIA REQUIREMENTS
                  [cheshire "5.2.0"]
-                 [clj-http "1.0.1"]
+                 [clj-http "1.0.1" :exclusions [org.clojure/tools.reader]]
                  [environ "1.0.0"]
                  [org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2843"]
+                 ;;cljs
+                 [cljs-hash "0.0.2"]
+                 [org.clojure/clojurescript "0.0-3196" :exclusions [org.clojure/clojure]]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [sablono "0.3.1"]
                  [prismatic/dommy "0.1.2"]
@@ -34,32 +41,41 @@
 
   :prep-tasks [["cljx" "once"] "javac" "compile"]
   :source-paths ["src/clj"
-                 "src/cljs"
-                 "target/generated/src/clj"
-                 "target/generated/src/cljs"
-                 "target/classes"]
+                 "target/generated/src/clj"]
   :test-paths ["tests/clj" "target/generated/tests/clj"]
-
-  :clean-targets ["build/ona" "build/milia" "build/milia.js"]
   :cljsbuild {
-    :builds [{:id "milia"
-              :source-paths ["src/cljs"
-                             "target/generated/src/cljs"]
-              :compiler {
-                :output-to "build/milia.js"
-                :output-dir "build"
-                :optimizations :none
-                :cache-analysis true
-                :source-map true}}]}
+    :builds {:dev
+              {:source-paths ["src/cljs"
+                              "target/generated/src/cljs"]
+               :compiler {:output-to ~(js-dir "lib/main.js")
+                          :output-dir ~(js-dir "lib/out")
+                          :optimizations :whitespace
+                          :pretty-print true
+                          :source-map ~(js-dir "lib/main.js.map")}}
+              :test
+              {:source-paths ["src/cljs"
+                              "tests/cljs"
+                              "target/generated/src/cljs"]
+               :notify-command ["phantomjs"
+                                "phantom/unit-test.js"
+                                "phantom/unit-test.html"
+                                "target/main-test.js"]
+               :compiler {:output-to "target/main-test.js"
+                          :optimizations :whitespace
+                          :pretty-print true}}
+              :prod
+              {:source-paths ["src/cljs"
+                              "target/generated/src/cljs"]
+               :compiler {:output-to ~(js-dir "lib/milia.js")
+                          :output-dir ~(js-dir "lib/out-prod")
+                          :optimizations :advanced
+                          :pretty-print false}
+               :jar true}}
+    :test-commands {"unit-test"
+                    ["phantomjs" "phantom/unit-test.js" "phantom/unit-test.html" "target/main-test.js"]}}
   :cljx {:builds [{:source-paths ["src/cljx"]
                    :output-path "target/generated/src/clj"
                    :rules :clj}
                   {:source-paths ["src/cljx"]
                    :output-path "target/generated/src/cljs"
-                   :rules :cljs}
-                  {:source-paths ["tests/cljx"]
-                   :output-path "target/generated/tests/clj"
-                   :rules :clj}
-                  {:source-paths ["tests/cljx"]
-                   :output-path "target/generated/tests/cljs"
                    :rules :cljs}]})
