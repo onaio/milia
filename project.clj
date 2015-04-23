@@ -18,7 +18,6 @@
                  [prismatic/dommy "0.1.2"]
                  [org.omcljs/om "0.8.8"]
                  [inflections "0.9.7"]
-                 ;; ring middleware
                  [slingshot "0.12.2"]
                  ;; CLJX
                  [com.keminglabs/cljx "0.6.0" :exclusions [org.clojure/clojure]]
