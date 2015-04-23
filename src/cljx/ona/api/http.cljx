@@ -1,8 +1,8 @@
 (ns ona.api.http
   #+clj (:require [ona.api.io :refer [parse-response http-request
                                       debug-api add-to-options ]]
+                  [environ.core :refer [env]]
                   [ona.utils.seq :refer [in?]]
-                  [ona.viewer.settings :as settings]
                   [slingshot.slingshot :refer [throw+ try+]])
   #+cljs (:require [ona.api.io :refer [token->headers raw-request]]
                    [cljs-hash.md5  :refer [md5]]
@@ -32,7 +32,7 @@
                                            status
                                            filename
                                            raw-response?)]
-       (when @settings/debug-api?
+       (when (env :debug-api?)
          (debug-api method url appended-options response))
        (when (and (in? [400 401 404] status) (not suppress-40x-exceptions?))
          (throw+ {:api-response-status status :parsed-api-response parsed-response}))

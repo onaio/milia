@@ -4,11 +4,11 @@
             [clj-http.client :as client]
             [clj-http.conn-mgr :as conn-mgr]
             [clojure.java.io :as io]
+            [environ.core :refer [env]]
             [ona.helpers.io :refer [error-status?]]
             [ona.utils.file :as file-utils]
             [ona.utils.remote :as remote]
             [ona.utils.seq :refer [in?]]
-            [ona.viewer.settings :as settings]
             [slingshot.slingshot :refer [throw+ try+]]))
 
 (def ^:private meths
@@ -23,9 +23,9 @@
   (conn-mgr/make-reusable-conn-manager
    {
     ;; max simultaneous connections per host
-    :default-per-route settings/jetty-min-threads
+    :default-per-route (env :jetty-min-threads)
     ;; max threads used for connecting
-    :threads settings/jetty-min-threads
+    :threads (env :jetty-min-threads)
     ;; time connections left open in seconds
     :timeout 10}))
 
@@ -70,9 +70,9 @@
     :conn-timeout connection-timeout
     :insecure? (whitelisted-for-ssl? url)
     :connection-manager connection-manager
-    :save-request? @settings/debug-api?
-    :debug @settings/debug-api?
-    :debug-body @settings/debug-api?))
+    :save-request? (env :debug-api?)
+    :debug (env :debug-api?)
+    :debug-body (env :debug-api?)))
 
 (defn debug-api
   "Print out debug information."

@@ -2,8 +2,7 @@
   (:require [midje.sweet :refer :all]
             [ona.api.organization :refer :all]
             [ona.api.http :refer [parse-http]]
-            [ona.api.io :refer [make-url]]
-            [ona.helpers.permissions :as p]))
+            [ona.api.io :refer [make-url]]))
 
 (def url :fake-url)
 (def username :fake-username)
@@ -83,7 +82,7 @@
         (parse-http :post
                     url
                     account
-                    {:form-params {:username :member :role p/editor}}) => :something))
+                    {:form-params {:username :member :role editor-role}}) => :something))
 
 (facts "about add-member with assigned role"
        "should add a member"

@@ -2,7 +2,7 @@
   (:require [midje.sweet :refer :all]
             [ona.api.http :refer [parse-http]]
             [ona.api.io :refer :all]
-            [ona.viewer.settings :refer [debug-api?]]))
+            [environ.core :refer [env]]))
 
 (def body [1,2])
 (def raw-body "bla")
@@ -24,9 +24,9 @@
    :conn-timeout connection-timeout
    :insecure? false
    :connection-manager connection-manager
-   :save-request? @debug-api?
-   :debug @debug-api?
-   :debug-body @debug-api?})
+   :save-request? (env :debug-api?)
+   :debug (env :debug-api?)
+   :debug-body (env :debug-api?)})
 
 (defn with-options [m] (merge options m))
 (def as-raw {:raw-response? true})

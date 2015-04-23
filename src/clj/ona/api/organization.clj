@@ -1,11 +1,12 @@
 (ns ona.api.organization
   (:require [ona.api.http :refer [parse-http]]
-            [ona.api.io :refer [make-url]]
-            [ona.helpers.permissions :as p]))
+            [ona.api.io :refer [make-url]]))
 
 (def internal-members-team-name "members")
 
 (def owners-team-name "Owners")
+
+(def editor-role "editor")
 
 (defn all [account]
   (let [url (make-url "orgs")]
@@ -66,7 +67,7 @@
     (let [url (make-url "orgs" org-name "members")
           assigned-role (if role
                           role
-                          p/editor)]
+                          editor-role)]
       (parse-http :post url account {:form-params {:username member :role assigned-role}}))))
 
 (defn remove-member
