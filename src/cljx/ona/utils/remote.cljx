@@ -1,28 +1,13 @@
 (ns ona.utils.remote
   (:require [clojure.string :refer [join]]
-            [ona.utils.url :refer [url]])
-  (#+clj :use #+cljs :use-macros [ona.utils.macros :only [env-settings]]))
+            [ona.utils.url :refer [url]]))
 
-(def hosts
-  ((keyword (env-settings :env))
-   {:local {:ui "localhost:3000"
-             :data (env-settings :ona-api-server-host)}
-    :staging {:ui "zebra.ona.io"
-               :data "stage.ona.io"}
-    :preview {:ui "preview.ona.io"
-               :data "ona.io"}
-    :production {:ui "beta.ona.io"
-                  :data "ona.io"
-                  :forms "odk.ona.io"}
-    :whodcp {:ui "beta.whodcp.org"
-              :data "whodcp.org"}}))
-
-(def local? (= (env-settings :env) "local"))
-
-(defn is-local? [] local?)
+(def hosts (atom {:ui "beta.ona.io"
+                  :data "stage.ona.io"
+                  :ona-api-server-protocol "https"}))
 
 (def protocol
-  (env-settings :ona-api-server-protocol))
+  (:ona-api-server-protocol @hosts))
 
 (defn- protocol-prefixed*
   "Prefix the resources with the protocol and format strings."
@@ -34,9 +19,9 @@
 
 (def thumbor-host "images.ona.io")
 
-(def forms-host (protocol-prefixed (or (:forms hosts) (:data hosts))))
+(def forms-host (protocol-prefixed (or (:forms @hosts) (:data @hosts))))
 
-(def host-server (protocol-prefixed [(:data hosts) "/"]))
+(def host-server (protocol-prefixed [(:data @hosts) "/"]))
 
 (def j2x-host-server (protocol-prefixed j2x-host))
 
