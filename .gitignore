@@ -11,3 +11,7 @@ pom.xml
 
 examples/*/main.js*
 examples/*/out/
+*.iml
+.idea
+.lein-env
+resources/public/js/lib
