@@ -40,7 +40,9 @@
 
   :prep-tasks [["cljx" "once"] "javac" "compile"]
   :source-paths ["src/clj"
-                 "target/generated/src/clj"]
+                 "src/cljs"
+                 "target/generated/src/clj"
+                 "target/generated/src/cljs"]
   :test-paths ["tests/clj" "target/generated/tests/clj"]
   :cljsbuild {
     :builds {:dev
