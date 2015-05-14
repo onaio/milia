@@ -4,7 +4,7 @@
       (str "resources/public/js/" path))
 
 (defproject onaio/milia "0.1.0-SNAPSHOT"
-  :description "The ona.io Clojure Web API"
+  :description "The milia.io Clojure Web API"
   :dependencies [;; CORE MILIA REQUIREMENTS
                  [cheshire "5.2.0"]
                  [clj-http "1.0.1" :exclusions [org.clojure/tools.reader]]

@@ -5,19 +5,19 @@ Ona API client library in Clojure and ClojureScript
 This library exposes ONA endpoints for retrieving and submitting data through CLJ and CLJS applications.
 
 # API Client Structure [Current]
-* src/clj/ona/api
+* src/clj/milia/api
     * charts
     * organizations
     * projects
     * user
-* src/clj/ona/io
+* src/clj/milia/io
     * requests
-* src/cljs/ona/api
+* src/cljs/milia/api
     * async_export
     * projects
-* src/cljs/ona/io
+* src/cljs/milia/io
     * requests
-* src/cljx/ona/api
+* src/cljx/milia/api
     * http
     * dataset
 
