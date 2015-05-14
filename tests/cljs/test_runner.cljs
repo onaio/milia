@@ -1,8 +1,8 @@
 (ns test-runner
   (:require
    [cljs.test :as test :refer-macros [run-tests] :refer [report]]
-   [ona.api.io-test]
-   [ona.api.project-test]))
+   [milia.api.io-test]
+   [milia.api.project-test]))
 
 
 (enable-console-print!)
@@ -17,7 +17,7 @@
   (if (cljs.test/successful?
        (run-tests
         (test/empty-env ::test/default)
-        'ona.api.io-test
-        'ona.api.project-test))
+        'milia.api.io-test
+        'milia.api.project-test))
     0
     1))
