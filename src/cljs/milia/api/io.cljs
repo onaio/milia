@@ -79,7 +79,7 @@
                            :delete http/delete
                            :put http/put
                            :patch http/patch} method)
-             param-key (if (contains? #{:put :patch} method)
+             param-key (if (contains? #{:put :patch :post} method)
                          :form-params :query-params)
              headers (token->headers token (= http-method http/delete))
              time-params (when no-cache? {:t (md5 (.toString (.now js/Date)))})
