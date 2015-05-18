@@ -9,19 +9,11 @@
 (def protocol
   (:ona-api-server-protocol @hosts))
 
-(defn- protocol-prefixed*
+(defn protocol-prefixed
   "Prefix the resources with the protocol and format strings."
   [resources] (-> [protocol "://" resources] flatten join))
 
-(def protocol-prefixed protocol-prefixed*)
-
 (def j2x-host "j2x.ona.io")
-
-(def forms-host (protocol-prefixed (or (:forms @hosts) (:data @hosts))))
-
-(def host-server (protocol-prefixed [(:data @hosts) "/"]))
-
-(def j2x-host-server (protocol-prefixed j2x-host))
 
 (def thumbor-server "https://images.ona.io")
 
@@ -33,7 +25,7 @@
 (defn make-url
   "Build an API url."
   [& postfix]
-  (url-join (str host-server "api/v1") postfix))
+  (url-join (str (protocol-prefixed (:data @hosts)) "/api/v1") postfix))
 
 (defn make-zebra-url
   "Build a Zebra url."
@@ -43,7 +35,7 @@
 (defn make-j2x-url
   "Build an API url."
   [& postfix]
-  (url-join j2x-host-server postfix))
+  (url-join (protocol-prefixed j2x-host) postfix))
 
 (defn url-for-headers
   [headers suffix]
