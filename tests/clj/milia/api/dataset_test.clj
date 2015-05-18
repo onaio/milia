@@ -151,7 +151,7 @@
            (parse-http :post
                        url
                        account
-                       (merge options suppress-40x)) => :response)))
+                       options) => :response)))
 
   (fact "about move dataset to folder"
         (move-to-project account 1 :project-id) => :form
@@ -219,9 +219,7 @@
          (facts "About patch"
                 (let [options {:form-params :params}
                       file {:xls_file :uploaded-file}
-                      multipart-options-map {:multi :part}
-                      multipart-with-suppress-40x (merge multipart-options-map
-                                                         suppress-40x)]
+                      multipart-options-map {:multi :part}]
                   (fact "Should call parse-http with patch"
                         (patch account :dataset-id :params) => :response
                         (provided
@@ -229,7 +227,7 @@
                          (parse-http :patch
                                      url
                                      account
-                                     (merge options suppress-40x)) => :response))
+                                     options) => :response))
 
                   (fact "Should call parse-http with multipart options"
                         (patch account :dataset-id :params file) => :response
@@ -240,7 +238,7 @@
                          (parse-http :patch
                                      url
                                      account
-                                     multipart-with-suppress-40x)
+                                     multipart-options-map)
                          => :response))))
 
          (facts "About CSV Imports"

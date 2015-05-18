@@ -30,9 +30,8 @@
                                    ["forms"]))
            options (if-let [xls_file  (:xls_file upload)]
                      (multipart-options xls_file "xls_file")
-                     {:form-params upload})
-           options-suppressed (merge options {:suppress-40x-exceptions? true})]
-       (parse-http :post url account options-suppressed))))
+                     {:form-params upload})]
+       (parse-http :post url account options))))
 
 #+clj
 (defn patch
@@ -44,9 +43,8 @@
      (let [url (make-url "forms" dataset-id)
            options (if-let [xls_file (:xls_file upload)]
                      (multipart-options xls_file "xls_file")
-                     {:form-params params})
-           options-suppressed (merge options {:suppress-40x-exceptions? true})]
-       (parse-http :patch url account options-suppressed))))
+                     {:form-params params})]
+       (parse-http :patch url account options))))
 
 (defn update
   "Set the metadata for a dataset using PUT. All parameters must be passed."
@@ -145,9 +143,9 @@
 (defn edit-link
   "Return link to online data entry."
   [account dataset-id instance-id]
-  (let [zebra-blank (make-zebra-url "blank")
+  (let [return-url (make-zebra-url "/submission-editing-complete")
         url (make-url "data" dataset-id instance-id
-                      (str "enketo?return_url=" zebra-blank))]
+                      (str "enketo?return_url=" return-url))]
     (:url (parse-http :get url account))))
 
 (defn delete
