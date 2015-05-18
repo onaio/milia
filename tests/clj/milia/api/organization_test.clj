@@ -142,7 +142,7 @@
       => {:teamid 1 :name internal-members-team-name}
       (provided
         (make-url (str "teams?org=" org-name)) => :url
-        (parse-http :get :url account) => [{:teamid 1 :name internal-members-team-name}]))
+        (parse-http :get :url account {:suppress-40x-exceptions? true}) => [{:teamid 1 :name internal-members-team-name}]))
 
 (fact "should change default_role permissions on a project for a team"
       (share-team account :team-id :data) => :updated-team

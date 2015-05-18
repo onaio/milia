@@ -112,7 +112,7 @@
   "Returns an Organizaion team given the team name."
   [account org-name team-name]
   (let [url (make-url (str "teams?org=" org-name))
-        teams (parse-http :get url account)]
+        teams (parse-http :get url account {:suppress-40x-exceptions? true})]
     (first (remove #(not= team-name (:name %)) teams))))
 
 (defn share-team [account team-id data]

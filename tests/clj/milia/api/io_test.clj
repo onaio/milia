@@ -22,7 +22,6 @@
 (def options
   {:socket-timeout socket-timeout
    :conn-timeout connection-timeout
-   :insecure? false
    :connection-manager connection-manager
    :save-request? (env :debug-api?)
    :debug (env :debug-api?)

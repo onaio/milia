@@ -13,11 +13,9 @@
   "Prefix the resources with the protocol and format strings."
   [resources] (-> [protocol "://" resources] flatten join))
 
-(def protocol-prefixed (memoize protocol-prefixed*))
+(def protocol-prefixed protocol-prefixed*)
 
 (def j2x-host "j2x.ona.io")
-
-(def thumbor-host "images.ona.io")
 
 (def forms-host (protocol-prefixed (or (:forms @hosts) (:data @hosts))))
 
@@ -25,7 +23,7 @@
 
 (def j2x-host-server (protocol-prefixed j2x-host))
 
-(def thumbor-server (protocol-prefixed thumbor-host))
+(def thumbor-server "https://images.ona.io")
 
 (defn- url-join
   [host args]

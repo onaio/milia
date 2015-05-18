@@ -35,9 +35,6 @@
 ;; timeout until a connection is established, 5 seconds less than nginx
 (def connection-timeout 55000)
 
-;; do not verify SSL for these hosts
-(def ssl-whitelist [remote/thumbor-host])
-
 ;; Shadowing CLJX function
 (def make-url remote/make-url)
 
@@ -47,11 +44,6 @@
   (let [data-file (file-utils/uploaded->file file)]
     {:multipart [{:name name
                   :content data-file}]}))
-
-(defn- whitelisted-for-ssl?
-  "If the url is in our whitelist do not verfiy SSL."
-  [url]
-  (in? ssl-whitelist (.getHost (io/as-url url))))
 
 (defn- add-auth-to-options
   "Add authorization to options"
@@ -68,7 +60,6 @@
   (assoc (add-auth-to-options account options)
     :socket-timeout socket-timeout
     :conn-timeout connection-timeout
-    :insecure? (whitelisted-for-ssl? url)
     :connection-manager connection-manager
     :save-request? (env :debug-api?)
     :debug (env :debug-api?)

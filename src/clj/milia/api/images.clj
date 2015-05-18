@@ -19,7 +19,8 @@
                         :suppress-40x-exceptions? true}
                        (multipart-options file "media"))
                       nil)]
-      (if (> 400 status)
-        ;; remove the leading forward-slash
-        (str thumbor-server "/" (subs (headers "Location") 1))
+      (if (> 201 status)
+        ;; A 201 HTTP status code indicates success
+        ;; https://github.com/thumbor/thumbor/wiki/How-to-upload-images#http-status-code
+        (str thumbor-server (headers "Location"))
         status))))
