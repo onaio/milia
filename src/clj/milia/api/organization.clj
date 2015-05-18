@@ -8,9 +8,17 @@
 
 (def editor-role "editor")
 
-(defn all [account]
-  (let [url (make-url "orgs")]
-    (parse-http :get url account)))
+(defn all
+  "List all the organizations belonging to the account making the request.
+   When a username is provided, return only those organizations shared by both
+   the account making the request and the user associated with the username."
+  ([account]
+   (all account nil))
+  ([account username]
+   (let [url (make-url (if username
+                         (str "orgs?shared_with=" username)
+                         "orgs"))]
+     (parse-http :get url account))))
 
 (defn create [account data]
   (let [url (make-url "orgs")]
