@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/onaio/milia.svg?branch=master)](https://travis-ci.org/onaio/milia)
+
 # milia
 Ona API client library in Clojure and ClojureScript
 
