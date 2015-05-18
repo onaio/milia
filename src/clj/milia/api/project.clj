@@ -49,8 +49,8 @@
   "Update project metadata"
   [account project-id data]
   (let [url (make-url "projects" project-id)]
-    (parse-http :put url account {:form-params data
-                                  :content-type :json})))
+    (parse-http :patch url account {:form-params data
+                                    :content-type :json})))
 
 (defn share
   "Share project with specific user or remove specific user from project"
