@@ -114,16 +114,17 @@
                                   :suppress-40x-exceptions? true})))
 
 (defn trigger-password-reset-email
-  [email reset-url email-subject]
-  (let [url (make-url "user" "reset")]
-    (parse-http
-     :post
-     url
-     nil ;; Unauthenticated API request does not need an account
-     {:form-params
-      {:email email
-       :reset_url reset-url
-       :email_subject email-subject}})))
+  "Trigger a password reset email to the given email and given return URL.
+   Also takes an optional subject for the email message."
+  ([email reset-url]
+   (trigger-password-reset-email email reset-url nil))
+  ([email reset-url reset-subject]
+   (let [url (make-url "user" "reset")
+         form-params (merge {:email email :reset_url reset-url}
+                            (when reset-subject
+                              {:email_subject reset-subject}))]
+     ;; Unauthenticated API request does not need an account
+     (parse-http :post url nil {:form-params form-params}))))
 
 (defn reset-password
   [new-password token uid]

@@ -11,6 +11,7 @@ pom.xml
 
 examples/*/main.js*
 examples/*/out/
+*.asc
 *.iml
 .idea
 .lein-env
