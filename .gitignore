@@ -15,3 +15,4 @@ examples/*/out/
 .idea
 .lein-env
 resources/public/js/lib
+.lein-failures

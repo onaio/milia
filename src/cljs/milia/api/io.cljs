@@ -81,7 +81,7 @@
                            :patch http/patch} method)
              param-key (if (contains? #{:put :patch :post} method)
                          :form-params :query-params)
-             headers (token->headers token (= http-method http/delete))
+             headers (token->headers (apply str token) (= http-method http/delete))
              time-params (when no-cache? {:t (md5 (.toString (.now js/Date)))})
              query-params (merge query-params time-params {:xhr true})]
          (http-method url {:headers headers param-key query-params})))))
