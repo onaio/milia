@@ -6,24 +6,34 @@ Ona API client library in Clojure and ClojureScript
 # Overview
 This library exposes ONA endpoints for retrieving and submitting data through CLJ and CLJS applications.
 
-# API Client Structure [Current]
-* src/clj/milia/api
-    * charts
-    * organizations
-    * projects
-    * user
-* src/clj/milia/io
-    * requests
-* src/cljs/milia/api
-    * async_export
-    * projects
-* src/cljs/milia/io
-    * requests
-* src/cljx/milia/api
-    * http
-    * dataset
+# Current API Endpoints
+* charts
+* forms
+* media
+* organizations
+* projects
+* profiles
+* teams
+* user
+* xls-reports
 
-# [Todo] Proposed Client Structure
+# Setting up a remote server
+You can add a new ONA api server url by importing and modifying the hosts atom:
+
+```clojure
+    (ns ona.io.remote
+      (:require [environ.core :refer [env]]
+                [milia.utils.remote :as milia-remote])
+
+      ;; set the hosts atom in milia to point to the remote host
+      (defn set-remote-host []
+        (let [{:keys [ui-host api-host protocol]} (:host env)]
+          (swap! milia-remote/hosts merge {:ui ui-host
+                                           :data api-host
+                                           :ona-api-server-protocol protocol})))
+```
+
+# [Todo] Proposed Client Architecture
 Since the requests to the ONA api from `cljs` or `clj` all return the same data, all the endpoints should be converted into cljx files that can be reused in other projects/dashboards.
 
 * src/cljx/milia/api
