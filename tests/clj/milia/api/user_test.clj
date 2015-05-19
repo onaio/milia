@@ -120,10 +120,11 @@
 
 (fact "trigger-password-reset-email should call the reset endpoint"
       (let [email "forgetful@example.com"
+            subject "Reset my password"
             api-endpoint-url "/user/reset"
             reset-url "http://example.com"
-            params {:reset_url reset-url :email email}]
-        (trigger-password-reset-email email reset-url) => nil
+            params {:email_subject subject :reset_url reset-url :email email}]
+        (trigger-password-reset-email email reset-url subject) => nil
         (provided
          (make-url "user" "reset") => api-endpoint-url
          (parse-http :post api-endpoint-url nil {:form-params params}) => nil)))
