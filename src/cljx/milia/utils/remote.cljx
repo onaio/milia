@@ -4,24 +4,13 @@
 
 (def hosts (atom {:ui "beta.ona.io"
                   :data "stage.ona.io"
+                  :j2x "j2x.ona.io"
                   :ona-api-server-protocol "https"}))
 
-(def protocol
-  (:ona-api-server-protocol @hosts))
-
-(defn- protocol-prefixed*
+(defn protocol-prefixed
   "Prefix the resources with the protocol and format strings."
-  [resources] (-> [protocol "://" resources] flatten join))
-
-(def protocol-prefixed protocol-prefixed*)
-
-(def j2x-host "j2x.ona.io")
-
-(def forms-host (protocol-prefixed (or (:forms @hosts) (:data @hosts))))
-
-(def host-server (protocol-prefixed [(:data @hosts) "/"]))
-
-(def j2x-host-server (protocol-prefixed j2x-host))
+  [resources] (-> [(:ona-api-server-protocol @hosts) "://" resources]
+                  flatten join))
 
 (def thumbor-server "https://images.ona.io")
 
@@ -33,18 +22,14 @@
 (defn make-url
   "Build an API url."
   [& postfix]
-  (url-join (str host-server "api/v1") postfix))
+  (url-join (str (protocol-prefixed (:data @hosts)) "/api/v1") postfix))
 
 (defn make-zebra-url
   "Build a Zebra url."
   [& postfix]
-  (url-join (protocol-prefixed [(:ui hosts) "/"]) postfix))
+  (url-join (protocol-prefixed [(:ui @hosts) "/"]) postfix))
 
 (defn make-j2x-url
   "Build an API url."
   [& postfix]
-  (url-join j2x-host-server postfix))
-
-(defn url-for-headers
-  [headers suffix]
-  (str protocol  "://" (headers "host") suffix))
+  (url-join (protocol-prefixed (:j2x @hosts)) postfix))
