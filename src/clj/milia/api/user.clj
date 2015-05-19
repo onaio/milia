@@ -114,6 +114,8 @@
                                   :suppress-40x-exceptions? true})))
 
 (defn trigger-password-reset-email
+  "Trigger a password reset email to the given email and given return URL.
+   Also takes an optional subject for the email message."
   ([email reset-url]
    (trigger-password-reset-email email reset-url nil))
   ([email reset-url reset-subject]
