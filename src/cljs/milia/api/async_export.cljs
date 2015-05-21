@@ -26,11 +26,14 @@
    job via polling. On receiving :export_url from server, on-export-url fired."
   ([auth-token dataset-id fmt on-job-id on-export-url]
    (trigger-async-export! auth-token dataset-id fmt on-job-id on-export-url nil))
-  ([auth-token dataset-id fmt on-job-id on-export-url {:keys [meta-id data-id]}]
+  ([auth-token dataset-id fmt on-job-id on-export-url {:keys [meta-id
+                                                              data-id
+                                                              remove-group-name?]}]
    (go
      (let [export-suffix (str "export_async.json?format=" fmt
                               (when meta-id (str "&meta="meta-id))
-                              (when data-id (str "&data_id="meta-id)))
+                              (when data-id (str "&data_id="meta-id))
+                              (when remove-group-name? (str "&remove_group_name="remove-group-name?)))
            export-url (io/make-url "forms" dataset-id export-suffix)
            response (:body (<! (io/get-url export-url {} auth-token)))]
        (when-let [export-url (:export_url response)]
