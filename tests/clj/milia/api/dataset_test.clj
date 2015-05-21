@@ -39,7 +39,7 @@
          (fact "should get dataset metadata"
                (metadata account :dataset-id) => :fake-metadata
                (provided
-                (make-url "forms" :dataset-id) => url
+                (make-url "forms" ":dataset-id.json") => url
                 (parse-http :get url account) => :fake-metadata)))
 
   (fact "about dataset-getdata"
