@@ -129,7 +129,7 @@
 (defn metadata
   "Show dataset metadata."
   [account dataset-id]
-  (let [url (make-url "forms" dataset-id)]
+  (let [url (make-url "forms" (str dataset-id ".json"))]
     (parse-http :get url account)))
 
 #+clj
