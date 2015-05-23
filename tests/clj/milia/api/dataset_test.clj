@@ -294,3 +294,9 @@
                       :account
                       {:as :byte-array :as-map? true}
                       :filename) => :byte-array)))
+
+(fact "Should clone a dataset"
+      (clone :account :dataset-id :username) => :response
+      (provided
+       (make-url "forms" :dataset-id "clone") => :url
+       (parse-http :post :url :account {:username :username}) => :response))
