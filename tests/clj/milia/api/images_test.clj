@@ -30,4 +30,4 @@
              (provided
               (multipart-options image-map "media") => multipart-options-map
               (parse-http :post upload-url nil merged-options nil)
-              => {:status 200 :headers {"Location" location-leading-slash}})))
+              => {:status 201 :headers {"Location" location-leading-slash}})))
