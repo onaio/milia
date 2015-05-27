@@ -92,7 +92,8 @@
                           url
                           account
                           {:form-params {:username :member
-                                         :role editor-role}}) => :something)))
+                                         :role editor-role}
+                           :suppress-40x-exceptions? true}) => :something)))
 
 (facts "about add-member with assigned role"
        (fact "should add a member"
@@ -103,7 +104,8 @@
                           url
                           account
                           {:form-params {:username :member
-                                         :role :role}}) => :something)))
+                                         :role :role}
+                           :suppress-40x-exceptions? true}) => :something)))
 
 (facts "about remove-member"
        (fact "should remove a member"

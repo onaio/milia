@@ -76,7 +76,8 @@
           assigned-role (if role
                           role
                           editor-role)]
-      (parse-http :post url account {:form-params {:username member :role assigned-role}}))))
+      (parse-http :post url account {:form-params {:username member :role assigned-role}
+                                     :suppress-40x-exceptions? true}))))
 
 (defn remove-member
   "Remove a user from an organization or organization team"
