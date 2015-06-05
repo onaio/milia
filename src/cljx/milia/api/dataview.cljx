@@ -22,3 +22,10 @@
   (let [url (make-url "dataviews" dataview-id "data.json")
         options {:suppress-40x-exceptions? true :raw-response? true}]
     (parse-http :get url account options)))
+
+(defn all
+  "Retrieves all dataview objects"
+  [account]
+  (let [url (make-url "dataviews")
+        options {:suppress-40x-exceptions? true}]
+    (parse-http :get url account options)))
