@@ -43,9 +43,8 @@
   "Updates dataview object"
   [account dataview-id  params]
   (let [url (make-url "dataviews" dataview-id)
-        options (merge
-                  {:form-params params}
-                  {:suppress-40x-exceptions? true})]
+        options {:form-params params
+                 :suppress-40x-exceptions? true}]
     (parse-http :patch url account options)))
 
 (defn delete
