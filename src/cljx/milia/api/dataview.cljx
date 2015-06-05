@@ -6,7 +6,9 @@
   "Create new dataview from existing dataset"
   [account params]
   (let [url (make-url "dataviews")
-        options (merge params {:suppress-40x-exceptions? true}) ]
+        options (merge
+                  {:form-params params}
+                  {:suppress-40x-exceptions? true} )]
     (parse-http :post url account options)))
 
 (defn show
