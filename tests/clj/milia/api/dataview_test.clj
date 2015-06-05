@@ -8,7 +8,7 @@
 
 (def account {:username "username"})
 (def url :url)
-(def params {:name "My DataView",
+(def params {:name "My DataView"
              :xform "https://ona.io/api/v1/forms/12"
              :project  "https://ona.io/api/v1/projects/13"
              :columns ["name" "age" "gender"]
@@ -35,7 +35,6 @@
         (provided
           (make-url "dataviews" dataview-id "data.json") => url
           (parse-http :get url account options) => :response)))
-
 
 (fact "about count data returned by dataview"
       (let [options (assoc options :query-params {:count true})]
