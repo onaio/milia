@@ -35,3 +35,9 @@
         (provided
           (make-url "dataviews" dataview-id "data.json") => url
           (parse-http :get url account options) => :response)))
+
+(fact "about all dataviews"
+      (all account) => :response
+      (provided
+        (make-url "dataviews") => url
+        (parse-http :get url account options) => :response))
