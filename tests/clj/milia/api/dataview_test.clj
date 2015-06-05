@@ -36,8 +36,29 @@
           (make-url "dataviews" dataview-id "data.json") => url
           (parse-http :get url account options) => :response)))
 
+
+(fact "about count data returned by dataview"
+      (let [options (assoc options :query-params {:count true})]
+        (count-data account dataview-id) => :response
+        (provided
+          (make-url "dataviews" dataview-id "data") => url
+          (parse-http :get url account options) => :response)))
+
 (fact "about all dataviews"
       (all account) => :response
       (provided
         (make-url "dataviews") => url
         (parse-http :get url account options) => :response))
+
+(fact "about update dataview"
+      (let [options (assoc options :form-params params)]
+        (update account dataview-id params) => :response
+        (provided
+          (make-url "dataviews" dataview-id) => url
+          (parse-http :patch url account options) => :response)))
+
+(fact "about delete dataview"
+      (delete account dataview-id) => :response
+      (provided
+        (make-url "dataviews" dataview-id) => url
+        (parse-http :delete url account) => :response))
