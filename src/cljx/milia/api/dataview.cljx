@@ -19,6 +19,6 @@
 (defn data
   "Retrieves dataview data using dataview id"
   [account dataview-id]
-  (let [url (make-url "dataviews" dataview-id "data")
-        options {:suppress-40x-exceptions? true}]
+  (let [url (make-url "dataviews" dataview-id "data.json")
+        options {:suppress-40x-exceptions? true :raw-response? true}]
     (parse-http :get url account options)))
