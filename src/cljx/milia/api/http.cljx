@@ -44,9 +44,10 @@
      #+cljs
      (let [auth-token account ; in cljs, we just get the auth-token, not full account
            http-request (if raw-response? raw-request http/request) ;; v0
-           ;; For :put / :patch, we need :form-params, for the rest :query-params
-           options (when-not (contains? #{:put :patch} method)
-                     (assoc options :query-params (:form-params options)))
+           ;; For :post / :put / :patch, we need :form-params, for the rest :query-params
+           options (if-not (contains? #{:post :put :patch} method)
+                     (assoc options :query-params (:form-params options))
+                     options)
            headers (token->headers auth-token (= method :delete))
            time-params (when no-cache?
                          {:t (md5 (.toString (.now js/Date)))})

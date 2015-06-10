@@ -41,11 +41,11 @@
 
 (defn update
   "Updates dataview object"
-  [account dataview-id  params]
+  [account dataview-id params]
   (let [url (make-url "dataviews" dataview-id)
         options {:form-params params
                  :suppress-40x-exceptions? true}]
-    (parse-http :patch url account options)))
+    (parse-http :put url account options)))
 
 (defn delete
   "Deletes dataview object"
