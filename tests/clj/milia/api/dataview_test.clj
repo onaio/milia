@@ -54,7 +54,7 @@
         (update account dataview-id params) => :response
         (provided
           (make-url "dataviews" dataview-id) => url
-          (parse-http :patch url account options) => :response)))
+          (parse-http :put url account options) => :response)))
 
 (fact "about delete dataview"
       (delete account dataview-id) => :response
