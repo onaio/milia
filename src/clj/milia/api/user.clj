@@ -90,7 +90,9 @@
         url (make-url "profiles" username "change_password")
         data {:form-params {:current_password current-password
                             :new_password new-password}
-              :raw-response? true}]
+              :raw-response? true
+              :suppress-40x-exceptions? true
+              :as-map? true}]
     (parse-http :post url account data)))
 
 (defn retrieve-metadata
