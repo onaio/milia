@@ -88,7 +88,9 @@
                             account
                             {:form-params {:current_password :current_password
                                            :new_password :new_password}
-                             :raw-response? true}) => :updated)))
+                             :raw-response? true
+                             :suppress-40x-exceptions? true
+                             :as-map? true}) => :updated)))
 
   (facts "About metadata"
          (fact "Should return metadata"
