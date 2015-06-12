@@ -54,13 +54,16 @@
   (raw-request (merge req {:method :post :url url})))
 
 (defn token->headers
-  ([token] (token->headers token false))
-  ([token get-crsftoken?]
-     (let [headers (when (and token (not (blank? token)))
-                     {"Authorization" (str "TempToken " token)})]
-       (if-let [crsf-token (and get-crsftoken? (cks/get "csrftoken"))]
-         (assoc headers "X-CSRFToken" crsf-token)
-         headers))))
+  "Builds request headers for the HTTP request by adding
+  Authorization, X-CSRFToken and Cache-control headers where necessary"
+  [& {:keys [token get-crsftoken? must-revalidate?]}]
+    (let [Authorization #(when (and token (not (blank? token)))
+                           (assoc % "Authorization" (str "TempToken " token)))
+          Cache-control #(when must-revalidate?
+                          (assoc % "Cache-control" "must-revalidate"))
+          X-CSRFToken #(when-let [crsf-token (and get-crsftoken? (cks/get "csrftoken"))]
+                        (assoc % "X-CSRFToken" crsf-token))]
+      (apply merge ((juxt Authorization Cache-control X-CSRFToken)) {})))
 
 (defn query-helper
   [method]
@@ -81,7 +84,8 @@
                            :patch http/patch} method)
              param-key (if (contains? #{:put :patch :post} method)
                          :form-params :query-params)
-             headers (token->headers (apply str token) (= http-method http/delete))
+             headers (token->headers :token (apply str token)
+                                     :get-crsftoken? (= http-method http/delete))
              time-params (when no-cache? {:t (md5 (.toString (.now js/Date)))})
              query-params (merge query-params time-params {:xhr true})]
          (http-method url {:headers headers param-key query-params})))))
