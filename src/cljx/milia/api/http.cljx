@@ -21,7 +21,7 @@
    (parse-http method url account options nil))
   ([method url account options filename]
    (let [{:keys [suppress-40x-exceptions? raw-response? as-map?
-                 no-cache?]} options]
+                 no-cache? must-revalidate?]} options]
      ;; CLJ: synchronous implementation, checks status before returning.
      ;; no-cache? has no meaning in clj a.t.m.
      #+clj
@@ -48,7 +48,9 @@
            options (if-not (contains? #{:post :put :patch} method)
                      (assoc options :query-params (:form-params options))
                      options)
-           headers (token->headers auth-token (= method :delete))
+           headers (token->headers :token auth-token
+                                   :get-crsftoken? (= method http/delete)
+                                   :must-revalidate? must-revalidate?)
            time-params (when no-cache?
                          {:t (md5 (.toString (.now js/Date)))})
            all-params (merge options
