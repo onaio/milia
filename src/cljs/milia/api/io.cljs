@@ -57,13 +57,13 @@
   "Builds request headers for the HTTP request by adding
   Authorization, X-CSRFToken and Cache-control headers where necessary"
   [& {:keys [token get-crsftoken? must-revalidate?]}]
-    (let [Authorization #(when (and token (not (blank? token)))
+    (let [Authorization #(when-not (blank? token)
                            (assoc % "Authorization" (str "TempToken " token)))
           Cache-control #(when must-revalidate?
                           (assoc % "Cache-control" "must-revalidate"))
           X-CSRFToken #(when-let [crsf-token (and get-crsftoken? (cks/get "csrftoken"))]
                         (assoc % "X-CSRFToken" crsf-token))]
-      (apply merge ((juxt Authorization Cache-control X-CSRFToken)) {})))
+      (apply merge ((juxt Authorization Cache-control X-CSRFToken) {}))))
 
 (defn query-helper
   [method]
