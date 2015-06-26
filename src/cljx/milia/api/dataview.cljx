@@ -10,7 +10,7 @@
                  :suppress-40x-exceptions? true}]
     (parse-http :post url account options)))
 
-(defn show
+(defn get
   "Retrieves dataview object using dataview id"
   [account dataview-id]
   (let [url (make-url "dataviews" dataview-id)

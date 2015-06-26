@@ -23,8 +23,8 @@
           (make-url "dataviews") => url
           (parse-http :post url account options) => :response)))
 
-(fact "about show dataview"
-      (show account dataview-id) => :response
+(fact "about get dataview"
+      (get account dataview-id) => :response
       (provided
         (make-url "dataviews" dataview-id) => url
         (parse-http :get url account options) => :response))
