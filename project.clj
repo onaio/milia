@@ -9,10 +9,10 @@
                  [cheshire "5.2.0"]
                  [clj-http "1.0.1" :exclusions [org.clojure/tools.reader]]
                  [environ "1.0.0"]
-                 [org.clojure/clojure "1.6.0"]
+                 [org.clojure/clojure "1.7.0"]
                  ;;cljs
                  [cljs-hash "0.0.2"]
-                 [org.clojure/clojurescript "0.0-3196"
+                 [org.clojure/clojurescript "0.0-3308"
                   :exclusions [org.clojure/clojure]]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [sablono "0.3.1"]
