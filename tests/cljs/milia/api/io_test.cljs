@@ -55,3 +55,13 @@
 (deftest check-invalid-or-expired-token
   (is (io/invalid-token? {:status 403 :body "Invalid token"}))
   (is (io/invalid-token? {:status 403 :body "Token expired"})))
+
+(deftest build-request-headers
+  (let [auth-token "a1b2c3"]
+    (is (= (io/token->headers :token auth-token
+                              :get-crsftoken? true
+                              :must-revalidate? true)
+           {"Authorization" (str "TempToken "  auth-token)
+            "Cache-control" "must-revalidate"}))
+    (is (= (io/token->headers :token auth-token)
+           {"Authorization" (str "TempToken "  auth-token)}))))

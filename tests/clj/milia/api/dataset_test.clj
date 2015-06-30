@@ -46,13 +46,15 @@
         (data account :dataset-id) => :something
         (provided
          (make-url "data" :dataset-id) => url
-         (parse-http :get url account {:raw-response? nil}) => :something))
+         (parse-http :get url account {:raw-response? nil
+                                       :must-revalidate? nil}) => :something))
 
   (fact "about dataset-getdata :raw"
-        (data account :dataset-id :raw? true) => :something
+        (data account :dataset-id :raw? true :must-revalidate? true) => :something
         (provided
          (make-url "data" :dataset-id) => url
-         (parse-http :get url account {:raw-response? true}) => :something))
+         (parse-http :get url account {:raw-response? true
+                                       :must-revalidate? true}) => :something))
 
   (fact "about dataset-getrecord"
         (record account :dataset-id :record-id) => :something

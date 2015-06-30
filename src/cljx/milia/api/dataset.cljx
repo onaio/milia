@@ -76,11 +76,12 @@
 
 (defn data
   "Return the data associated with a dataset."
-  [account dataset-id & {:keys [:format :raw?]
+  [account dataset-id & {:keys [:format :raw? :must-revalidate?]
                          #+cljs :or  #+cljs {:format "json"}}]
   (let [dataset-suffix (if format (str dataset-id "." format) dataset-id)
         url (make-url "data" dataset-suffix)]
-    (parse-http :get url account {:raw-response? raw?})))
+    (parse-http :get url account {:raw-response? raw?
+                                  :must-revalidate? must-revalidate?})))
 
 (defn record
   "Retrieve a record from the dataset."
