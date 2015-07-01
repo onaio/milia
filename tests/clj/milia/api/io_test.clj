@@ -23,9 +23,9 @@
   {:socket-timeout socket-timeout
    :conn-timeout connection-timeout
    :connection-manager connection-manager
-   :save-request? (env :debug-api?)
-   :debug (env :debug-api?)
-   :debug-body (env :debug-api?)})
+   :save-request? (env :debug-api)
+   :debug (env :debug-api)
+   :debug-body (env :debug-api)})
 
 (defn with-options [m] (merge options m))
 (def as-raw {:raw-response? true})
