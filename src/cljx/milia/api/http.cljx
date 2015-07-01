@@ -32,7 +32,7 @@
                                            status
                                            filename
                                            raw-response?)]
-       (when (env :debug-api?)
+       (when (env :debug-api)
          (debug-api method url appended-options response))
        (when (and (in? [400 401 404] status) (not suppress-40x-exceptions?))
          (throw+ {:api-response-status status :parsed-api-response parsed-response}))
