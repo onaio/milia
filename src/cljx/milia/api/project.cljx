@@ -1,7 +1,7 @@
 (ns milia.api.project
   (:require [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
-            [milia.api.io :refer [make-url]]
+            [milia.api.io :as io :refer [make-url]]
             [milia.utils.url :refer [last-url-param]]
             [slingshot.slingshot :refer [throw+]]))
 
@@ -117,3 +117,17 @@
         form-params {:owner new-owner}]
     (parse-http :patch url account {:form-params form-params
                                     :content-type :json})))
+
+(defn update-project
+  "Update the project"
+  [projectid owner params]
+  (let [url (str "/" owner "/" projectid "/project-settings")
+        query-params (merge {:project-id projectid
+                             :patch true}
+                            params)]
+    (io/query-helper! :post url nil query-params)))
+
+(defn update-public
+  "Update the project public setting."
+  [projectid owner public]
+  (update-project projectid owner {:public public}))
