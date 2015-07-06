@@ -1,8 +1,8 @@
 (ns milia.api.dataset
   (:require [milia.api.io :refer [make-url
-                                #+clj multipart-options]]
+                                  #?(:clj multipart-options)]]
             [milia.api.http :refer [parse-http]]
-            #+clj [milia.utils.file :as file-utils]
+            #?(:clj [milia.utils.file :as file-utils])
             [milia.utils.seq :refer [has-keys? in?]]
             [milia.utils.remote :refer [make-j2x-url make-zebra-url]]))
 
@@ -18,33 +18,33 @@
   (let [url (make-url "forms" username)]
     (parse-http :get url account)))
 
-#+clj
-(defn create
-  "Create a new dataset from a file."
-  ([account upload]
-     (create account upload nil))
-  ([account upload project-id]
-     (let [url (apply make-url (if project-id ["projects"
-                                               project-id
-                                               "forms"]
-                                   ["forms"]))
-           options (if-let [xls_file  (:xls_file upload)]
-                     (multipart-options xls_file "xls_file")
-                     {:form-params upload})]
-       (parse-http :post url account options))))
+#?(:clj
+   (defn create
+     "Create a new dataset from a file."
+     ([account upload]
+      (create account upload nil))
+     ([account upload project-id]
+      (let [url (apply make-url (if project-id ["projects"
+                                                project-id
+                                                "forms"]
+                                    ["forms"]))
+            options (if-let [xls_file  (:xls_file upload)]
+                      (multipart-options xls_file "xls_file")
+                      {:form-params upload})]
+        (parse-http :post url account options)))))
 
-#+clj
-(defn patch
-  "Set the metadata for a dataset using PATCH. Only a subset of the
+#?(:clj
+   (defn patch
+     "Set the metadata for a dataset using PATCH. Only a subset of the
   required parameters are needed."
-  ([account dataset-id params]
-     (patch account dataset-id params nil))
-  ([account dataset-id params upload]
-     (let [url (make-url "forms" dataset-id)
-           options (if-let [xls_file (:xls_file upload)]
-                     (multipart-options xls_file "xls_file")
-                     {:form-params params})]
-       (parse-http :patch url account options))))
+     ([account dataset-id params]
+      (patch account dataset-id params nil))
+     ([account dataset-id params upload]
+      (let [url (make-url "forms" dataset-id)
+            options (if-let [xls_file (:xls_file upload)]
+                      (multipart-options xls_file "xls_file")
+                      {:form-params params})]
+        (parse-http :patch url account options)))))
 
 (defn clone
   "Clone the dataset given by ID into the account with the given username."
@@ -77,7 +77,7 @@
 (defn data
   "Return the data associated with a dataset."
   [account dataset-id & {:keys [:format :raw? :must-revalidate?]
-                         #+cljs :or  #+cljs {:format "json"}}]
+                         #?@(:cljs [:or {:format "json"}])}]
   (let [dataset-suffix (if format (str dataset-id "." format) dataset-id)
         url (make-url "data" dataset-suffix)]
     (parse-http :get url account {:raw-response? raw?
@@ -111,17 +111,17 @@
   [format]
   (if (in? ["csvzip" "sav" "xls" "xlsx"] format) {:as :byte-array} {}))
 
-#+clj
-(defn download
-  "Download dataset in specified format."
-  ([account dataset-id format]
-   (download account dataset-id format false))
-  ([account dataset-id format async]
-   (let [path (str dataset-id "." format)
-         options (options-for-format format)
-         url (make-url (if async "forms" "data") path)
-         filename (filename-for-format dataset-id format)]
-     (parse-http :get url account options filename))))
+#?(:clj
+   (defn download
+     "Download dataset in specified format."
+     ([account dataset-id format]
+      (download account dataset-id format false))
+     ([account dataset-id format async]
+      (let [path (str dataset-id "." format)
+            options (options-for-format format)
+            url (make-url (if async "forms" "data") path)
+            filename (filename-for-format dataset-id format)]
+        (parse-http :get url account options filename)))))
 
 (defn form
   "Download form as JSON string or file in specified format if format passed."
@@ -140,13 +140,13 @@
   (let [url (make-url "forms" (str dataset-id ".json"))]
     (parse-http :get url account)))
 
-#+clj
-(defn online-data-entry-link
-  "Return link to online data entry."
-  [account dataset-id]
-  (let [url (make-url "forms" dataset-id "enketo")]
-    (:enketo_url
-     (parse-http :get url account {:suppress-40x-exceptions? true}))))
+#?(:clj
+   (defn online-data-entry-link
+     "Return link to online data entry."
+     [account dataset-id]
+     (let [url (make-url "forms" dataset-id "enketo")]
+       (:enketo_url
+        (parse-http :get url account {:suppress-40x-exceptions? true})))))
 
 (defn edit-link
   "Return link to online data entry."
@@ -175,21 +175,21 @@
         data {:username username :role role}]
     (parse-http :post url account {:form-params data})))
 
-#+clj
-(defn upload-media
-  "Upload media for a form"
-  [account datasetd-id media-file]
-  (let [url (make-url "metadata")
-        data-file (file-utils/uploaded->file media-file)
-        muiltipart [{:name "data_value"
-                     :content (:filename media-file)}
-                    {:name "data_type"
-                     :content "media"}
-                    {:name "xform"
-                     :content datasetd-id}
-                    {:name "data_file"
-                     :content data-file}]]
-    (parse-http :post url account {:multipart muiltipart})))
+#?(:clj
+   (defn upload-media
+     "Upload media for a form"
+     [account datasetd-id media-file]
+     (let [url (make-url "metadata")
+           data-file (file-utils/uploaded->file media-file)
+           muiltipart [{:name "data_value"
+                        :content (:filename media-file)}
+                       {:name "data_type"
+                        :content "media"}
+                       {:name "xform"
+                        :content datasetd-id}
+                       {:name "data_file"
+                        :content data-file}]]
+       (parse-http :post url account {:multipart muiltipart}))))
 
 (defn add-xls-report
   "Add xls report link to dataset"
@@ -213,10 +213,10 @@
       (parse-http :get url account {:as :byte-array
                                     :as-map? true} filename))))
 
-#+clj
-(defn csv-import
-  "Upload CSV data to existing form"
-  [account dataset-id media-file]
-  (let [url (make-url "forms" dataset-id "csv_import")
-        multipart (multipart-options media-file "csv_file")]
-    (parse-http :post url account multipart)))
+#?(:clj
+   (defn csv-import
+     "Upload CSV data to existing form"
+     [account dataset-id media-file]
+     (let [url (make-url "forms" dataset-id "csv_import")
+           multipart (multipart-options media-file "csv_file")]
+       (parse-http :post url account multipart))))
