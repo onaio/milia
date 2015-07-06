@@ -1,11 +1,10 @@
 (ns milia.api.project
   (:require [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
-            [milia.api.io :as io :refer [make-url]]
+            [milia.api.io :refer [make-url
+                                  #+cljs query-helper!]]
             [milia.utils.url :refer [last-url-param]]
-            #+clj
-            [slingshot.slingshot :refer [throw+]]
-            ))
+            #+clj [slingshot.slingshot :refer [throw+]]))
 
 (defn- add-id
   "Parse and add the projects ID."
@@ -35,20 +34,22 @@
 (defn create
   "Create a project for this account and owner or the user."
   ([account data]
-     (create account data (:username account)))
+   (create account data (:username account)))
   ([account data owner]
-      (let [owner-url {:owner (make-url "users" owner)}
-            url (make-url "projects")
-            form-params (merge owner-url data)
-            project-data (parse-http :post url account
-                                     {:form-params form-params
-                                      :content-type :json})]
-        (if-let [error (:__all__ project-data)]
-          #+clj
-          (throw+ error)
-          #+cljs
-          error
-          (add-id project-data)))))
+   (let [owner-url {:owner (make-url "users" owner)}
+         url (make-url "projects")
+         form-params (merge owner-url data)
+         #+clj
+         project-data
+         #+clj(parse-http :post url account
+                                  {:form-params form-params
+                                   :content-type :json})]
+     #+clj
+     (if-let [error (:__all__ project-data)]
+       (throw+ error)
+       (add-id project-data))
+     #+cljs
+     (parse-http :post url account {:form-params form-params}))))
 
 (defn update
   "Update project metadata"
@@ -123,6 +124,7 @@
     (parse-http :patch url account {:form-params form-params
                                     :content-type :json})))
 
+#+cljs
 (defn update-project
   "Update the project"
   [projectid owner params]
@@ -130,8 +132,9 @@
         query-params (merge {:project-id projectid
                              :patch true}
                             params)]
-    (io/query-helper! :post url nil query-params)))
+    (query-helper! :post url nil query-params)))
 
+#+cljs
 (defn update-public
   "Update the project public setting."
   [projectid owner public]
