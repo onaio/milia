@@ -3,7 +3,9 @@
             [milia.api.http :refer [parse-http]]
             [milia.api.io :as io :refer [make-url]]
             [milia.utils.url :refer [last-url-param]]
-            [slingshot.slingshot :refer [throw+]]))
+            #+clj
+            [slingshot.slingshot :refer [throw+]]
+            ))
 
 (defn- add-id
   "Parse and add the projects ID."
@@ -42,7 +44,10 @@
                                      {:form-params form-params
                                       :content-type :json})]
         (if-let [error (:__all__ project-data)]
+          #+clj
           (throw+ error)
+          #+cljs
+          error
           (add-id project-data)))))
 
 (defn update
