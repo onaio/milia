@@ -50,8 +50,9 @@
   "Clone the dataset given by ID into the account with the given username."
   [account dataset-id username]
   (let [url (make-url "forms" dataset-id "clone")
-        params {:username username}]
-    (parse-http :post url account {:form-params params})))
+        data {:form-params {:username username}
+              :suppress-40x-exceptions? true }]
+    (parse-http :post url account data)))
 
 (defn update
   "Set the metadata for a dataset using PUT. All parameters must be passed."

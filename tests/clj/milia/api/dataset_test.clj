@@ -301,5 +301,5 @@
       (clone :account :dataset-id :username) => :response
       (provided
        (make-url "forms" :dataset-id "clone") => :url
-       (parse-http :post :url :account {:form-params
-                                        {:username :username}}) => :response))
+       (parse-http :post :url :account {:form-params {:username :username}
+                                        :suppress-40x-exceptions? true}) => :response))
