@@ -93,7 +93,8 @@
                           account
                           {:form-params {:username :member
                                          :role editor-role}
-                           :suppress-40x-exceptions? true}) => :something)))
+                           :suppress-40x-exceptions? true
+                           :as-map? true}) => :something)))
 
 (facts "about add-member with assigned role"
        (fact "should add a member"
