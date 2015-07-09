@@ -106,7 +106,8 @@
                           account
                           {:form-params {:username :member
                                          :role :role}
-                           :suppress-40x-exceptions? true}) => :something)))
+                           :suppress-40x-exceptions? true
+                           :as-map? true}) => :something)))
 
 (facts "about remove-member"
        (fact "should remove a member"
