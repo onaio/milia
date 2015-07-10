@@ -29,14 +29,16 @@
   ([auth-token dataset-id fmt on-job-id on-export-url {:keys [meta-id
                                                               data-id
                                                               remove-group-name?
-                                                              version]}]
+                                                              version
+                                                              is-filtered-dataview?]}]
    (go
      (let [export-suffix (str "export_async.json?format=" fmt
                               (when meta-id (str "&meta="meta-id))
                               (when data-id (str "&data_id="meta-id))
                               (when remove-group-name? (str "&remove_group_name="remove-group-name?))
                               (when version (str "&_version="version)))
-           export-url (io/make-url "forms" dataset-id export-suffix)
+           export-endpoint (if is-filtered-dataview? "dataviews" "forms")
+           export-url (io/make-url export-endpoint dataset-id export-suffix)
            response (:body (<! (io/get-url export-url {} auth-token)))]
        (when-let [export-url (:export_url response)]
          (on-export-url export-url))
