@@ -33,6 +33,10 @@ You can add a new ONA api server url by importing and modifying the hosts atom:
                                            :ona-api-server-protocol protocol})))
 ```
 
+# Debugging
+
+Set the environment variable `DEBUG_API` to true to enable console debugging output on API requests.
+
 # [Todo] Proposed Client Architecture
 Since the requests to the ONA api from `cljs` or `clj` all return the same data, all the endpoints should be converted into cljx files that can be reused in other projects/dashboards.
 
