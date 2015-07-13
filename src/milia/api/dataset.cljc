@@ -118,9 +118,13 @@
      ([account dataset-id format]
       (download account dataset-id format false))
      ([account dataset-id format async]
+      (download account dataset-id format async false))
+     ([account dataset-id format async dataview]
       (let [path (str dataset-id "." format)
             options (options-for-format format)
-            url (make-url (if async "forms" "data") path)
+            url (if dataview
+                  (make-url "dataviews" dataset-id (str "data." format))
+                  (make-url (if async "forms" "data") path))
             filename (filename-for-format dataset-id format)]
         (parse-http :get url account options filename)))))
 
