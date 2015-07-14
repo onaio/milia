@@ -27,7 +27,7 @@
 (defn make-zebra-url
   "Build a Zebra url."
   [& postfix]
-  (url-join (protocol-prefixed [(:ui @hosts) "/"]) postfix))
+  (url-join (protocol-prefixed [(:ui @hosts)]) postfix))
 
 (defn make-j2x-url
   "Build an API url."
