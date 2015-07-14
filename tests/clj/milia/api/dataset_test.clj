@@ -307,8 +307,8 @@
 (fact "about generating edit link"
       (let [username "bob"
            account {:username username}]
-        (edit-link account :dataset-id :instance-id) => :response
+        (edit-link account :project-id :dataset-id :instance-id) => :response
         (provided
-          (make-zebra-url username :dataset-id :instance-id "submission-editing-complete") => :zebra-url
+          (make-zebra-url username :project-id :dataset-id "submission-editing-complete") => :zebra-url
           (make-url "data" :dataset-id :instance-id "enketo?return_url=:zebra-url") => :url
           (parse-http :get :url account) => {:url :response})))
