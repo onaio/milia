@@ -152,7 +152,7 @@
 (defn edit-link
   "Return link to online data entry."
   [account dataset-id instance-id]
-  (let [return-url (make-zebra-url "/submission-editing-complete")
+  (let [return-url (make-zebra-url (:username account) dataset-id instance-id "submission-editing-complete")
         url (make-url "data" dataset-id instance-id
                       (str "enketo?return_url=" return-url))]
     (:url (parse-http :get url account))))

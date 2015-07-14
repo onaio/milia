@@ -2,7 +2,7 @@
   (:require [midje.sweet :refer :all]
             [milia.api.dataset :refer :all]
             [milia.utils.file :as f]
-            [milia.utils.remote :refer [make-j2x-url]]
+            [milia.utils.remote :refer [make-j2x-url make-zebra-url]]
             [milia.api.http :refer [parse-http]]
             [milia.api.io :refer [make-url multipart-options]]))
 
@@ -303,3 +303,12 @@
        (make-url "forms" :dataset-id "clone") => :url
        (parse-http :post :url :account {:form-params {:username :username}
                                         :suppress-40x-exceptions? true}) => :response))
+
+(fact "about generating edit link"
+      (let [username "bob"
+           account {:username username}]
+        (edit-link account :dataset-id :instance-id) => :response
+        (provided
+          (make-zebra-url username :dataset-id :instance-id "submission-editing-complete") => :zebra-url
+          (make-url "data" :dataset-id :instance-id "enketo?return_url=:zebra-url") => :url
+          (parse-http :get :url account) => {:url :response})))
