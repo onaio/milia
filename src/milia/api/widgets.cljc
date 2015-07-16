@@ -44,3 +44,10 @@
                 account
                 {:form-params processed-widget-definition
                  :content-type :json})))
+
+(defn list
+  [account]
+  (parse-http :get
+              (make-url "widgets")
+              account
+              {:content-type :json}))
