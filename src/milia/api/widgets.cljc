@@ -51,3 +51,11 @@
               (make-url "widgets")
               account
               {:content-type :json}))
+
+(defn list-by-form
+  [account xform-id]
+  (let [url (make-url (str "widgets?xform=" xform-id))]
+    (parse-http :get
+                url
+                account
+                {:content-type :json})))
