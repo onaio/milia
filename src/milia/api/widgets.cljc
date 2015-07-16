@@ -21,24 +21,24 @@
    `account` is a map representing the authenticating user's credentials
    `widget-definition` is a map containing the following keys:
     `:title` is a string
-    `:content-type` is one of either :form of :dataview
-    `:content-id` is an intger identifying the content object
+    `:content_type` is one of either :form of :dataview
+    `:content_id` is an intger identifying the content object
     `:description` is a string.
-    `:widget_type` is an arbitrary string, determined by the client e.g. chart
-    `:view_type` is an arbitrary string, determined by the client e.g. bar-chart
+    `:widget_type` is a string, determined by the client e.g. chart
+    `:view_type` is a string, determined by the client e.g. bar-chart
     `:column` is the  data column to be stored based on the form field.
     `:group_by` the data column for the data to be grouped by. Optional"
   [account
-   {:keys [content-type
-           content-id]
+   {:keys [content_type
+           content_id]
     :as widget-definition}]
   (let [url (make-url "widgets")
         processed-widget-definition
         (assoc widget-definition
           :content_object
           (generate-content-object-url
-           content-type
-           content-id))]
+           content_type
+           content_id))]
     (parse-http :post
                 url
                 account
@@ -52,7 +52,7 @@
               account
               {:content-type :json}))
 
-(defn list-by-form
+(defn list-by-xform-id
   [account xform-id]
   (let [url (make-url (str "widgets?xform=" xform-id))]
     (parse-http :get
