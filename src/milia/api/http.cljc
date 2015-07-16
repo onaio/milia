@@ -51,8 +51,11 @@
               headers (token->headers :token auth-token
                                       :get-crsftoken? (= method http/delete)
                                       :must-revalidate? must-revalidate?)
-              time-params (when no-cache?
+              ;; Add timestamp query param to all XHR requests
+              ;; (to be remove in next release)
+              time-params (when true
                             {:t (md5 (.toString (.now js/Date)))})
+              options (merge options {:query-params time-params})
               all-params (merge options
                                 {:xhr true
                                  :headers headers
