@@ -52,9 +52,9 @@
                                       :get-crsftoken? (= method http/delete)
                                       :must-revalidate? must-revalidate?)
               ;; Add timestamp query param to all XHR requests
-              ;; (to be remove in next release)
+              ;; (to be removed in next release)
               time-params (when true
-                            {:t (md5 (.toString (.now js/Date)))})
+                            {:t (md5 "20150716")})
               options (merge options {:query-params time-params})
               all-params (merge options
                                 {:xhr true
