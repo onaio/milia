@@ -6,7 +6,8 @@
                     [slingshot.slingshot :refer [throw+ try+]])
     :cljs (:require [milia.api.io :refer [token->headers raw-request]]
                     [cljs-hash.md5  :refer [md5]]
-                    [cljs-http.client :as http])))
+                    [cljs-http.client :as http]
+                    [milia.utils.request :refer [request]])))
 
 ;;; PARSE HTTP ;;;;;
 
@@ -43,7 +44,7 @@
         ;; suppress-40x-exceptions?, as-map? have no meaning in cljs a.t.m.
         :cljs
         (let [auth-token account ; in cljs, we just get the auth-token, not full account
-              http-request (if raw-response? raw-request http/request) ;; v0
+              http-request (if raw-response? raw-request request) ;; v0
               ;; For :post / :put / :patch, we need :form-params, for the rest :query-params
               options (if-not (contains? #{:post :put :patch} method)
                         (assoc options :query-params (:form-params options))
