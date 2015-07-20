@@ -145,13 +145,15 @@
   (let [url (make-url "forms" (str dataset-id ".json"))]
     (parse-http :get url account)))
 
-#?(:clj
-   (defn online-data-entry-link
-     "Return link to online data entry."
-     [account dataset-id]
-     (let [url (make-url "forms" dataset-id "enketo")]
+(defn online-data-entry-link
+  "Return link to online data entry."
+  [account dataset-id]
+  (let [url (make-url "forms" dataset-id "enketo")]
+    #?(:clj
        (:enketo_url
-        (parse-http :get url account {:suppress-40x-exceptions? true})))))
+         (parse-http :get url account {:suppress-40x-exceptions? true}))
+       :cljs
+       (parse-http :get url account))))
 
 (defn edit-link
   "Return link to online data entry."
