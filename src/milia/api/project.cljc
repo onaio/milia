@@ -20,7 +20,8 @@
 
 (defn get-project [account id]
   (let [url (make-url "projects" id)]
-    (add-id (parse-http :get url account))))
+    #?(:clj (add-id (parse-http :get url account))
+       :cljs (parse-http :get url account))))
 
 (defn all
   "Return all project for this account and owner or the user."
