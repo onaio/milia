@@ -36,24 +36,25 @@
           (when (env :debug-api)
             (debug-api method url appended-options response))
           (when (and (in? [400 401 404] status) (not suppress-40x-exceptions?))
-            (throw+ {:api-response-status status :parsed-api-response parsed-response}))
+            (throw+ {:api-response-status status
+                     :parsed-api-response parsed-response}))
           (if as-map?
             (assoc response :body parsed-response)
             parsed-response))
         ;; CLJS: asynchronous implementation, returns a channel.
         ;; suppress-40x-exceptions?, as-map? have no meaning in cljs a.t.m.
         :cljs
-        (let [auth-token account ; in cljs, we just get the auth-token, not full account
+        (let [; in cljs, we just get the auth-token, not full account
+              auth-token account
               http-request (if raw-response? raw-request request) ;; v0
-              ;; For :post / :put / :patch, we need :form-params, for the rest :query-params
+              ;; For :post / :put / :patch, we need :form-params,
+              ;; for the rest :query-params
               options (if-not (contains? #{:post :put :patch} method)
                         (assoc options :query-params (:form-params options))
                         options)
               headers (token->headers :token auth-token
                                       :get-crsftoken? (= method http/delete)
                                       :must-revalidate? must-revalidate?)
-              ;; Add timestamp query param to all XHR requests
-              ;; (to be removed in next release)
               time-params (when no-cache? {:t (md5 (.toString (.now js/Date)))})
               options (merge options {:query-params time-params})
               all-params (merge options
