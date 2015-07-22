@@ -4,7 +4,7 @@
             [milia.api.io :as io]))
 
 (defn- monitor-async-export!
-  [auth-token dataset-id job-id fmt on-export-url
+  [auth-token dataset-id job-id fmt on-export-url is-filtered-dataview?
    & {:keys [:millis] :or {:millis 1000}}]
   "Repeatedly polls the async export progress for the given job_uuid,
    When export_url is returned, fires callback on-export-url.
@@ -13,7 +13,7 @@
     (go
      (while (not @done-polling?)
        (let [job-suffix (str "export_async.json?job_uuid=" job-id)
-             job-url (io/make-url "forms" dataset-id job-suffix)
+             job-url (io/make-url (if is-filtered-dataview? "dataviews" "forms") dataset-id job-suffix)
              response (:body (<! (io/get-url job-url {} auth-token)))]
          (when-let [export-url (:export_url response)]
            (on-export-url export-url)
@@ -44,7 +44,7 @@
          (on-export-url export-url))
        (when-let [job-id (:job_uuid response)]
          (on-job-id job-id)
-         (monitor-async-export! auth-token dataset-id job-id fmt on-export-url))))))
+         (monitor-async-export! auth-token dataset-id job-id fmt on-export-url is-filtered-dataview?))))))
 
 (defn get-async-export-url
   [auth-token dataset-id fmt]
