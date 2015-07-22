@@ -2,10 +2,17 @@
   (:require [clojure.string :refer [join]]
             [milia.utils.url :refer [url]]))
 
-(def hosts (atom {:ui "beta.ona.io"
-                  :data "stage.ona.io"
-                  :j2x "j2x.ona.io"
-                  :ona-api-server-protocol "https"}))
+(def credentials
+  "Store credentials used to authenticate API requests."
+  (atom {:auth-token nil
+         :refresh-url nil}))
+
+(def hosts
+  "Store remote hosts that requests are made to."
+  (atom {:ui "zebra.ona.io"
+         :data "stage.ona.io"
+         :j2x "j2x.ona.io"
+         :ona-api-server-protocol "https"}))
 
 (defn protocol-prefixed
   "Prefix the resources with the protocol and format strings."
