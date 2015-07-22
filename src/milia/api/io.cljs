@@ -86,9 +86,6 @@
                          :form-params :query-params)
              headers (token->headers :token (apply str token)
                                      :get-crsftoken? (= http-method http/delete))
-
-             ;; Add timestamp query param to all XHR requests
-             ;; (to be removed in next release)
              time-params (when no-cache? {:t (md5 (.toString (.now js/Date)))})
              query-params (merge query-params time-params {:xhr true})]
          (http-method url {:headers headers param-key query-params})))))
