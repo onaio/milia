@@ -5,8 +5,6 @@
             [milia.api.io :refer [multipart-options]]
             [milia.utils.remote :refer [make-j2x-url make-url]]))
 
-
-(def account {:username "username"})
 (def url :url)
 (def params {:name "My DataView"
              :xform "https://ona.io/api/v1/forms/12"
@@ -18,46 +16,46 @@
 
 (fact "about create dataview"
       (let [options (assoc options :form-params params)]
-        (create account params) => :response
+        (create params) => :response
         (provided
           (make-url "dataviews") => url
-          (parse-http :post url account options) => :response)))
+          (parse-http :post url options) => :response)))
 
 (fact "about get dataview"
-      (get account dataview-id) => :response
+      (get dataview-id) => :response
       (provided
         (make-url "dataviews" dataview-id) => url
-        (parse-http :get url account options) => :response))
+        (parse-http :get url options) => :response))
 
 (fact "about get dataview data"
       (let [options (assoc options :raw-response? true)]
-        (data account dataview-id) => :response
+        (data dataview-id) => :response
         (provided
           (make-url "dataviews" dataview-id "data.json") => url
-          (parse-http :get url account options) => :response)))
+          (parse-http :get url options) => :response)))
 
 (fact "about count data returned by dataview"
       (let [options (assoc options :query-params {:count true})]
-        (count-data account dataview-id) => :response
+        (count-data dataview-id) => :response
         (provided
           (make-url "dataviews" dataview-id "data") => url
-          (parse-http :get url account options) => :response)))
+          (parse-http :get url options) => :response)))
 
 (fact "about all dataviews"
-      (all account) => :response
+      (all) => :response
       (provided
         (make-url "dataviews") => url
-        (parse-http :get url account options) => :response))
+        (parse-http :get url options) => :response))
 
 (fact "about update dataview"
       (let [options (assoc options :form-params params)]
-        (update account dataview-id params) => :response
+        (update dataview-id params) => :response
         (provided
           (make-url "dataviews" dataview-id) => url
-          (parse-http :put url account options) => :response)))
+          (parse-http :put url options) => :response)))
 
 (fact "about delete dataview"
-      (delete account dataview-id) => :response
+      (delete dataview-id) => :response
       (provided
         (make-url "dataviews" dataview-id) => url
-        (parse-http :delete url account) => :response))
+        (parse-http :delete url) => :response))
