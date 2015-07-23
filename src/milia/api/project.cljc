@@ -14,115 +14,112 @@
 
 (defn get-forms
   "Get the forms for this account and owner of the user."
-  [account id]
+  [id]
   (let [url (make-url "projects" id "forms")]
-    (parse-http :get url account)))
+    (parse-http :get url)))
 
-(defn get-project [account id]
+(defn get-project [id]
   (let [url (make-url "projects" id)]
-    #?(:clj (add-id (parse-http :get url account))
+    #?(:clj (add-id (parse-http :get url))
        :cljs (parse-http :get url account))))
 
 (defn all
   "Return all project for this account and owner or the user."
-  ([account]
-     (all account nil))
-  ([account owner]
+  ([]
+     (all nil))
+  ([owner]
      (let [url (make-url "projects")
            options (if-not (nil? owner) {:query-params {:owner owner}})]
-       (parse-http :get url account options))))
+       (parse-http :get url :http-options options))))
 
 (defn create
   "Create a project for this account and owner or the user."
-  ([account data]
-   (create account data (:username account)))
-  ([account data owner]
+  [data owner]
    (let [owner-url {:owner (make-url "users" owner)}
          url (make-url "projects")
          form-params (merge owner-url data)
          #?(:clj project-data)
-         #?(:clj (parse-http :post url account
-                             {:form-params form-params
-                             :content-type :json}))]
+         #?(:clj (parse-http :post
+                             url
+                             :http-options {:form-params form-params
+                                            :content-type :json}))]
      #?(:clj
         (if-let [error (:__all__ project-data)]
           (throw+ error)
           (add-id project-data)))
      #?(:cljs
-        (parse-http :post url account {:form-params form-params})))))
+        (parse-http :post url account {:form-params form-params}))))
 
 (defn update
   "Update project metadata"
-  [account project-id data]
+  [project-id data]
   (let [url (make-url "projects" project-id)]
-    (parse-http :patch url account {:form-params data
-                                    :content-type :json})))
+    (parse-http :patch url :http-options {:form-params data
+                                          :content-type :json})))
 
 (defn share
   "Share project with specific user or remove specific user from project"
-  ([account project-id username role]
-    (share account project-id username role false))
-  ([account project-id username role remove?]
+  ([project-id username role]
+    (share project-id username role false))
+  ([project-id username role remove?]
     (let [url (make-url "projects" project-id "share")
           data {:username username :role role}
           form-params (if remove?
                         (merge data {:remove "True"})
                         data)]
-      (parse-http :put url account {:form-params form-params}))))
+      (parse-http :put url :http-options {:form-params form-params}))))
 
 (defn add-tags
   "Add tags to a project."
-  [account id tags]
+  [id tags]
   (let [url (make-url "projects" id "labels")]
-    (parse-http :post url account {:form-params {:tags (join "," tags)}
-                                   :content-type :json})))
+    (parse-http :post url :http-options {:form-params {:tags (join "," tags)}
+                                         :content-type :json})))
 
 (defn with-tag
   "Get projects with given tags."
-  [account tags]
+  [tags]
   (let [url (make-url "projects")]
-    (parse-http :get url account {:query-params {:tags (join "," tags)}})))
+    (parse-http :get url :http-options {:query-params {:tags (join "," tags)}})))
 
 (defn add-star
   "Add star to project for this user."
-  [account id]
+  [id]
   (let [url (make-url "projects" id "star")]
-    (parse-http :post url account)))
+    (parse-http :post url)))
 
 (defn remove-star
   "Remove star from project for this user."
-  [account id]
+  [id]
   (let [url (make-url "projects" id "star")]
-    (parse-http :delete url account)))
+    (parse-http :delete url)))
 
 (defn get-starred
   "Get projects this user has starred."
-  ([account]
-     (get-starred account (:username account)))
-  ([account username]
+  ([username]
      (let [url (make-url "user" username "starred")]
-       (parse-http :get url account))))
+       (parse-http :get url))))
 
 (defn starred-by
   "Get user that starred this project."
-  [account id]
+  [id]
   (let [url (make-url "projects" id "star")]
-    (parse-http :get url account)))
+    (parse-http :get url)))
 
 (defn delete
   "Delete a project"
-  [account id]
+  [id]
   (let [url (make-url "projects" id)]
-    (parse-http :delete url account)))
+    (parse-http :delete url)))
 
 (defn transfer-owner
   "Set new project owner"
-  [account id new-owner]
+  [id new-owner]
   (let [url (make-url "projects" id)
         new-owner (make-url "users" new-owner)
         form-params {:owner new-owner}]
-    (parse-http :patch url account {:form-params form-params
-                                    :content-type :json})))
+    (parse-http :patch url :http-options {:form-params form-params
+                                          :content-type :json})))
 
 #?(:cljs
    (defn update-project
