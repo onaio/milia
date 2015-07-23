@@ -10,12 +10,12 @@
   (let [url (make-j2x-url "templates")
         data-file (file-utils/uploaded->file media-file)
         data-file-bytes (file-utils/to-byte-array data-file)]
-    (parse-http :post url nil {:body data-file-bytes
-                               :raw-response? true
-                               :as-map? true})))
+    (parse-http :post url {:body data-file-bytes
+                           :raw-response? true
+                           :as-map? true})))
 
 (defn download-xls-report-template
   "Download xls report template from the j2x service"
   [account filename template-token]
   (let [url (make-j2x-url "templates" template-token)]
-    (parse-http :get url account {:as :byte-array :as-map? true} filename)))
+    (parse-http :get url {:as :byte-array :as-map? true} filename)))

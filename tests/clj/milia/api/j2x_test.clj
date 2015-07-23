@@ -17,7 +17,6 @@
           (f/to-byte-array :fake-file) => :fake-bytearray
           (parse-http :post
                       url
-                      nil
                       {:body :fake-bytearray
                        :raw-response? true
                        :as-map? true}) => upload-response)))
@@ -30,6 +29,5 @@
          (r/make-j2x-url "templates" :template-token) => :url
          (parse-http :get
                      :url
-                     :account
                      {:as :byte-array :as-map? true}
                      :filename) => :byte-array))
