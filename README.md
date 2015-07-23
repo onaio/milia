@@ -32,7 +32,7 @@ From CLJ you may also set the `token` and the `username` and `password`. If `tem
 There are cases where you may want or need to override the default credentials atom. Do this using `with-local-vars`. For example, to force authenticate with the permanent token and retrieve a new temporary token:
 
 ```clojure
-(binding [*credentials* (atom ({:token "PERMANENT SECRET TOKEN"})]
+(binding [*credentials* (atom {:token "PERMANENT SECRET TOKEN"}]
   ;; the credentials atom will now only contain the `token` key and use that
   ;; for authentication.
   (:temp_token (milia.api.user/user)))
