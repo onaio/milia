@@ -41,21 +41,18 @@
            content_id))]
     (parse-http :post
                 url
-                account
                 {:form-params processed-widget-definition
                  :content-type :json})))
 
 (defn list
-  [account]
+  []
   (parse-http :get
               (make-url "widgets")
-              account
               {:content-type :json}))
 
 (defn list-by-xform-id
-  [account xform-id]
+  [xform-id]
   (let [url (make-url (str "widgets?xform=" xform-id))]
     (parse-http :get
                 url
-                account
                 {:content-type :json})))

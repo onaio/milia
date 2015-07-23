@@ -23,7 +23,6 @@
     (provided
      (parse-http :post
                  widgets-url
-                 :account
                  {:content-type :json
                   :form-params (assoc widget-definition
                                  :content_object
