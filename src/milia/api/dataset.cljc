@@ -1,6 +1,5 @@
 (ns milia.api.dataset
   (:require #?(:clj [milia.api.io :refer [multipart-options]])
-            [milia.utils.remote :refer [*credentials*]]
             [milia.api.http :refer [parse-http]]
             #?(:clj [milia.utils.file :as file-utils])
             [milia.utils.seq :refer [has-keys? in?]]
@@ -8,8 +7,8 @@
 
 (defn all
   "Return all the datasets for an account."
-  []
-  (let [url (make-url (str "forms?owner=" (:username @*credentials*)))]
+  [username]
+  (let [url (make-url (str "forms?owner=" username))]
     (parse-http :get url)))
 
 (defn public
@@ -31,7 +30,7 @@
             options (if-let [xls_file  (:xls_file upload)]
                       (multipart-options xls_file "xls_file")
                       {:form-params upload})]
-        (parse-http :post url options)))))
+        (parse-http :post url :http-options options)))))
 
 #?(:clj
    (defn patch
@@ -44,15 +43,14 @@
             options (if-let [xls_file (:xls_file upload)]
                       (multipart-options xls_file "xls_file")
                       {:form-params params})]
-        (parse-http :patch url options)))))
+        (parse-http :patch url :http-options options)))))
 
 (defn clone
   "Clone the dataset given by ID into the account with the given username."
   [dataset-id username]
   (let [url (make-url "forms" dataset-id "clone")
-        data {:form-params {:username username}
-              :suppress-40x-exceptions? true }]
-    (parse-http :post url data)))
+        data {:form-params {:username username}}]
+    (parse-http :post url :http-options data :suppress-40x-exceptions? true )))
 
 (defn update
   "Set the metadata for a dataset using PUT. All parameters must be passed."
@@ -67,7 +65,7 @@
                             :title
                             :uuid])]}
   (let [url (make-url "forms" dataset-id)]
-    (parse-http :put url {:form-params params})))
+    (parse-http :put url :http-options {:form-params params})))
 
 (defn update-form-name
   "Update the title of a form"
@@ -81,8 +79,7 @@
                          #?@(:cljs [:or {:format "json"}])}]
   (let [dataset-suffix (if format (str dataset-id "." format) dataset-id)
         url (make-url "data" dataset-suffix)]
-    (parse-http :get url {:raw-response? raw?
-                          :must-revalidate? must-revalidate?})))
+    (parse-http :get url :raw-response? raw? :must-revalidate? must-revalidate?)))
 
 (defn record
   "Retrieve a record from the dataset."
@@ -100,7 +97,7 @@
   "Add tags to a dataset"
   [dataset-id tags]
     (let [url (make-url "forms" dataset-id "labels")]
-    (parse-http :post url {:form-params tags})))
+    (parse-http :post url :http-options {:form-params tags})))
 
 (defn filename-for-format
   "Return filename taking format special cases into account."
@@ -126,7 +123,7 @@
                   (make-url "dataviews" dataset-id (str "data." format))
                   (make-url (if async "forms" "data") path))
             filename (filename-for-format dataset-id format)]
-        (parse-http :get url options filename)))))
+        (parse-http :get url :http-options options :filename filename)))))
 
 (defn form
   "Download form as JSON string or file in specified format if format passed."
@@ -136,8 +133,9 @@
   ([dataset-id format]
    (let [suffix (str "form." format)
          options (options-for-format format)
-         url (make-url "forms" dataset-id suffix)]
-     (parse-http :get url options (str dataset-id "_" suffix)))))
+         url (make-url "forms" dataset-id suffix)
+         filename (str dataset-id "_" suffix)]
+     (parse-http :get url :http-options options :filename filename))))
 
 (defn metadata
   "Show dataset metadata."
@@ -157,8 +155,8 @@
 
 (defn edit-link
   "Return link to online data entry."
-  [project-id dataset-id instance-id]
-  (let [return-url (make-client-url (:username @*credentials*) project-id dataset-id "submission-editing-complete")
+  [username project-id dataset-id instance-id]
+  (let [return-url (make-client-url username project-id dataset-id "submission-editing-complete")
         url (make-url "data" dataset-id instance-id
                       (str "enketo?return_url=" return-url))]
     (:url (parse-http :get url))))
@@ -173,14 +171,14 @@
   "Move a dataset to a project use account if no owner passed."
   [dataset-id project-id]
   (let [url (make-url "projects" project-id "forms")]
-    (parse-http :post url {:form-params {:formid dataset-id}})))
+    (parse-http :post url :http-options {:form-params {:formid dataset-id}})))
 
 (defn update-sharing
   "Share dataset with specific user"
   [dataset-id username role]
   (let [url (make-url "forms" dataset-id "share")
         data {:username username :role role}]
-    (parse-http :post url {:form-params data})))
+    (parse-http :post url :http-options {:form-params data})))
 
 #?(:clj
    (defn upload-media
@@ -196,7 +194,7 @@
                         :content datasetd-id}
                        {:name "data_file"
                         :content data-file}]]
-       (parse-http :post url {:multipart muiltipart}))))
+       (parse-http :post url :http-options {:multipart muiltipart}))))
 
 (defn add-xls-report
   "Add xls report link to dataset"
@@ -206,7 +204,7 @@
         data {:xform dataset-id
               :data_type "external_export"
               :data_value (str filename "|" xls-url)}]
-    (parse-http :post url {:form-params data})))
+    (parse-http :post url :http-options {:form-params data})))
 
 (defn download-xls-report
   "Download xls report from the j2x service"
@@ -217,8 +215,11 @@
                    (str dataset-id ".xls?meta=" meta-id "&data_id="data-id)
                    (str dataset-id ".xls?meta=" meta-id))
           url (make-url "forms" suffix)]
-      (parse-http :get url {:as :byte-array
-                            :as-map? true} filename))))
+      (parse-http :get
+                  url
+                  :http-options {:as :byte-array}
+                  :as-map? true
+                  :filename filename))))
 
 #?(:clj
    (defn csv-import
@@ -226,4 +227,4 @@
      [dataset-id media-file]
      (let [url (make-url "forms" dataset-id "csv_import")
            multipart (multipart-options media-file "csv_file")]
-       (parse-http :post url multipart))))
+       (parse-http :post url :http-options multipart))))
