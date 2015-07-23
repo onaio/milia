@@ -6,46 +6,40 @@
   "Create new dataview from existing dataset"
   [params]
   (let [url (make-url "dataviews")
-        options {:form-params params
-                 :suppress-40x-exceptions? true}]
-    (parse-http :post url options)))
+        options {:form-params params}]
+    (parse-http :post url :http-options options :suppress-40x-exceptions? true)))
 
 (defn get
   "Retrieves dataview object using dataview id"
   [dataview-id]
-  (let [url (make-url "dataviews" dataview-id)
-        options {:suppress-40x-exceptions? true}]
-    (parse-http :get url options)))
+  (let [url (make-url "dataviews" dataview-id)]
+    (parse-http :get url :suppress-40x-exceptions? true)))
 
 (defn data
   "Retrieves dataview data using dataview id"
   [dataview-id]
-  (let [url (make-url "dataviews" dataview-id "data.json")
-        options {:suppress-40x-exceptions? true :raw-response? true}]
-    (parse-http :get url options)))
+  (let [url (make-url "dataviews" dataview-id "data.json")]
+    (parse-http :get url :suppress-40x-exceptions? true :raw-response? true)))
 
 (defn count-data
   "Counts data instances returned by dataview object"
   [dataview-id]
   (let [url (make-url "dataviews" dataview-id "data")
-        options {:suppress-40x-exceptions? true
-                 :query-params {:count true}}]
-    (parse-http :get url options)))
+        options {:query-params {:count true}}]
+    (parse-http :get url :http-options options :suppress-40x-exceptions? true)))
 
 (defn all
   "Retrieves all dataview objects"
   []
-  (let [url (make-url "dataviews")
-        options {:suppress-40x-exceptions? true}]
-    (parse-http :get url options)))
+  (let [url (make-url "dataviews")]
+    (parse-http :get url :suppress-40x-exceptions? true)))
 
 (defn update
   "Updates dataview object"
   [dataview-id params]
   (let [url (make-url "dataviews" dataview-id)
-        options {:form-params params
-                 :suppress-40x-exceptions? true}]
-    (parse-http :put url options)))
+        options {:form-params params}]
+    (parse-http :put url :http-options options :suppress-40x-exceptions? true)))
 
 (defn delete
   "Deletes dataview object"
