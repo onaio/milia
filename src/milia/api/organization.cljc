@@ -22,7 +22,7 @@
 
 (defn create [data]
   (let [url (make-url "orgs")]
-    (parse-http :post url {:form-params data})))
+    (parse-http :post url :http-options {:form-params data})))
 
 (defn profile [org-name]
   (let [url (make-url "orgs" org-name)]
@@ -54,13 +54,13 @@
   "Add a team to an organization"
   [params]
   (let [url (make-url "teams")]
-    (parse-http :post url {:form-params params})))
+    (parse-http :post url :http-options {:form-params params})))
 
 (defn add-team-member
   "Add a user to a team"
   [org-name team-id user]
   (let [url (make-url "teams" org-name team-id "members")]
-    (parse-http :post url {:form-params user})))
+    (parse-http :post url :http-options {:form-params user})))
 
 (defn members [org-name]
   (let [url (make-url "orgs" org-name "members")]
@@ -75,9 +75,11 @@
           assigned-role (if role
                           role
                           editor-role)]
-      (parse-http :post url {:form-params {:username member :role assigned-role}
-                                     :suppress-40x-exceptions? true
-                                     :as-map? true}))))
+      (parse-http :post
+                  url
+                  :http-options {:form-params {:username member :role assigned-role}}
+                  :suppress-40x-exceptions? true
+                  :as-map? true))))
 
 (defn remove-member
   "Remove a user from an organization or organization team"
@@ -87,7 +89,7 @@
      (let [url (if team-id
                  (make-url "teams" org-name team-id "members")
                  (make-url "orgs" org-name "members"))]
-       (parse-http :delete url {:query-params {:username member}}))))
+       (parse-http :delete url :http-options {:query-params {:username member}}))))
 
 (defn single-owner?
   "Is the user the only member of the Owners team."
@@ -110,19 +112,20 @@
   [params]
   (let [url (make-url "orgs" (:org params))
         params (dissoc params :org)]
-    (parse-http :patch url {:form-params params
-                            :content-type :json
-                            :raw-response? true
-                            :as-map? true})))
+    (parse-http :patch
+                url
+                :http-options {:form-params params :content-type :json}
+                :raw-response? true
+                :as-map? true)))
 
 (defn get-team
   "Returns an Organizaion team given the team name."
   [org-name team-name]
   (let [url (make-url (str "teams?org=" org-name))
-        teams (parse-http :get url {:suppress-40x-exceptions? true})]
+        teams (parse-http :get url :suppress-40x-exceptions? true)]
     (first (remove #(not= team-name (:name %)) teams))))
 
 (defn share-team [team-id data]
   "Changes default_role permissions on a project for a team"
   (let [url (make-url "teams" team-id "share")]
-    (parse-http :post url {:form-params data})))
+    (parse-http :post url :http-options {:form-params data})))

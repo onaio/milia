@@ -31,7 +31,7 @@
               (make-url "orgs") => url
               (parse-http :post
                           url
-                          {:form-params :data}) => :something)))
+                         :http-options {:form-params :data}) => :something)))
 
 (facts "about teams"
        (fact "should get correct url"
@@ -63,7 +63,7 @@
        (create-team :params) => :something
        (provided
         (make-url "teams") => url
-        (parse-http :post url {:form-params :params}) => :something))
+        (parse-http :post url :http-options {:form-params :params}) => :something))
 
 (fact "about add-team-member"
       (add-team-member :fake-orgname
@@ -71,7 +71,7 @@
                        :user) => :something
       (provided
        (make-url "teams" :fake-orgname :fake-team-id "members") => url
-       (parse-http :post url {:form-params :user}) => :something))
+       (parse-http :post url :http-options {:form-params :user}) => :something))
 
 (facts "about members"
        (fact "should get correct url"
@@ -87,10 +87,10 @@
               (make-url "orgs" :orgname "members") => url
               (parse-http :post
                           url
-                          {:form-params {:username :member
-                                         :role editor-role}
-                           :suppress-40x-exceptions? true
-                           :as-map? true}) => :something)))
+                          :http-options {:form-params
+                                         {:username :member :role editor-role}}
+                          :suppress-40x-exceptions? true
+                          :as-map? true) => :something)))
 
 (facts "about add-member with assigned role"
        (fact "should add a member"
@@ -99,10 +99,10 @@
               (make-url "orgs" :orgname "members") => url
               (parse-http :post
                           url
-                          {:form-params {:username :member
-                                         :role :role}
-                           :suppress-40x-exceptions? true
-                           :as-map? true}) => :something)))
+                          :http-options {:form-params
+                                         {:username :member :role :role}}
+                          :suppress-40x-exceptions? true
+                          :as-map? true) => :something)))
 
 (facts "about remove-member"
        (fact "should remove a member"
@@ -111,7 +111,7 @@
               (make-url "orgs" :orgname "members") => url
               (parse-http :delete
                           url
-                          {:query-params {:username :member}}) => :something))
+                          :http-options {:query-params {:username :member}}) => :something))
 
        (fact "should remove a member from a team"
              (remove-member :orgname :member :team-id) => :something
@@ -119,7 +119,7 @@
               (make-url "teams" :orgname :team-id "members") => url
               (parse-http :delete
                           url
-                          {:query-params {:username :member}}) => :something)))
+                          :http-options {:query-params {:username :member}}) => :something)))
 
 (facts "about single owner"
        (fact "should be false if multiple members in owners team"
@@ -137,24 +137,26 @@
 (fact "should update org settings"
       (let [params {:org org-name :description "test"}
             data {:form-params {:description "test"}
-                  :content-type :json
-                  :raw-response? true
-                  :as-map? true}]
+                  :content-type :json}]
         (update params) => org-profile
         (provided
           (make-url "orgs" org-name) => :url
-          (parse-http :patch :url data) => org-profile)))
+          (parse-http :patch
+                      :url
+                      :http-options data
+                      :raw-response? true
+                      :as-map? true) => org-profile)))
 
 (fact "should return all members team for an organization."
       (get-team org-name internal-members-team-name)
       => {:teamid 1 :name internal-members-team-name}
       (provided
         (make-url (str "teams?org=" org-name)) => :url
-        (parse-http :get :url {:suppress-40x-exceptions? true})
+        (parse-http :get :url :suppress-40x-exceptions? true)
         => [{:teamid 1 :name internal-members-team-name}]))
 
 (fact "should change default_role permissions on a project for a team"
       (share-team :team-id :data) => :updated-team
       (provided
         (make-url "teams" :team-id "share") => :url
-        (parse-http :post :url {:form-params :data}) => :updated-team))
+        (parse-http :post :url :http-options {:form-params :data}) => :updated-team))
