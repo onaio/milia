@@ -3,10 +3,10 @@
 # milia
 Ona API client library in Clojure and ClojureScript
 
-# Overview
+## Overview
 This library exposes ONA endpoints for retrieving and submitting data through CLJ and CLJS applications.
 
-# Current API Endpoints
+## Current API Endpoints
 * charts
 * forms
 * media
@@ -17,7 +17,7 @@ This library exposes ONA endpoints for retrieving and submitting data through CL
 * user
 * xls-reports
 
-# Setting credentials in milia
+## Setting credentials in milia
 
 Milia stores credentials in the `milia.utils.remote/credentials` atom map. This map contains the keys `auth-token`, used with HTTP Digest Authentication, and `refresh-path`, used to fetch updated credentials (TODO clarify). Set the map with:
 
@@ -36,7 +36,7 @@ There are cases where you may want or need to override the default credentials a
   (:temp_token (milia.api.user/user)
 ```
 
-# Setting up a remote server
+## Setting up a remote server
 You can change the remote server URLs by importing and updating the hosts atom:
 
 ```clojure
@@ -51,11 +51,11 @@ You can change the remote server URLs by importing and updating the hosts atom:
                                    :refresh-path "z/path"}))
 ```
 
-# Debugging
+## Debugging
 
 Set the environment variable `DEBUG_API` to true to enable console debugging output on API requests.
 
-# [Todo] Proposed Client Architecture
+## [Todo] Proposed Client Architecture
 Since the requests to the ONA api from `cljs` or `clj` all return the same data, all the endpoints should be converted into cljx files that can be reused in other projects/dashboards.
 
 * src/cljx/milia/api
