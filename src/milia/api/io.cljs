@@ -11,11 +11,23 @@
             [milia.utils.remote :as remote])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
-;; Shadowing CLJX function
-(def make-url remote/make-url)
+(defn build-http-options
+  "Build http-options based on arguments."
+  [http-options method no-cache?]
+  ;; For :post / :put / :patch, we need :form-params,
+  ;; for the rest :query-params
+
+  (let [ http-options (if (contains? #{:post :put :patch} method)
+                        http-options
+                        (rename-keys http-options
+                                     {:form-params :query-params}))]
+    (if no-cache?
+      (assoc-in http-options [:query-params :t] (md5 (.toString (.now js/Date))))
+      http-options)))
+
 (defn make-json-url [& args]
   "Like make-url, but ensures an ending in .json"
-  (let [bare-url (apply make-url args)] (str bare-url ".json")))
+  (let [bare-url (apply remote/make-url args)] (str bare-url ".json")))
 
 (defn refresh-token-url [username] (str "/" username "/temp-token"))
 

@@ -67,16 +67,17 @@
 (defn debug-api
   "Print out debug information."
   [method url options {:keys [status body request] :as response}]
-  (log/info "\n-- parse-http output --"
-            "\n\n-- REQUEST --"
-            "\n-- method: " method
-            "\n-- url: " url
-            "\n-- options: " options
-            "\n\n-- RESPONSE --"
-            "\n-- status: " status
-            "\n-- body: " body
-            "\n-- request: " request
-            "\n-- complete response: " response))
+  (when (env :debug-api)
+    (log/info "\n-- parse-http output --"
+              "\n\n-- REQUEST --"
+              "\n-- method: " method
+              "\n-- url: " url
+              "\n-- options: " options
+              "\n\n-- RESPONSE --"
+              "\n-- status: " status
+              "\n-- body: " body
+              "\n-- request: " request
+              "\n-- complete response: " response)))
 
 (defn http-request
   "Send an HTTP request and catch some exceptions."

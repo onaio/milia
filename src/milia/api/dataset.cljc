@@ -71,7 +71,7 @@
   "Update the title of a form"
   [dataset-id params]
   (let [url (make-url "forms" dataset-id)]
-    (parse-http :put url {:form-params params})))
+    (parse-http :put url :http-options {:form-params params})))
 
 (defn data
   "Return the data associated with a dataset."
