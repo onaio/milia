@@ -1,4 +1,4 @@
-(ns milia.api.j2x_test
+(ns milia.api.j2x-test
   (:require [cheshire.core :refer [parse-string]]
             [midje.sweet :refer :all]
             [milia.api.http :refer [parse-http]]
@@ -17,9 +17,9 @@
           (f/to-byte-array :fake-file) => :fake-bytearray
           (parse-http :post
                       url
-                      {:body :fake-bytearray
-                       :raw-response? true
-                       :as-map? true}) => upload-response)))
+                      :http-options {:body :fake-bytearray}
+                      :raw-response? true
+                      :as-map? true) => upload-response)))
 (facts "about downloading xls-report-templates"
        "Should download xls report template"
        (j2x/download-xls-report-template :account
@@ -29,5 +29,6 @@
          (r/make-j2x-url "templates" :template-token) => :url
          (parse-http :get
                      :url
-                     {:as :byte-array :as-map? true}
-                     :filename) => :byte-array))
+                     :http-options {:as :byte-array}
+                     :as-map? true
+                     :filename :filename) => :byte-array))
