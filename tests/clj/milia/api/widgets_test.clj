@@ -19,11 +19,12 @@
       => content-object-url))
 
   (fact "widgets/create returns the API response"
-    (create :account widget-definition) => :some-widget
+    (create widget-definition) => :some-widget
     (provided
      (parse-http :post
                  widgets-url
-                 {:content-type :json
-                  :form-params (assoc widget-definition
-                                 :content_object
-                                 content-object-url)}) => :some-widget)))
+                 :http-options {:content-type :json
+                                :form-params (assoc widget-definition
+                                               :content_object
+                                               content-object-url)})
+     => :some-widget)))

@@ -28,8 +28,7 @@
     `:view_type` is a string, determined by the client e.g. bar-chart
     `:column` is the  data column to be stored based on the form field.
     `:group_by` the data column for the data to be grouped by. Optional"
-  [account
-   {:keys [content_type
+  [{:keys [content_type
            content_id]
     :as widget-definition}]
   (let [url (make-url "widgets")
@@ -41,18 +40,18 @@
            content_id))]
     (parse-http :post
                 url
-                {:form-params processed-widget-definition
+                :http-options {:form-params processed-widget-definition
                  :content-type :json})))
 
 (defn list
   []
   (parse-http :get
               (make-url "widgets")
-              {:content-type :json}))
+              :http-options {:content-type :json}))
 
 (defn list-by-xform-id
   [xform-id]
   (let [url (make-url (str "widgets?xform=" xform-id))]
     (parse-http :get
                 url
-                {:content-type :json})))
+                :http-options {:content-type :json})))
