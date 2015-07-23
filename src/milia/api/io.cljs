@@ -21,7 +21,7 @@
 
 (defn validate-token-url [username] (str "/" username "/validate-token"))
 
-(defn make-zebra-url
+(defn make-client-url
   "Build a url off of zebra"
   [& postfix]
   (let [zebra-host (-> js/window (aget "location") (aget "origin"))]

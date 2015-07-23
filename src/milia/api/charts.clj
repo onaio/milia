@@ -1,6 +1,6 @@
 (ns milia.api.charts
   (:require [milia.api.http :refer [parse-http]]
-            [milia.api.io :refer [make-url]]))
+            [milia.utils.remote :refer [make-url]]))
 
 (defn- suffix
   ([dataset-id]

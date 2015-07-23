@@ -10,6 +10,7 @@
                  [clj-http "1.0.1" :exclusions [org.clojure/tools.reader]]
                  [environ "1.0.0"]
                  [org.clojure/clojure "1.7.0"]
+                 [org.clojure/tools.logging "0.3.1"]
                  ;;cljs
                  [cljs-hash "0.0.2"]
                  [org.clojure/clojurescript "0.0-3308"
@@ -28,7 +29,7 @@
   :plugins [[lein-cljsbuild "1.0.5"]
             [lein-midje "3.1.3"]
             [lein-environ "1.0.0"]]
-  :profiles {:dev {:dependencies [[midje "1.6.3"]]
+  :profiles {:dev {:dependencies [[midje "1.7.0"]]
                    :env {:debug-api? false
                          :jetty-min-threads 10
                          :jetty-max-threads 80}}

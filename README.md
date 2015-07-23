@@ -22,7 +22,7 @@ This library exposes ONA endpoints for retrieving and submitting data through CL
 Milia stores credentials in the `milia.utils.remote/credentials` atom map. This map contains the keys `auth-token`, used with HTTP Digest Authentication, and `refresh-path`, used to fetch updated credentials (TODO clarify). Set the map with:
 
 ```clojure
-(swap! milia-remote/credentials merge {:temp-token "SECRET TOKEN"})
+(swap! milia-remote/*credentials* merge {:temp-token "SECRET TOKEN"})
 ```
 
 From CLJS you can ONLY set the `temp-token`, setting another type of token would expose a permanent credetial to the client side (TODO: make sure this is enforced in the code).
@@ -32,8 +32,8 @@ From CLJ you may also set the `token` and the `username` and `password`. If `tem
 There are cases where you may want or need to override the default credentials atom. Do this using `with-local-vars`. For example, to force authenticate with the permanent token and retrieve a new temporary token:
 
 ```clojure
-(with-local-vars [credentials {:token "PERMANENT SECRET TOKEN"}]
-  ;; the credentials atom will now only contain the `token` key nd use that
+(binding [*credentials* (atom ({:token "PERMANENT SECRET TOKEN"})]
+  ;; the credentials atom will now only contain the `token` key and use that
   ;; for authentication.
   (:temp_token (milia.api.user/user)))
 ```

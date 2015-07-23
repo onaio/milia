@@ -1,8 +1,8 @@
 (ns milia.api.project
   (:require [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
-            [milia.api.io :refer [make-url
-                                  #?(:cljs query-helper!)]]
+            #?(:cljs [milia.api.io :refer [query-helper!]])
+            [milia.utils.remote :refer [make-url]]
             [milia.utils.url :refer [last-url-param]]
             #?(:clj [slingshot.slingshot :refer [throw+]])))
 

@@ -4,10 +4,11 @@
             [clj-http.client :as client]
             [clj-http.conn-mgr :as conn-mgr]
             [clojure.java.io :as io]
+            [clojure.tools.logging :as log]
             [environ.core :refer [env]]
             [milia.helpers.io :refer [error-status?]]
             [milia.utils.file :as file-utils]
-            [milia.utils.remote :as remote]
+            [milia.utils.remote :refer [*credentials* make-url]]
             [milia.utils.seq :refer [in?]]
             [slingshot.slingshot :refer [throw+ try+]]))
 
@@ -35,9 +36,6 @@
 ;; timeout until a connection is established, 5 seconds less than nginx
 (def connection-timeout 55000)
 
-;; Shadowing CLJX function
-(def make-url remote/make-url)
-
 (defn multipart-options
   "Parse file and return multipart options"
   [file name]
@@ -47,17 +45,18 @@
 
 (defn- add-auth-to-options
   "Add authorization to options"
-  [{:keys [username password api_token temp_token]} options]
-  (if api_token
-    (assoc options
-      :headers {"Authorization" (if (:use-temp-token options)
-                                  (str "TempToken " temp_token)
-                                  (str "Token " api_token))})
-    (merge options (when password {:digest-auth [username password]}))))
+  [options]
+  (let [{:keys [temp-token token username password]} @*credentials*]
+    (if (or temp-token token)
+      (assoc options
+             :headers {"Authorization" (if temp-token
+                                         (str "TempToken " temp-token)
+                                         (str "Token " token))})
+      (merge options (when password {:digest-auth [username password]})))))
 
 (defn add-to-options
-  [account options url]
-  (assoc (add-auth-to-options account options)
+  [options]
+  (assoc (add-auth-to-options options)
     :socket-timeout socket-timeout
     :conn-timeout connection-timeout
     :connection-manager connection-manager
@@ -68,22 +67,23 @@
 (defn debug-api
   "Print out debug information."
   [method url options {:keys [status body request] :as response}]
-  (println "\n-- parse-http output --"
-           "\n\n-- REQUEST --"
-           "\n-- method: " method
-           "\n-- url: " url
-           "\n-- options: " options
-           "\n\n-- RESPONSE --"
-           "\n-- status: " status
-           "\n-- body: " body
-           "\n-- request: " request
-           "\n-- complete response: " response))
+  (log/info "\n-- parse-http output --"
+            "\n\n-- REQUEST --"
+            "\n-- method: " method
+            "\n-- url: " url
+            "\n-- options: " options
+            "\n\n-- RESPONSE --"
+            "\n-- status: " status
+            "\n-- body: " body
+            "\n-- request: " request
+            "\n-- complete response: " response))
 
 (defn http-request
   "Send an HTTP request and catch some exceptions."
   [method url options]
   (try+
-   ((meths method) url options)
+   ;; if nil, set options to {} as clj-http expects
+   ((meths method) url (or options {}))
    ;; cautiously default to a fake 555 status if no status is returned
    (catch #(<= 400 (:status % 555)) response
      response)))
@@ -113,9 +113,9 @@
 
 (defn parse-response
   "Parse a response based on status, filename, and flags"
-  [body status filename use-raw-response?]
+  [body status filename raw-response?]
   (if (and filename (not (error-status? status)))
     (parse-binary-response body filename)
-    (if use-raw-response?
+    (if raw-response?
       body
       (parse-json-response body))))

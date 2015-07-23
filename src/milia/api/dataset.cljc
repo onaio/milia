@@ -1,10 +1,9 @@
 (ns milia.api.dataset
-  (:require [milia.api.io :refer [make-url
-                                  #?(:clj multipart-options)]]
+  (:require #?(:clj [milia.api.io :refer [multipart-options]])
             [milia.api.http :refer [parse-http]]
             #?(:clj [milia.utils.file :as file-utils])
             [milia.utils.seq :refer [has-keys? in?]]
-            [milia.utils.remote :refer [make-j2x-url make-zebra-url]]))
+            [milia.utils.remote :refer [make-j2x-url make-client-url make-url]]))
 
 (defn all
   "Return all the datasets for an account."
@@ -147,18 +146,18 @@
 
 (defn online-data-entry-link
   "Return link to online data entry."
-  [account dataset-id]
+  [dataset-id]
   (let [url (make-url "forms" dataset-id "enketo")]
     #?(:clj
        (:enketo_url
-         (parse-http :get url account {:suppress-40x-exceptions? true}))
+         (parse-http :get url :suppress-40x-exceptions? true))
        :cljs
-       (parse-http :get url account))))
+       (parse-http :get url))))
 
 (defn edit-link
   "Return link to online data entry."
   [account project-id dataset-id instance-id]
-  (let [return-url (make-zebra-url (:username account) project-id dataset-id "submission-editing-complete")
+  (let [return-url (make-client-url (:username account) project-id dataset-id "submission-editing-complete")
         url (make-url "data" dataset-id instance-id
                       (str "enketo?return_url=" return-url))]
     (:url (parse-http :get url account))))

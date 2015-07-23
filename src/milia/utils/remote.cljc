@@ -2,21 +2,27 @@
   (:require [clojure.string :refer [join]]
             [milia.utils.url :refer [url]]))
 
-(def credentials
+(def ^:dynamic *credentials*
   "Store credentials used to authenticate API requests."
-  (atom {:auth-token nil
-         :refresh-url nil}))
+  (atom {:token nil
+         :temp-token nil
+         :username nil
+         :password nil}))
 
 (def hosts
   "Store remote hosts that requests are made to."
-  (atom {:ui "zebra.ona.io"
+  (atom {;; used to create URLs that return to the client
+         :client "zebra.ona.io"
+         ;; Ona compatible API to request data from
          :data "stage.ona.io"
+         ;; XLSReport server URL
          :j2x "j2x.ona.io"
-         :ona-api-server-protocol "https"}))
+         ;; protocol to use in all requests
+         :request-protocol "https"}))
 
 (defn protocol-prefixed
   "Prefix the resources with the protocol and format strings."
-  [resources] (-> [(:ona-api-server-protocol @hosts) "://" resources]
+  [resources] (-> [(:request-protocol @hosts) "://" resources]
                   flatten join))
 
 (def thumbor-server "https://images.ona.io")
@@ -31,10 +37,10 @@
   [& postfix]
   (url-join (str (protocol-prefixed (:data @hosts)) "/api/v1") postfix))
 
-(defn make-zebra-url
+(defn make-client-url
   "Build a Zebra url."
   [& postfix]
-  (url-join (protocol-prefixed [(:ui @hosts)]) postfix))
+  (url-join (protocol-prefixed [(:client @hosts)]) postfix))
 
 (defn make-j2x-url
   "Build an API url."

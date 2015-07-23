@@ -1,9 +1,8 @@
 (ns milia.api.widgets-test
   (:require [midje.sweet :refer :all]
             [milia.api.http :refer [parse-http]]
-            [milia.api.io :refer [make-url]]
             [milia.api.widgets :refer :all]
-            [milia.utils.remote :refer [hosts]]))
+            [milia.utils.remote :refer [hosts make-url]]))
 
 (let [widget-definition {:title "A Widgy Widgy Woo"
                          :description "The Widget to end all Widgets"

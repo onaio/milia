@@ -1,6 +1,6 @@
 (ns milia.api.dataview
-  (:require [milia.api.io :refer [make-url]]
-            [milia.api.http :refer [parse-http]]))
+  (:require [milia.api.http :refer [parse-http]]
+            [milia.utils.remote :refer [make-url]]))
 
 (defn create
   "Create new dataview from existing dataset"

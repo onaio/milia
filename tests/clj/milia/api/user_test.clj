@@ -2,7 +2,7 @@
   (:require [midje.sweet :refer :all]
             [milia.api.user :refer :all]
             [milia.api.http :refer [parse-http]]
-            [milia.api.io :refer [make-url]]))
+            [milia.utils.remote :refer [make-url]]))
 
 (def username :fake-username)
 (def password :fake-password)

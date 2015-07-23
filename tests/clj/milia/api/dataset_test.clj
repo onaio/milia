@@ -2,9 +2,9 @@
   (:require [midje.sweet :refer :all]
             [milia.api.dataset :refer :all]
             [milia.utils.file :as f]
-            [milia.utils.remote :refer [make-j2x-url make-zebra-url]]
+            [milia.utils.remote :refer [make-j2x-url make-url make-client-url]]
             [milia.api.http :refer [parse-http]]
-            [milia.api.io :refer [make-url multipart-options]]))
+            [milia.api.io :refer [multipart-options]]))
 
 (let [url :fake-url
       username :fake-username
@@ -127,15 +127,18 @@
                   (parse-http :get url account {} filename) => :fake-file))))
 
   (fact "about online-data-entry-link"
-        (online-data-entry-link account :dataset-id) => :enketo_url
+        (online-data-entry-link :dataset-id) => :enketo_url
         (provided
          (make-url "forms" :dataset-id "enketo") => url
          (#'milia.api.io/http-request :get url {}) =>
          {:body :body
           :request :request
           :status :status}
-         (#'milia.api.io/add-to-options account suppress-40x url) => {}
-         (milia.api.io/parse-response :body :status nil nil) => {:enketo_url :enketo_url}))
+         (#'milia.api.io/add-to-options nil) => {}
+         (milia.api.io/parse-response :body
+                                      :status
+                                      nil
+                                      nil) => {:enketo_url :enketo_url}))
 
   (fact "about dataset delete"
         (delete account :dataset-id) => :response
@@ -306,10 +309,16 @@
 
 (fact "about generating edit link"
       (let [username "bob"
-           account {:username username}]
+            account {:username username}]
         (edit-link account :project-id :dataset-id :instance-id) => :response
         (provided
-          (make-zebra-url username :project-id :dataset-id "submission-editing-complete") => :zebra-url
-          (make-url "data" :dataset-id :instance-id "enketo?return_url=:zebra-url") => :url
-          (parse-http :get :url account) => {:url :response})))
-  
+         (make-client-url
+          username
+          :project-id
+          :dataset-id
+          "submission-editing-complete") => :zebra-url
+          (make-url "data"
+                    :dataset-id
+                    :instance-id
+                    "enketo?return_url=:zebra-url") => :url
+                    (parse-http :get :url account) => {:url :response})))

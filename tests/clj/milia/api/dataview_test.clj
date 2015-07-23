@@ -1,9 +1,9 @@
 (ns milia.api.dataview-test
   (:require [midje.sweet :refer :all]
             [milia.api.dataview :refer :all]
-            [milia.utils.remote :refer [make-j2x-url]]
             [milia.api.http :refer [parse-http]]
-            [milia.api.io :refer [make-url multipart-options]]))
+            [milia.api.io :refer [multipart-options]]
+            [milia.utils.remote :refer [make-j2x-url make-url]]))
 
 
 (def account {:username "username"})

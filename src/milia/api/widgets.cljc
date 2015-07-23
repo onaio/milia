@@ -1,6 +1,6 @@
 (ns milia.api.widgets
   (:require [milia.api.http :refer [parse-http]]
-            [milia.api.io :refer [make-url]]))
+            [milia.utils.remote :refer [make-url]]))
 
 (defn generate-content-object-url
   "The Ona API expects clients to submit a URL as the value of the object bound
