@@ -5,21 +5,20 @@
             [milia.utils.remote :refer [make-url]]))
 
 (let [url :fake-url
-      account :fake-account
       dataset-id :fake-dataset-id
       suffix-json (str dataset-id ".json")
       suffix-with-field (str dataset-id ".json?field_name=" :field-name)]
 
   (facts "about fields"
          "Should get correct url for chart fields"
-         (fields account dataset-id) => :some-fields
+         (fields dataset-id) => :some-fields
          (provided
           (make-url "charts" suffix-json) => url
-          (parse-http :get url account) => :some-fields))
+          (parse-http :get url) => :some-fields))
 
   (facts "about chart"
          "Should get correct url for chart"
-         (chart account dataset-id :field-name) => :some-chart
+         (chart dataset-id :field-name) => :some-chart
          (provided
           (make-url "charts" suffix-with-field) => url
-          (parse-http :get url account) => :some-chart)))
+          (parse-http :get url) => :some-chart)))

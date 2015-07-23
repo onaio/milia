@@ -11,14 +11,14 @@
 
 (defn fields
   "Get list of chart fields for a specific dataset"
-  [account dataset-id]
+  [dataset-id]
   (let [url (make-url "charts" (suffix dataset-id))]
-        (parse-http :get url account)))
+        (parse-http :get url)))
 
 (defn chart
   "Get chart for a specific field in a dataset"
-  ([account dataset-id]
-     (chart account dataset-id "all"))
-  ([account dataset-id field-name]
+  ([dataset-id]
+     (chart dataset-id "all"))
+  ([dataset-id field-name]
       (let [url (make-url "charts" (suffix dataset-id field-name))]
-        (parse-http :get url account))))
+        (parse-http :get url))))
