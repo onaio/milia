@@ -17,20 +17,38 @@ This library exposes ONA endpoints for retrieving and submitting data through CL
 * user
 * xls-reports
 
-# Setting up a remote server
-You can add a new ONA api server url by importing and modifying the hosts atom:
+# Setting credentials in milia
+
+Milia stores credentials in the `milia.utils.remote/credentials` atom map. This map contains the keys `auth-token`, used with HTTP Digest Authentication, and `refresh-path`, used to fetch updated credentials (TODO clarify). Set the map with:
 
 ```clojure
-    (ns ona.io.remote
-      (:require [environ.core :refer [env]]
-                [milia.utils.remote :as milia-remote])
+(swap! milia-remote/credentials merge {:temp-token "SECRET TOKEN"})
+```
 
-      ;; set the hosts atom in milia to point to the remote host
-      (defn set-remote-host []
-        (let [{:keys [ui-host api-host protocol]} (:host env)]
-          (swap! milia-remote/hosts merge {:ui ui-host
-                                           :data api-host
-                                           :ona-api-server-protocol protocol})))
+From CLJS you can ONLY set the `temp-token`, setting another type of token would expose a permanent credetial to the client side (TODO: make sure this is enforced in the code).
+
+From CLJ you may also set the `token` and the `username` and `password`. If `temp-token` exists it will be used, if not `token` will be used, and if neither exist the `username` and `password` will be used for authentication.
+
+There are cases where you may want or need to override the default credentials atom. Do this using `with-local-vars`. For example, to force authenticate with the permanent token and retrieve a new temporary token:
+
+```clojure
+(with-local-vars [credentials {:token "PERMANENT SECRET TOKEN"}]
+  (:temp_token (milia.api.user/user)
+```
+
+# Setting up a remote server
+You can change the remote server URLs by importing and updating the hosts atom:
+
+```clojure
+(ns ona.io.remote
+  (:require [milia.utils.remote :as milia-remote])
+
+;; set the hosts atom in milia to custom hosts
+(defn set-remote-host [] 
+  (swap! milia-remote/hosts merge {:client "my-front-end.com"
+                                   :data "my-ona-compatible-api.com"
+                                   :request-protocol "https"
+                                   :refresh-path "z/path"}))
 ```
 
 # Debugging
