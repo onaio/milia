@@ -33,7 +33,9 @@ There are cases where you may want or need to override the default credentials a
 
 ```clojure
 (with-local-vars [credentials {:token "PERMANENT SECRET TOKEN"}]
-  (:temp_token (milia.api.user/user)
+  ;; the credentials atom will now only contain the `token` key nd use that
+  ;; for authentication.
+  (:temp_token (milia.api.user/user)))
 ```
 
 ## Setting up a remote server
