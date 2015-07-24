@@ -1,7 +1,8 @@
 (ns milia.api.async-export
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<! chan put! timeout]]
-            [milia.api.io :as io]))
+            [milia.api.io :as io]
+            [milia.utils.remote :refer [make-url]]))
 
 (defn- monitor-async-export!
   [auth-token dataset-id job-id fmt on-export-url is-filtered-dataview?
@@ -13,7 +14,8 @@
     (go
      (while (not @done-polling?)
        (let [job-suffix (str "export_async.json?job_uuid=" job-id)
-             job-url (io/make-url (if is-filtered-dataview? "dataviews" "forms") dataset-id job-suffix)
+             job-url (make-url (if is-filtered-dataview? "dataviews" "forms")
+                               dataset-id job-suffix)
              response (:body (<! (io/get-url job-url {} auth-token)))]
          (when-let [export-url (:export_url response)]
            (on-export-url export-url)
@@ -26,25 +28,33 @@
    job via polling. On receiving :export_url from server, on-export-url fired."
   ([auth-token dataset-id fmt on-job-id on-export-url]
    (trigger-async-export! auth-token dataset-id fmt on-job-id on-export-url nil))
-  ([auth-token dataset-id fmt on-job-id on-export-url {:keys [meta-id
-                                                              data-id
-                                                              remove-group-name?
-                                                              version
-                                                              is-filtered-dataview?]}]
+  ([auth-token dataset-id fmt on-job-id on-export-url
+    {:keys [meta-id
+            data-id
+            remove-group-name?
+            version
+            is-filtered-dataview?]}]
    (go
-     (let [export-suffix (str "export_async.json?format=" fmt
-                              (when meta-id (str "&meta="meta-id))
-                              (when data-id (str "&data_id="meta-id))
-                              (when remove-group-name? (str "&remove_group_name="remove-group-name?))
-                              (when version (str "&_version="version)))
+     (let [export-suffix
+           (str "export_async.json?format=" fmt
+                (when meta-id (str "&meta="meta-id))
+                (when data-id (str "&data_id="meta-id))
+                (when remove-group-name?
+                  (str "&remove_group_name="remove-group-name?))
+                (when version (str "&_version="version)))
            export-endpoint (if is-filtered-dataview? "dataviews" "forms")
-           export-url (io/make-url export-endpoint dataset-id export-suffix)
+           export-url (make-url export-endpoint dataset-id export-suffix)
            response (:body (<! (io/get-url export-url {} auth-token)))]
        (when-let [export-url (:export_url response)]
          (on-export-url export-url))
        (when-let [job-id (:job_uuid response)]
          (on-job-id job-id)
-         (monitor-async-export! auth-token dataset-id job-id fmt on-export-url is-filtered-dataview?))))))
+         (monitor-async-export! auth-token
+                                dataset-id
+                                job-id
+                                fmt
+                                on-export-url
+                                is-filtered-dataview?))))))
 
 (defn get-async-export-url
   [auth-token dataset-id fmt]

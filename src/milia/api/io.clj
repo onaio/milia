@@ -117,6 +117,4 @@
   [body status filename raw-response?]
   (if (and filename (not (error-status? status)))
     (parse-binary-response body filename)
-    (if raw-response?
-      body
-      (parse-json-response body))))
+    (if raw-response? body (parse-json-response body))))

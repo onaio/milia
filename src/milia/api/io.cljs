@@ -69,13 +69,14 @@
   "Builds request headers for the HTTP request by adding
   Authorization, X-CSRFToken and Cache-control headers where necessary"
   [& {:keys [token get-crsftoken? must-revalidate?]}]
-    (let [Authorization #(when-not (blank? token)
-                           (assoc % "Authorization" (str "TempToken " token)))
-          Cache-control #(when must-revalidate?
-                          (assoc % "Cache-control" "must-revalidate"))
-          X-CSRFToken #(when-let [crsf-token (and get-crsftoken? (cks/get "csrftoken"))]
-                        (assoc % "X-CSRFToken" crsf-token))]
-      (apply merge ((juxt Authorization Cache-control X-CSRFToken) {}))))
+  (let [Authorization #(when-not (blank? token)
+                         (assoc % "Authorization" (str "TempToken " token)))
+        Cache-control #(when must-revalidate?
+                         (assoc % "Cache-control" "must-revalidate"))
+        X-CSRFToken #(when-let [crsf-token (and get-crsftoken?
+                                                (cks/get "csrftoken"))]
+                       (assoc % "X-CSRFToken" crsf-token))]
+    (apply merge ((juxt Authorization Cache-control X-CSRFToken) {}))))
 
 (defn query-helper
   [method]
@@ -140,6 +141,7 @@
      (go (let [response (<! ((query-helper method) url query-params token opts))]
            (when callback (callback response))))))
 
+;; TODO move to zebra, will be deprecated there when dommy is removed
 (defn get-event
   ([event]
     (get-event event nil))
@@ -150,6 +152,7 @@
     (let [url (dommy/attr (.-form (.-target event)) :action)]
       (query-helper! :get url callback params))))
 
+;; TODO move to zebra, will be deprecated there when dommy is removed
 (defn post-event
   ([event]
      (post-event event nil))

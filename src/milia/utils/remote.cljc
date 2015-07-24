@@ -3,15 +3,17 @@
             [milia.utils.url :refer [url]]))
 
 (def ^:dynamic *credentials*
-  "Store credentials used to authenticate API requests."
-  (atom {:token nil
-         :temp-token nil
+  "Store credentials used to authenticate API requests.
+   Based on existence in this atom credentials will be tried in top down order."
+  (atom {:temp-token nil
+         :token nil
          :username nil
          :password nil}))
 
 (def hosts
   "Store remote hosts that requests are made to."
-  (atom {;; used to create URLs that return to the client
+  (atom {
+         ;; used to create URLs that return to the client
          :client "zebra.ona.io"
          ;; Ona compatible API to request data from
          :data "stage.ona.io"

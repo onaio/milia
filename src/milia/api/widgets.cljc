@@ -41,7 +41,7 @@
     (parse-http :post
                 url
                 :http-options {:form-params processed-widget-definition
-                 :content-type :json})))
+                               :content-type :json})))
 
 (defn list
   []
