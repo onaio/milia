@@ -1,13 +1,13 @@
 (ns milia.api.http
-  (:require [clojure.set :refer [rename-keys]])
-  #?(:clj (:require [milia.api.io :refer [parse-response http-request
-                                          debug-api add-to-options]]
-                    [milia.utils.seq :refer [in?]]
-                    [slingshot.slingshot :refer [throw+]])
-     :cljs (:require [milia.api.io :refer [token->headers raw-request]]
-                     [cljs-hash.md5  :refer [md5]]
-                     [cljs-http.client :as http]
-                     [milia.utils.request :refer [request]])))
+  (:require [clojure.set :refer [rename-keys]]
+            #?@(:clj [[milia.api.io :refer [parse-response http-request
+                                            debug-api add-to-options]]
+                      [milia.utils.seq :refer [in?]]
+                      [slingshot.slingshot :refer [throw+]]]
+                :cljs [[milia.api.io :refer [token->headers raw-request]]
+                       [cljs-hash.md5  :refer [md5]]
+                       [cljs-http.client :as http]
+                       [milia.utils.request :refer [request]]])))
 
 ;;; PARSE HTTP ;;;;;
 
