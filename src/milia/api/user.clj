@@ -5,42 +5,24 @@
             [slingshot.slingshot :refer [throw+]]))
 
 (defn patch
-  [account params]
-  (let [username (:username account)
-        url (make-url "profiles" username)
-        data {:form-params params
-              :content-type :json
-              :as-map? true}]
-    (parse-http :patch url account data)))
+  [username params]
+  (let [url (make-url "profiles" username)
+        options {:form-params params
+                 :content-type :json}]
+    (parse-http :patch url :http-options options :as-map? true)))
 
 (defn profile
   "Return the profile for the account username or the passed username."
-  ([account]
-     (profile account (:username account)))
-  ([account username]
-     (let [url (make-url "profiles" username)
-           response (parse-http :get url account {:suppress-40x-exceptions? true})]
-       (if-let [error (:detail response)]
-         nil
-         response))))
+  [username]
+  (let [url (make-url "profiles" username)
+        response (parse-http :get url :suppress-40x-exceptions? true)]
+    (if-let [error (:detail response)] nil response)))
 
 (defn user
   "Return the user profile with authentication details."
-  ([account]
-   (user account false))
-  ([account use-temp-token?]
-   (user account use-temp-token? false))
-  ([account use-temp-token? suppress-40x-exception?]
-   (let [url (make-url "user")
-         response (parse-http
-                   :get
-                   url
-                   account
-                   {:use-temp-token use-temp-token?
-                    :suppress-40x-exceptions? suppress-40x-exception?})]
-     (if-let [error (:detail response)]
-       (when use-temp-token? response)
-       response))))
+  [suppress-40x-exception?]
+  (let [url (make-url "user")]
+    (parse-http :get url :suppress-40x-exceptions? suppress-40x-exception?)))
 
 (defn create
   "Create a new user."
@@ -50,19 +32,17 @@
                                      :username
                                      :email
                                      :password])
-        url (make-url "profiles")
-        data {:form-params profile}]
-    (parse-http :post url nil data)))
+        url (make-url "profiles")]
+    (parse-http :post url :http-options {:form-params profile})))
 
 (defn all
   "return all users"
-  [account]
-  (let [url (make-url "users")]
-    (parse-http :get url account)))
+  []
+  (let [url (make-url "users")] (parse-http :get url)))
 
 (defn update
   "update user profile"
-  [account params]
+  [username params]
   {:pre [(has-keys? params [:city
                             :country
                             :email
@@ -78,42 +58,40 @@
                             :username
                             :website
                             :organization])]}
-  (let [url (make-url "profiles" (:username account))]
-    (parse-http :put url account {:form-params params
-                                  :content-type :json
-                                  :as-map? true})))
+  (let [url (make-url "profiles" username)]
+    (parse-http :put url
+                :http-options {:form-params params
+                               :content-type :json}
+                :as-map? true)))
 
 (defn change-password
   "Change user password"
-  [account current-password new-password]
-  (let [username (:username account)
-        url (make-url "profiles" username "change_password")
-        data {:form-params {:current_password current-password
-                            :new_password new-password}
-              :raw-response? true
-              :suppress-40x-exceptions? true
-              :as-map? true}]
-    (parse-http :post url account data)))
+  [username current-password new-password]
+  (let [url (make-url "profiles" username "change_password")
+        options {:form-params {:current_password current-password
+                               :new_password new-password}}]
+    (parse-http :post url :http-options options
+                :raw-response? true
+                :suppress-40x-exceptions? true
+                :as-map? true)))
 
 (defn retrieve-metadata
-  ([account]
-   (retrieve-metadata account (:username account)))
-  ([account username]
-   (let [profile-info (profile account username)]
-     (:metadata profile-info))))
+  [username]
+  (:metadata (profile username)))
 
 (defn update-user-metadata
-  [account metadata]
-  (let [current-metadata (retrieve-metadata account)
+  [username metadata]
+  (let [current-metadata (retrieve-metadata username)
         updated-metadata (merge current-metadata metadata)]
-    (patch account {:metadata updated-metadata})))
+    (patch username {:metadata updated-metadata})))
 
 (defn get-by-email
   "Return the users that match this email address"
-  [account email]
+  [email]
   (let [url (make-url "users")]
-    (parse-http :get url account {:query-params {:search email}
-                                  :suppress-40x-exceptions? true})))
+    (parse-http :get url
+                :http-options {:query-params {:search email}}
+                :suppress-40x-exceptions? true)))
 
 (defn trigger-password-reset-email
   "Trigger a password reset email to the given email and given return URL.
@@ -142,12 +120,12 @@
 
 (defn change-email-address
   "Change the user's email address"
-  [account email-address]
+  [username email-address]
   (let [params {:email email-address}]
-    (patch account params)))
+    (patch username params)))
 
 (defn expire-temp-token
   "Expire the user's temporary token."
-  [account]
+  []
   (let [url (make-url "user" "expire")]
-    (parse-http :delete url account)))
+    (parse-http :delete url)))
