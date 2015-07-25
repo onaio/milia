@@ -93,11 +93,9 @@
 
 (defn single-owner?
   "Is the user the only member of the Owners team."
-  ([org-name team-id]
-     (let [team (team-info org-name team-id)
-           members (team-members team-id)]
-       (and (= owners-team-name (:name team))
-            (= 1 (count members))))))
+  ([team members]
+   (and (= owners-team-name (:name team))
+        (= 1 (count members)))))
 
 (defn single-owner-member?
   "Is user only members in org with owner role?"

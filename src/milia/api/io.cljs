@@ -68,9 +68,11 @@
 (defn token->headers
   "Builds request headers for the HTTP request by adding
   Authorization, X-CSRFToken and Cache-control headers where necessary"
-  [& {:keys [token get-crsftoken? must-revalidate?]}]
+  [& {:keys [get-crsftoken? must-revalidate?]}]
   (let [Authorization #(when-not (blank? token)
-                         (assoc % "Authorization" (str "TempToken " token)))
+                         (assoc % "Authorization"
+                                (str "TempToken "
+                                     (:temp-token remote/*credentials*))))
         Cache-control #(when must-revalidate?
                          (assoc % "Cache-control" "must-revalidate"))
         X-CSRFToken #(when-let [crsf-token (and get-crsftoken?
@@ -84,10 +86,10 @@
    and returns a channel which will be populated on success / failure."
   (fn
     ([url]
-       ((query-helper method) url nil nil))
+       ((query-helper method) url nil))
     ([url query-params]
-       ((query-helper method) url query-params nil))
-    ([url query-params token & {:keys [no-cache?]}]
+       ((query-helper method) url query-params))
+    ([url query-params & {:keys [no-cache?]}]
        (let [http-method ({:get http/get
                            :raw-get raw-get
                            :post http/post
@@ -97,8 +99,7 @@
                            :patch http/patch} method)
              param-key (if (contains? #{:put :patch :post} method)
                          :form-params :query-params)
-             headers (token->headers :token (apply str token)
-                                     :get-crsftoken? (= http-method http/delete))
+             headers (token->headers :get-crsftoken? (= http-method http/delete))
              time-params (when no-cache? {:t (md5 (.toString (.now js/Date)))})
              query-params (merge query-params time-params {:xhr true})]
          (http-method url {:headers headers param-key query-params})))))
