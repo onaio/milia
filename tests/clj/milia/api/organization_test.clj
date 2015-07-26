@@ -123,16 +123,10 @@
 
 (facts "about single owner"
        (fact "should be false if multiple members in owners team"
-             (single-owner? :orgname :team-id) => false
-             (provided
-              (team-info :orgname :team-id) => {:name owners-team-name}
-              (team-members :team-id) => [username username]))
+             (single-owner? {:name owners-team-name} [:a :b]) => false )
 
        (fact "should be true if one member in owners team"
-             (single-owner? :orgname :team-id) => true
-             (provided
-              (team-info :orgname :team-id) => {:name owners-team-name}
-              (team-members :team-id) => [username])))
+             (single-owner? {:name owners-team-name} [:a]) => true))
 
 (fact "should update org settings"
       (let [params {:org org-name :description "test"}
