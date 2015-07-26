@@ -19,10 +19,19 @@ This library exposes ONA endpoints for retrieving and submitting data through CL
 
 ## Setting credentials in milia
 
-Milia stores credentials in the `milia.utils.remote/*credentials*` atom map. This map contains the keys `auth-token`, used with HTTP Digest Authentication, and `refresh-path`, used to fetch updated credentials (TODO clarify). Set the map with:
+Milia stores credentials in the `milia.utils.remote/*credentials*` atom map, which defaults to:
 
 ```clojure
-(swap! milia-remote/*credentials* merge {:temp-token "SECRET TOKEN"})
+{:temp-token nil
+ :token nil
+ :username nil
+ :password nil}
+```
+
+Set the map with:
+
+```clojure
+(swap! milia.remote/*credentials* merge {:temp-token "SECRET TOKEN"})
 ```
 
 From CLJS you can ONLY set the `temp-token`, setting another type of token would expose a permanent credetial to the client side (TODO: make sure this is enforced in the code).

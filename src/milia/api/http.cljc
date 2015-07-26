@@ -4,7 +4,8 @@
                                             debug-api add-to-options]]
                       [milia.utils.seq :refer [in?]]
                       [slingshot.slingshot :refer [throw+]]]
-                :cljs [[milia.api.io :refer [token->headers raw-request]]
+                :cljs [[milia.api.io :refer [build-http-options token->headers
+                                             raw-request]]
                        [cljs-hash.md5  :refer [md5]]
                        [cljs-http.client :as http]
                        [milia.utils.request :refer [request]]])))
@@ -41,8 +42,7 @@
        ;; suppress-40x-exceptions?, as-map? have no meaning in CLJS a.t.m.
        :cljs
        (let [http-request (if raw-response? raw-request request)
-             headers (token->headers :token auth-token
-                                     :get-crsftoken? (= method http/delete)
+             headers (token->headers :get-crsftoken? (= method http/delete)
                                      :must-revalidate? must-revalidate?)]
          (when filename
            (throw (js/Error. "File downloads auth not supported via JS")))

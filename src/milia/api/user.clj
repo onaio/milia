@@ -20,9 +20,11 @@
 
 (defn user
   "Return the user profile with authentication details."
-  [suppress-40x-exception?]
-  (let [url (make-url "user")]
-    (parse-http :get url :suppress-40x-exceptions? suppress-40x-exception?)))
+  ([]
+   (user false))
+  ([suppress-40x-exception?]
+   (let [url (make-url "user")]
+     (parse-http :get url :suppress-40x-exceptions? suppress-40x-exception?))))
 
 (defn create
   "Create a new user."

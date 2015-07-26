@@ -1,7 +1,7 @@
 (ns milia.api.async-export
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<! chan put! timeout]]
-            [milia.api.io :as io]
+            [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]))
 
 (defn- monitor-async-export!
@@ -16,7 +16,7 @@
        (let [job-suffix (str "export_async.json?job_uuid=" job-id)
              job-url (make-url (if is-filtered-dataview? "dataviews" "forms")
                                dataset-id job-suffix)
-             response (:body (<! (io/get-url job-url {} auth-token)))]
+             response (:body (<! (parse-http :get job-url)))]
          (when-let [export-url (:export_url response)]
            (on-export-url export-url)
            (reset! done-polling? true))
@@ -44,7 +44,7 @@
                 (when version (str "&_version="version)))
            export-endpoint (if is-filtered-dataview? "dataviews" "forms")
            export-url (make-url export-endpoint dataset-id export-suffix)
-           response (:body (<! (io/get-url export-url {} auth-token)))]
+           response (:body (<! (parse-http :get export-url)))]
        (when-let [export-url (:export_url response)]
          (on-export-url export-url))
        (when-let [job-id (:job_uuid response)]
@@ -68,4 +68,4 @@
   "Returns a channel, which will have the async _data_
    downloaded using http-method when ready."
   (go (let [url (<! (get-async-export-url auth-token dataset-id fmt))]
-        (<! ((io/query-helper http-method) url {} auth-token)))))
+        (<! (parse-http http-method url)))))

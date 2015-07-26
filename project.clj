@@ -17,7 +17,6 @@
                   :exclusions [org.clojure/clojure]]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [sablono "0.3.1"]
-                 [prismatic/dommy "0.1.2"]
                  [org.omcljs/om "0.8.8"]
                  [inflections "0.9.7"]
                  [slingshot "0.12.2"]

@@ -7,6 +7,8 @@
 (def invalid-token-msg "Invalid token")
 (def token-expired-msg "Token expired")
 
+(defn refresh-token-url [username] (str "/" username "/temp-token"))
+
 (defn request
   "Wraps cljs-http.client/request and redirects if status is 401"
   [& args]

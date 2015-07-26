@@ -1,7 +1,6 @@
 (ns milia.api.project
   (:require [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
-            #?(:cljs [milia.api.io :refer [query-helper!]])
             [milia.utils.remote :refer [make-url]]
             [milia.utils.url :refer [last-url-param]]
             #?(:clj [slingshot.slingshot :refer [throw+]])))
@@ -48,7 +47,7 @@
           (throw+ error)
           (add-id project-data)))
      #?(:cljs
-        (parse-http :post url account {:form-params form-params}))))
+        (parse-http :post url :form-params form-params))))
 
 (defn update
   "Update project metadata"
@@ -129,7 +128,7 @@
            query-params (merge {:project-id projectid
                                :patch true}
                                params)]
-       (query-helper! :post url nil query-params))))
+       (parse-http :post url :http-options query-params))))
 
 #?(:cljs
    (defn update-public
