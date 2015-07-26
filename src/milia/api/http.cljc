@@ -41,15 +41,15 @@
        ;; CLJS: asynchronous implementation, returns a channel.
        ;; suppress-40x-exceptions?, as-map? have no meaning in CLJS a.t.m.
        :cljs
-       (when filename
-         (throw (js/Error. "File downloads auth not supported via JS")))
-       (let [http-request (if raw-response? raw-request request)
-             headers (token->headers :get-crsftoken? (= method http/delete)
-                                     :must-revalidate? must-revalidate?)
-             ch (http-request (merge (build-http-options
-                                      http-options method no-cache?)
-                                     {:xhr true
-                                      :headers headers
-                                      :method method
-                                      :url url}))]
-         (if callback (go (-> ch !< callback)) ch)))))
+       (if filename
+         (throw (js/Error. "File downloads auth not supported via JS"))
+         (let [http-request (if raw-response? raw-request request)
+               headers (token->headers :get-crsftoken? (= method http/delete)
+                                       :must-revalidate? must-revalidate?)
+               ch (http-request (merge (build-http-options
+                                        http-options method no-cache?)
+                                       {:xhr true
+                                        :headers headers
+                                        :method method
+                                        :url url}))]
+           (if callback (go (-> ch !< callback)) ch))))))
