@@ -1,6 +1,5 @@
 (ns milia.utils.request
-  (:require [cljs.core.async :as async :refer [<! put! chan]]
-            [cljs-http.client :as cljs-http])
+  (:require [cljs.core.async :as async :refer [<! put! chan]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 ;; The below are matched to API responses
@@ -11,10 +10,10 @@
 
 (defn request
   "Wraps cljs-http.client/request and redirects if status is 401"
-  [& args]
+  [request-fn & args]
   (let [response-channel (chan)]
     (go
-      (let [original-response-channel (apply cljs-http/request args)
+      (let [original-response-channel (apply request-fn args)
             {:keys [status] :as response} (<! original-response-channel)]
         (condp = status
           401 (let [{{detail :detail} :body} response

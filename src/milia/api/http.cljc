@@ -12,8 +12,6 @@
                        [cljs.core.async :as async :refer [<!]]]))
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]])))
 
-;;; PARSE HTTP ;;;;;
-
 (defn parse-http
   "Send and parse an HTTP response as JSON.
    Additional arguments modify beavior of parse-http:
@@ -45,13 +43,14 @@
        :cljs
        (if filename
          (throw (js/Error. "File downloads auth not supported via JS"))
-         (let [http-request (if raw-response? raw-request request)
-               headers (token->headers :get-crsftoken? (= method http/delete)
+         (let [request-fn (if raw-response? raw-request http/request)
+               headers (token->headers :get-crsftoken? (= method :delete)
                                        :must-revalidate? must-revalidate?)
-               ch (http-request (merge (build-http-options
-                                        http-options method no-cache?)
-                                       {:xhr true
-                                        :headers headers
-                                        :method method
-                                        :url url}))]
+               ch (request request-fn
+                           (merge (build-http-options
+                                   http-options method no-cache?)
+                                  {:xhr true
+                                   :headers headers
+                                   :method method
+                                   :url url}))]
            (if callback (go (-> ch <! callback)) ch))))))
