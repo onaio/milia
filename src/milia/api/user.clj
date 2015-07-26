@@ -15,16 +15,16 @@
   "Return the profile for the account username or the passed username."
   [username]
   (let [url (make-url "profiles" username)
-        response (parse-http :get url :suppress-40x-exceptions? true)]
+        response (parse-http :get url :suppress-4xx-exceptions? true)]
     (if-let [error (:detail response)] nil response)))
 
 (defn user
   "Return the user profile with authentication details."
   ([]
    (user false))
-  ([suppress-40x-exception?]
+  ([suppress-4xx-exception?]
    (let [url (make-url "user")]
-     (parse-http :get url :suppress-40x-exceptions? suppress-40x-exception?))))
+     (parse-http :get url :suppress-4xx-exceptions? suppress-4xx-exception?))))
 
 (defn create
   "Create a new user."
@@ -74,7 +74,7 @@
                                :new_password new-password}}]
     (parse-http :post url :http-options options
                 :raw-response? true
-                :suppress-40x-exceptions? true
+                :suppress-4xx-exceptions? true
                 :as-map? true)))
 
 (defn retrieve-metadata
@@ -93,7 +93,7 @@
   (let [url (make-url "users")]
     (parse-http :get url
                 :http-options {:query-params {:search email}}
-                :suppress-40x-exceptions? true)))
+                :suppress-4xx-exceptions? true)))
 
 (defn trigger-password-reset-email
   "Trigger a password reset email to the given email and given return URL.

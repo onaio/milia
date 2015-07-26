@@ -43,20 +43,20 @@
     {:multipart [{:name name
                   :content data-file}]}))
 
-(defn- add-auth-to-options
+(defn- req+auth
   "Add authorization to options"
-  [options]
+  [req]
   (let [{:keys [temp-token token username password]} @*credentials*]
     (if (or temp-token token)
-      (assoc options
+      (assoc req
              :headers {"Authorization" (if temp-token
                                          (str "TempToken " temp-token)
                                          (str "Token " token))})
-      (merge options (when password {:digest-auth [username password]})))))
+      (merge req (when password {:digest-auth [username password]})))))
 
-(defn add-to-options
-  [options]
-  (assoc (add-auth-to-options options)
+(defn build-req
+  [req]
+  (assoc (req+auth req)
     :socket-timeout socket-timeout
     :conn-timeout connection-timeout
     :connection-manager connection-manager
@@ -66,28 +66,28 @@
 
 (defn debug-api
   "Print out debug information."
-  [method url options {:keys [status body request] :as response}]
+  [method url req {:keys [status body request] :as response}]
   (when (env :debug-api)
-    (log/info "\n-- parse-http output --"
-              "\n\n-- REQUEST --"
-              "\n-- method: " method
-              "\n-- url: " url
-              "\n-- options: " options
-              "\n\n-- RESPONSE --"
-              "\n-- status: " status
-              "\n-- body: " body
-              "\n-- request: " request
-              "\n-- complete response: " response)))
+    (map #(log/info (str "DEBUG API - " %))
+         ["parse-http"
+          "REQUEST"
+          "-- method: " method
+          "-- url: " url
+          "-- request: " req
+          "RESPONSE"
+          "-- status: " status
+          "-- body: " body
+          "-- request: " request
+          "-- complete response: " response])))
 
 (defn http-request
   "Send an HTTP request and catch some exceptions."
-  [method url options]
+  [method url req]
   (try+
-   ;; if nil, set options to {} as clj-http expects
-   ((meths method) url (or options {}))
+   ;; if nil, set req to {} as clj-http expects
+   ((meths method) url (or req {}))
    ;; cautiously default to a fake 555 status if no status is returned
-   (catch #(<= 400 (:status % 555)) response
-     response)))
+   (catch #(<= 400 (:status % 555)) response response)))
 
 (defn parse-json-response
   "Parse a body as JSON catching formatting exceptions."
@@ -107,8 +107,7 @@
         file (clojure.java.io/file path)]
     (.deleteOnExit file)
     (with-open [out-file ((if (instance? String body)
-                            io/writer io/output-stream)
-                          file :append false)]
+                            io/writer io/output-stream) file :append false)]
       (.write out-file body))
     path))
 

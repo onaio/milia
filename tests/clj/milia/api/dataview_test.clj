@@ -20,39 +20,39 @@
         (parse-http :post
                     url
                     :http-options {:form-params params}
-                    :suppress-40x-exceptions? true) => :response))
+                    :suppress-4xx-exceptions? true) => :response))
 
 (fact "about get dataview"
       (get dataview-id) => :response
       (provided
         (make-url "dataviews" dataview-id) => url
-        (parse-http :get url :suppress-40x-exceptions? true) => :response))
+        (parse-http :get url :suppress-4xx-exceptions? true) => :response))
 
 (fact "about get dataview data"
       (data dataview-id) => :response
       (provided
         (make-url "dataviews" dataview-id "data.json") => url
-        (parse-http :get url :suppress-40x-exceptions? true :raw-response? true) => :response))
+        (parse-http :get url :suppress-4xx-exceptions? true :raw-response? true) => :response))
 
 (fact "about count data returned by dataview"
       (let [options {:query-params {:count true}}]
         (count-data dataview-id) => :response
         (provided
           (make-url "dataviews" dataview-id "data") => url
-          (parse-http :get url :http-options options :suppress-40x-exceptions? true) => :response)))
+          (parse-http :get url :http-options options :suppress-4xx-exceptions? true) => :response)))
 
 (fact "about all dataviews"
       (all) => :response
       (provided
         (make-url "dataviews") => url
-        (parse-http :get url :suppress-40x-exceptions? true) => :response))
+        (parse-http :get url :suppress-4xx-exceptions? true) => :response))
 
 (fact "about update dataview"
       (let [options {:form-params params}]
         (update dataview-id params) => :response
         (provided
           (make-url "dataviews" dataview-id) => url
-          (parse-http :put url :http-options options :suppress-40x-exceptions? true) => :response)))
+          (parse-http :put url :http-options options :suppress-4xx-exceptions? true) => :response)))
 
 (fact "about delete dataview"
       (delete dataview-id) => :response

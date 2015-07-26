@@ -45,14 +45,14 @@
                (profile username) => :something
                (provided
                 (make-url "profiles" username) => url
-                (parse-http :get url :suppress-40x-exceptions? true) => :something)))
+                (parse-http :get url :suppress-4xx-exceptions? true) => :something)))
 
   (facts "About user"
          (fact "Should get correct url"
                (user false) => :something
                (provided
                 (make-url "user") => url
-                (parse-http :get url :suppress-40x-exceptions? false) => :something)))
+                (parse-http :get url :suppress-4xx-exceptions? false) => :something)))
 
   (facts "About create"
          (fact "Should register a new user"
@@ -89,7 +89,7 @@
                             {:form-params {:current_password :current_password
                                            :new_password :new_password}}
                             :raw-response? true
-                            :suppress-40x-exceptions? true
+                            :suppress-4xx-exceptions? true
                             :as-map? true) => :updated)))
 
   (facts "About metadata"
@@ -118,7 +118,7 @@
                 (make-url "users") => url
                 (parse-http :get url
                             :http-options {:query-params {:search :email}}
-                            :suppress-40x-exceptions? true)
+                            :suppress-4xx-exceptions? true)
                 => :user))))
 
 (fact "trigger-password-reset-email should call the reset endpoint"

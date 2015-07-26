@@ -33,7 +33,6 @@
 (defn with-options [m] (merge options m))
 (def as-raw {:raw-response? true})
 (def as-map {:as-map? true})
-(def suppressed {:suppress-40x-exceptions? true})
 
 (facts "about parse-http"
        (fact "should return a file when filename and use-raw-response are
@@ -52,7 +51,7 @@
              (parse-http :method url
                          :raw-response? true
                          :as-map? true
-                         :suppress-40x-exceptions? true)
+                         :suppress-4xx-exceptions? true)
              => {:body raw-body :status 400}
              (provided
               (#'milia.api.io/http-request :method url options)

@@ -16,7 +16,7 @@
                       (merge
                        {:headers {"Slug" (:filename file)}
                         :as-map? true
-                        :suppress-40x-exceptions? true}
+                        :suppress-4xx-exceptions? true}
                        (multipart-options file "media"))
                       nil)]
       (when (= status 201)

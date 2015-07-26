@@ -78,7 +78,7 @@
       (parse-http :post
                   url
                   :http-options {:form-params {:username member :role assigned-role}}
-                  :suppress-40x-exceptions? true
+                  :suppress-4xx-exceptions? true
                   :as-map? true))))
 
 (defn remove-member
@@ -120,7 +120,7 @@
   "Returns an Organizaion team given the team name."
   [org-name team-name]
   (let [url (make-url (str "teams?org=" org-name))
-        teams (parse-http :get url :suppress-40x-exceptions? true)]
+        teams (parse-http :get url :suppress-4xx-exceptions? true)]
     (first (remove #(not= team-name (:name %)) teams))))
 
 (defn share-team [team-id data]

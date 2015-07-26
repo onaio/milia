@@ -50,7 +50,7 @@
   [dataset-id username]
   (let [url (make-url "forms" dataset-id "clone")
         data {:form-params {:username username}}]
-    (parse-http :post url :http-options data :suppress-40x-exceptions? true )))
+    (parse-http :post url :http-options data :suppress-4xx-exceptions? true )))
 
 (defn update
   "Set the metadata for a dataset using PUT. All parameters must be passed."
@@ -149,7 +149,7 @@
   (let [url (make-url "forms" dataset-id "enketo")]
     #?(:clj
        (:enketo_url
-         (parse-http :get url :suppress-40x-exceptions? true))
+         (parse-http :get url :suppress-4xx-exceptions? true))
        :cljs
        (parse-http :get url))))
 

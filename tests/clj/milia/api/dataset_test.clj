@@ -19,8 +19,7 @@
               :public_data :public_data
               :title :title
               :uuid :uuid
-              :version :version}
-      suppress-40x {:suppress-40x-exceptions? true}]
+              :version :version}]
   (facts "about datasets"
          (fact "Should get correct url"
                (let [username "bob"]
@@ -142,10 +141,10 @@
          (#'milia.api.io/http-request :get url {}) =>
          {:body :body
           :request :request
-          :status :status}
-         (#'milia.api.io/add-to-options nil) => {}
+          :status 200}
+         (#'milia.api.io/build-req nil) => {}
          (milia.api.io/parse-response :body
-                                      :status
+                                      200
                                       nil
                                       nil) => {:enketo_url :enketo_url}))
 
@@ -306,7 +305,7 @@
        (parse-http :post
                    :url
                    :http-options {:form-params {:username :username}}
-                   :suppress-40x-exceptions? true) => :response))
+                   :suppress-4xx-exceptions? true) => :response))
 
 (fact "about generating edit link"
       (let [username "jane"]

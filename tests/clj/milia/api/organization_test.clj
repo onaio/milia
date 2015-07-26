@@ -89,7 +89,7 @@
                           url
                           :http-options {:form-params
                                          {:username :member :role editor-role}}
-                          :suppress-40x-exceptions? true
+                          :suppress-4xx-exceptions? true
                           :as-map? true) => :something)))
 
 (facts "about add-member with assigned role"
@@ -101,7 +101,7 @@
                           url
                           :http-options {:form-params
                                          {:username :member :role :role}}
-                          :suppress-40x-exceptions? true
+                          :suppress-4xx-exceptions? true
                           :as-map? true) => :something)))
 
 (facts "about remove-member"
@@ -146,7 +146,7 @@
       => {:teamid 1 :name internal-members-team-name}
       (provided
         (make-url (str "teams?org=" org-name)) => :url
-        (parse-http :get :url :suppress-40x-exceptions? true)
+        (parse-http :get :url :suppress-4xx-exceptions? true)
         => [{:teamid 1 :name internal-members-team-name}]))
 
 (fact "should change default_role permissions on a project for a team"

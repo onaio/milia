@@ -8,7 +8,7 @@
 (def image-map {:filename :filename :size 1})
 (def multipart-options-map {:multipart []
                             :raw-response? true
-                            :suppress-40x-exceptions? true
+                            :suppress-4xx-exceptions? true
                             :as-map? true})
 (def merged-options (assoc multipart-options-map
                       :headers {"Slug" :filename}))
