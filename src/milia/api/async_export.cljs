@@ -5,7 +5,7 @@
             [milia.utils.remote :refer [make-url]]))
 
 (defn- monitor-async-export!
-  [auth-token dataset-id job-id fmt on-export-url is-filtered-dataview?
+  [dataset-id job-id fmt on-export-url is-filtered-dataview?
    & {:keys [:millis] :or {:millis 1000}}]
   "Repeatedly polls the async export progress for the given job_uuid,
    When export_url is returned, fires callback on-export-url.
@@ -26,9 +26,9 @@
   "Triggers async export and watches it via polling.
    Fires on-job-id callback on receving :job_uuid from server, then monitors
    job via polling. On receiving :export_url from server, on-export-url fired."
-  ([auth-token dataset-id fmt on-job-id on-export-url]
-   (trigger-async-export! auth-token dataset-id fmt on-job-id on-export-url nil))
-  ([auth-token dataset-id fmt on-job-id on-export-url
+  ([dataset-id fmt on-job-id on-export-url]
+   (trigger-async-export! dataset-id fmt on-job-id on-export-url nil))
+  ([dataset-id fmt on-job-id on-export-url
     {:keys [meta-id
             data-id
             remove-group-name?
@@ -49,23 +49,22 @@
          (on-export-url export-url))
        (when-let [job-id (:job_uuid response)]
          (on-job-id job-id)
-         (monitor-async-export! auth-token
-                                dataset-id
+         (monitor-async-export! dataset-id
                                 job-id
                                 fmt
                                 on-export-url
                                 is-filtered-dataview?))))))
 
 (defn get-async-export-url
-  [auth-token dataset-id fmt]
+  [dataset-id fmt]
   "Returns a channel, which will have the async export url when ready."
   (let [ch (chan 1)]
-    (trigger-async-export! auth-token dataset-id fmt identity #(put! ch %))
+    (trigger-async-export! dataset-id fmt identity #(put! ch %))
     ch))
 
 (defn get-async-export-data
-  [auth-token dataset-id fmt http-method]
+  [dataset-id fmt http-method]
   "Returns a channel, which will have the async _data_
    downloaded using http-method when ready."
-  (go (let [url (<! (get-async-export-url auth-token dataset-id fmt))]
+  (go (let [url (<! (get-async-export-url dataset-id fmt))]
         (<! (parse-http http-method url)))))
