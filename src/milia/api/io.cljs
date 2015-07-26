@@ -24,16 +24,6 @@
       (assoc-in http-options [:query-params :t] (md5 (.toString (.now js/Date))))
       http-options)))
 
-(defn make-json-url [& args]
-  "Like make-url, but ensures an ending in .json"
-  (let [bare-url (apply remote/make-url args)] (str bare-url ".json")))
-
-(defn make-client-url
-  "Build a url off of zebra"
-  [& postfix]
-  (let [zebra-host (-> js/window (aget "location") (aget "origin"))]
-    (remote/url-join zebra-host postfix)))
-
 (def raw-request
   "An almost 'batteries-included' request, similar to cljs-http.client/request.
    Contains everything except response decoding."

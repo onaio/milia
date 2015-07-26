@@ -8,7 +8,9 @@
                                              raw-request]]
                        [cljs-hash.md5  :refer [md5]]
                        [cljs-http.client :as http]
-                       [milia.utils.request :refer [request]]])))
+                       [milia.utils.request :refer [request]]
+                       [cljs.core.async :as async :refer [<!]]]))
+  #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]])))
 
 ;;; PARSE HTTP ;;;;;
 
@@ -52,4 +54,4 @@
                                         :headers headers
                                         :method method
                                         :url url}))]
-           (if callback (go (-> ch !< callback)) ch))))))
+           (if callback (go (-> ch <! callback)) ch))))))

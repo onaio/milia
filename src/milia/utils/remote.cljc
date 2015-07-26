@@ -40,9 +40,17 @@
   (url-join (str (protocol-prefixed (:data @hosts)) "/api/v1") postfix))
 
 (defn make-client-url
-  "Build a Zebra url."
+  "Build a URL pointing to the client."
   [& postfix]
-  (url-join (protocol-prefixed [(:client @hosts)]) postfix))
+  #?(:clj
+     (url-join (protocol-prefixed [(:client @hosts)]) postfix)
+     :cljs
+     (let [client-host (-> js/window (aget "location") (aget "origin"))]
+       (url-join client-host postfix))))
+
+(defn make-json-url [& args]
+  "Like make-url, but ensures an ending in .json"
+  (str (apply make-url args) ".json"))
 
 (defn make-j2x-url
   "Build an API url."
