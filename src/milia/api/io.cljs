@@ -54,7 +54,7 @@
         X-CSRFToken #(when-let [crsf-token (and get-crsftoken?
                                                 (cks/get "csrftoken"))]
                        (assoc % "X-CSRFToken" crsf-token))]
-    (apply merge ((juxt Authorization Cache-control X-CSRFToken) {}))))
+    (apply merge ((juxt Authorization Cache-control X-CSRFToken) {"Accept" "application/json"}))))
 
 (defn upload-file
   "Use google library to upload file"
