@@ -8,16 +8,20 @@
             [environ.core :refer [env]]
             [milia.helpers.io :refer [error-status?]]
             [milia.utils.file :as file-utils]
-            [milia.utils.remote :refer [*credentials* make-url]]
+            [milia.utils.remote :refer [*credentials* bad-token-msgs make-url]]
             [milia.utils.seq :refer [in?]]
             [slingshot.slingshot :refer [throw+ try+]]))
 
-(def ^:private meths
+(def ^:private client-methods
   {:delete client/delete
    :get client/get
    :patch client/patch
    :post client/post
    :put client/put})
+
+(defn call-client-method
+  [method url req]
+  ((client-methods method) url req))
 
 (defonce connection-manager
   ;; A connection manager so that we can use persistent connections.
@@ -66,28 +70,19 @@
 
 (defn debug-api
   "Print out debug information."
-  [method url req {:keys [status body request] :as response}]
+  [method url http-options {:keys [status body request] :as response}]
   (when (env :debug-api)
     (map #(log/info (str "DEBUG API - " %))
          ["parse-http"
           "REQUEST"
           "-- method: " method
           "-- url: " url
-          "-- request: " req
+          "-- http-options: " http-options
           "RESPONSE"
           "-- status: " status
           "-- body: " body
           "-- request: " request
           "-- complete response: " response])))
-
-(defn http-request
-  "Send an HTTP request and catch some exceptions."
-  [method url req]
-  (try+
-   ;; if nil, set req to {} as clj-http expects
-   ((meths method) url (or req {}))
-   ;; cautiously default to a fake 555 status if no status is returned
-   (catch #(<= 400 (:status % 555)) response response)))
 
 (defn parse-json-response
   "Parse a body as JSON catching formatting exceptions."
@@ -117,3 +112,35 @@
   (if (and filename (not (error-status? status)))
     (parse-binary-response body filename)
     (if raw-response? body (parse-json-response body))))
+
+(defn fetch-user-with-token
+  "Bind credentials so only the token is set and then fetch the user."
+  []
+  (binding
+      [*credentials* (atom (select-keys @*credentials* [:token]))]
+    (client/get (make-url "user"))))
+
+(defn refresh-temp-token
+  "Fetch the user credentials using the token credential and replace the stored
+   temp-token with the temporary token from the response."
+  []
+  (let [{:keys [body status]} (fetch-user-with-token)
+        {:keys [temp_token]} (parse-response body status nil false)]
+    (swap! *credentials* merge {:temp-token temp_token})))
+
+(defn http-request
+  "Send an HTTP request and catch some exceptions."
+  [method url http-options]
+  ;; If nil, set req to {} as clj-http expects
+  (let [req-fn #(call-client-method method url (build-req
+                                                (or http-options {})))]
+    (try+  ; Catch all bad statuses
+     (try+ ; Catch 401 with token expire messages
+      (req-fn)
+      (catch #(and (= 401 (:status %))
+                   (in? bad-token-msgs (-> % :body :detail))) response
+        (do
+          (refresh-temp-token)
+          (req-fn))))
+     ;; To avoid NPE, default to a fake 555 status if no status is returned
+     (catch #(<= 400 (:status % 555)) response response))))

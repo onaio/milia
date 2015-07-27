@@ -1,10 +1,7 @@
 (ns milia.utils.request
-  (:require [cljs.core.async :as async :refer [<! put! chan]])
+  (:require [cljs.core.async :as async :refer [<! put! chan]]
+            [milia.utils.remote :refer [bad-token-msgs]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
-
-;; The below are matched to API responses
-(def invalid-token-msg "Invalid token")
-(def token-expired-msg "Token expired")
 
 (defn refresh-token-url [username] (str "/" username "/temp-token"))
 
@@ -15,13 +12,9 @@
     (go
       (let [original-response-channel (apply request-fn args)
             {:keys [status] :as response} (<! original-response-channel)]
-        (condp = status
-          401 (let [{{detail :detail} :body} response
-                    reload-page #(set! js/window.location js/window.location)
-                    login-page #(set! js/window.location "/login")]
-                (condp = detail
-                  invalid-token-msg (reload-page)
-                  token-expired-msg (reload-page)
-                  login-page))
+        (if (= status 401)
+          (if (in? bad-token-msgs (-> response :body :detail))
+            (set! js/window.location js/window.location)
+            (set! js/window.location "/login"))
           (put! response-channel response))))
     response-channel))

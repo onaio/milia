@@ -138,11 +138,10 @@
         (online-data-entry-link :dataset-id) => :enketo_url
         (provided
          (make-url "forms" :dataset-id "enketo") => url
-         (#'milia.api.io/http-request :get url {}) =>
+         (#'milia.api.io/http-request :get url nil) =>
          {:body :body
           :request :request
           :status 200}
-         (#'milia.api.io/build-req nil) => {}
          (milia.api.io/parse-response :body
                                       200
                                       nil

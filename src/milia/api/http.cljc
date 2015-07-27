@@ -11,6 +11,11 @@
                        [cljs.core.async :as async :refer [<!]]]))
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]])))
 
+;; The below are matched to API responses
+(def invalid-token-msg "Invalid token")
+(def token-expired-msg "Token expired")
+(def bad-token-msgs [invalid-token-msg token-expired-msg])
+
 (defn parse-http
   "Send and parse an HTTP response as JSON.
    Additional arguments modify beavior of parse-http:
@@ -23,13 +28,13 @@
     ;; CLJ: synchronous implementation, checks status before returning.
     ;; callback, no-cache? have no meaning in CLJ a.t.m.
     #?(:clj
-       (let [req (build-req http-options)
-             {:keys [body status] :as response} (http-request method url req)
+       (let [{:keys [body status] :as response} (http-request
+                                                 method url http-options)
              parsed-response (parse-response body
                                              status
                                              filename
                                              raw-response?)]
-         (debug-api method url req response)
+         (debug-api method url http-options response)
          (when (and (>= status 400)
                     (< status 500)
                     (not suppress-4xx-exceptions?))

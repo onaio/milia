@@ -10,6 +10,11 @@
          :username nil
          :password nil}))
 
+;; Token expiry API response messages
+(def invalid-token-msg "Invalid token")
+(def token-expired-msg "Token expired")
+(def bad-token-msgs [invalid-token-msg token-expired-msg])
+
 (def hosts
   "Store remote hosts that requests are made to."
   (atom {
