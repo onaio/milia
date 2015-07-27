@@ -73,17 +73,16 @@
   "Print out debug information."
   [method url http-options {:keys [status body request] :as response}]
   (when (env :debug-api)
-    (map #(log/info (str "DEBUG API - " %))
-         ["parse-http"
-          "REQUEST"
-          "-- method: " method
-          "-- url: " url
-          "-- http-options: " http-options
-          "RESPONSE"
-          "-- status: " status
-          "-- body: " body
-          "-- request: " request
-          "-- complete response: " response])))
+    (log/info (str "-- DEBUG API --"
+                   "\nREQUEST"
+                   "\n-- method: " method
+                   "\n-- url: " url
+                   "\n-- http-options: " http-options
+                   "\n\nRESPONSE"
+                   "\n-- status: " status
+                   "\n-- body: " body
+                   "\n-- request: " request
+                   "\n-- complete response: " response))))
 
 (defn parse-json-response
   "Parse a body as JSON catching formatting exceptions."
