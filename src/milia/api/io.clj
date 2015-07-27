@@ -59,14 +59,15 @@
       (merge req (when password {:digest-auth [username password]})))))
 
 (defn build-req
-  [req]
-  (assoc (req+auth req)
-    :socket-timeout socket-timeout
-    :conn-timeout connection-timeout
-    :connection-manager connection-manager
-    :save-request? (env :debug-api)
-    :debug (env :debug-api)
-    :debug-body (env :debug-api)))
+  ([] (build-req nil))
+  ([req]
+   (assoc (req+auth (or req {}))
+          :socket-timeout socket-timeout
+          :conn-timeout connection-timeout
+          :connection-manager connection-manager
+          :save-request? (env :debug-api)
+          :debug (env :debug-api)
+          :debug-body (env :debug-api))))
 
 (defn debug-api
   "Print out debug information."
@@ -118,7 +119,7 @@
   []
   (binding
       [*credentials* (atom (select-keys @*credentials* [:token]))]
-    (client/get (make-url "user"))))
+    (client/get (make-url "user") (build-req))))
 
 (defn refresh-temp-token
   "Fetch the user credentials using the token credential and replace the stored
@@ -132,13 +133,13 @@
   "Send an HTTP request and catch some exceptions."
   [method url http-options]
   ;; If nil, set req to {} as clj-http expects
-  (let [req-fn #(call-client-method method url (build-req
-                                                (or http-options {})))]
+  (let [req-fn #(call-client-method method url (build-req http-options))]
     (try+  ; Catch all bad statuses
      (try+ ; Catch 401 with token expire messages
       (req-fn)
       (catch #(and (= 401 (:status %))
-                   (in? bad-token-msgs (-> % :body :detail))) response
+                   (in? bad-token-msgs
+                        (-> % :body parse-json-response :detail))) response
         (do
           (refresh-temp-token)
           (req-fn))))

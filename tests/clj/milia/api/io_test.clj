@@ -36,6 +36,11 @@
 (def as-raw {:raw-response? true})
 (def as-map {:as-map? true})
 
+
+(defn options+auth
+  [auth]
+  (assoc options :headers {"Authorization" auth}))
+
 (facts "about parse-http"
        (fact "should return a file when filename and use-raw-response are
               passed"
@@ -125,11 +130,11 @@
              (binding [*credentials* (atom (assoc account
                                                   :token api-token
                                                   :temp-token temp-token))]
-               (let [appended-options (assoc options :headers
-                                             {"Authorization"
-                                              (str "TempToken " temp-token)})
+               (let [appended-options (options+auth
+                                       (str "TempToken " temp-token))
                      exception {:status 401
-                                :body {:detail token-expired-msg}}]
+                                :body (format "{\"detail\": \"%s\"}"
+                                              token-expired-msg)}]
                  (http-request :method url nil) => exception
                  (provided
                   (call-client-method :method url appended-options)
@@ -140,23 +145,24 @@
              (binding [*credentials* (atom (assoc account
                                                   :token api-token
                                                   :temp-token temp-token))]
-               (let [appended-options (assoc options :headers
-                                             {"Authorization"
-                                              (str "TempToken " temp-token)})
-                     refreshed-temp-token "refreshed temp token"
-                     refreshed-options
-                     (assoc options :headers
-                            {"Authorization"
-                             (str "TempToken " refreshed-temp-token)})
+               (let [appended-options (options+auth
+                                       (str "TempToken " temp-token))
+                     new-temp-token "refreshed temp token"
+                     options-for-refresh (options+auth
+                                          (str "Token " api-token))
+                     refreshed-options (options+auth
+                                        (str "TempToken " new-temp-token))
                      exception {:status 401
-                                :body {:detail token-expired-msg}}]
+                                :body (format "{\"detail\": \"%s\"}"
+                                              token-expired-msg)}]
                  (http-request :method url nil) => :response
                  (provided
                   (call-client-method :method url appended-options)
                   =throws=> (slingshot-exception exception)
                   (make-url "user") => :url
-                  (client/get :url) => {:body :body :status :status}
+                  (client/get :url options-for-refresh)
+                  => {:body :body :status :status}
                   (parse-response :body :status nil false)
-                  => {:temp_token refreshed-temp-token}
+                  => {:temp_token new-temp-token}
                   (call-client-method :method url refreshed-options)
                   => :response)))))
