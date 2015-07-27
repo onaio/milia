@@ -9,7 +9,9 @@
     (binding [*credentials* (atom {:temp-token temp-token})]
       (is (= (io/token->headers :get-crsftoken? true
                                 :must-revalidate? true)
-             {"Authorization" (str "TempToken "  temp-token)
+             {"Accept" "application/json"
+              "Authorization" (str "TempToken "  temp-token)
               "Cache-control" "must-revalidate"}))
       (is (= (io/token->headers :token temp-token)
-             {"Authorization" (str "TempToken "  temp-token)})))))
+             {"Accept" "application/json"
+              "Authorization" (str "TempToken "  temp-token)})))))
