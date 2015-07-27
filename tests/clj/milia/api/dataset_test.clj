@@ -297,16 +297,28 @@
                       :as-map? true
                       :filename :filename) => :byte-array)))
 
-(fact "Should clone a dataset"
-      (clone :dataset-id :username) => :response
-      (provided
-       (make-url "forms" :dataset-id "clone") => :url
-       (parse-http :post
-                   :url
-                   :http-options {:form-params {:username :username}}
-                   :suppress-4xx-exceptions? true) => :response))
+(facts "about clone"
+       (fact "Should clone a dataset"
+             (clone :dataset-id :username) => :response
+             (provided
+              (make-url "forms" :dataset-id "clone") => :url
+              (parse-http :post
+                          :url
+                          :http-options {:form-params {:username :username}}
+                          :suppress-4xx-exceptions? true) => :response))
 
-(fact "about generating edit link"
+       (fact "Should clone a dataset to project id"
+             (clone :dataset-id :username :project-id :project-id) => :response
+             (provided
+              (make-url "forms" :dataset-id "clone") => :url
+              (parse-http :post
+                          :url
+                          :http-options {:form-params
+                                         {:username :username
+                                          :project_id :project-id}}
+                          :suppress-4xx-exceptions? true) => :response)))
+
+(fact "should generating edit link"
       (let [username "jane"]
         (edit-link username :project-id :dataset-id :instance-id) => :response
         (provided
