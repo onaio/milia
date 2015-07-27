@@ -1,6 +1,6 @@
 (ns milia.api.io
   (:import goog.net.IframeIo)
-  (:require [cljs.core.async :refer [<! put!]]
+  (:require [cljs.core.async :refer [<! put! chan]]
             [cljs-hash.md5  :refer [md5]]
             [cljs-http.client :as http]
             [cljs-http.core :as http-core]
@@ -8,7 +8,8 @@
             [clojure.string :refer [join split blank?]]
             [goog.net.cookies :as cks]
             [goog.events :as gev]
-            [milia.utils.remote :as remote])
+            [milia.utils.remote :refer [*credentials* bad-token-msgs]]
+            [milia.utils.seq :refer [in?]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (defn build-http-options
@@ -44,7 +45,7 @@
   "Builds request headers for the HTTP request by adding
   Authorization, X-CSRFToken and Cache-control headers where necessary"
   [& {:keys [get-crsftoken? must-revalidate?]}]
-  (let [temp-token (:temp-token @remote/*credentials*)
+  (let [temp-token (:temp-token @*credentials*)
         Authorization #(when temp-token
                          (assoc % "Authorization"
                                 (str "TempToken " temp-token)))
@@ -54,14 +55,6 @@
                                                 (cks/get "csrftoken"))]
                        (assoc % "X-CSRFToken" crsf-token))]
     (apply merge ((juxt Authorization Cache-control X-CSRFToken) {}))))
-
-(defn invalid-token?
-  "Checks if validate toke response returns invalid token message"
-  [response]
-  (when (and (= (:status response) 403)
-             (or (= (:body response) "Invalid token")
-                 (= (:body response) "Token expired")))
-    true))
 
 (defn upload-file
   "Use google library to upload file"
@@ -73,3 +66,17 @@
     (gev/listen io-obj (.-ERROR goog.net.EventType)
                 #(put! chan {:success? false :io-obj io-obj}))
     (.sendFromForm io-obj form url)))
+
+(defn http-request
+  "Wraps cljs-http.client/request and redirects if status is 401"
+  [request-fn & args]
+  (let [response-channel (chan)]
+    (go
+      (let [original-response-channel (apply request-fn args)
+            {:keys [status] :as response} (<! original-response-channel)]
+        (if (= status 401)
+          (if (in? bad-token-msgs (-> response :body :detail))
+            (set! js/window.location js/window.location)
+            (set! js/window.location "/login"))
+          (put! response-channel response))))
+    response-channel))

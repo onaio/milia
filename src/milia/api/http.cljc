@@ -4,24 +4,18 @@
                                             http-request debug-api]]
                       [slingshot.slingshot :refer [throw+]]]
                 :cljs [[milia.api.io :refer [build-http-options token->headers
-                                             raw-request]]
+                                             http-request raw-request]]
                        [cljs-hash.md5  :refer [md5]]
                        [cljs-http.client :as http]
-                       [milia.utils.request :refer [request]]
                        [cljs.core.async :as async :refer [<!]]]))
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]])))
-
-;; The below are matched to API responses
-(def invalid-token-msg "Invalid token")
-(def token-expired-msg "Token expired")
-(def bad-token-msgs [invalid-token-msg token-expired-msg])
 
 (defn parse-http
   "Send and parse an HTTP response as JSON.
    Additional arguments modify beavior of parse-http:
    In both: `raw-response?`, `filename`, `http-options`.
-   In clj: `suppress-4xx-exceptions?`, `as-map?`.
-   In cljs: `callback`, `no-cache?`."
+   In CLJ: `suppress-4xx-exceptions?`, `as-map?`.
+   In CLJS: `callback`, `no-cache?`."
   [method url & options]
   (let [{:keys [callback filename http-options suppress-4xx-exceptions?
                 raw-response? as-map? no-cache? must-revalidate?]} options]
@@ -35,6 +29,7 @@
                                              filename
                                              raw-response?)]
          (debug-api method url http-options response)
+
          (when (and (>= status 400)
                     (< status 500)
                     (not suppress-4xx-exceptions?))
@@ -51,11 +46,11 @@
          (let [request-fn (if raw-response? raw-request http/request)
                headers (token->headers :get-crsftoken? (= method :delete)
                                        :must-revalidate? must-revalidate?)
-               ch (request request-fn
-                           (merge (build-http-options
-                                   http-options method no-cache?)
-                                  {:xhr true
-                                   :headers headers
-                                   :method method
-                                   :url url}))]
+               ch (http-request request-fn
+                                (merge (build-http-options
+                                        http-options method no-cache?)
+                                       {:xhr true
+                                        :headers headers
+                                        :method method
+                                        :url url}))]
            (if callback (go (-> ch <! callback)) ch))))))
