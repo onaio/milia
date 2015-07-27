@@ -8,22 +8,16 @@
             [clojure.string :refer [join split blank?]]
             [goog.net.cookies :as cks]
             [goog.events :as gev]
-            [milia.utils.remote :refer [*credentials* bad-token-msgs]]
+            [milia.utils.remote :refer [*credentials* hosts bad-token-msgs]]
             [milia.utils.seq :refer [in?]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (defn build-http-options
   "Build http-options based on arguments."
   [http-options method no-cache?]
-  ;; For :post / :put / :patch, we need :form-params,
-  ;; for the rest :query-params
-  (let [http-options (if (contains? #{:post :put :patch} method)
-                       http-options
-                       (rename-keys http-options
-                                    {:form-params :query-params}))]
-    (if no-cache?
-      (assoc-in http-options [:query-params :t] (md5 (.toString (.now js/Date))))
-      http-options)))
+  (if no-cache?
+    (assoc-in http-options [:query-params :t] (md5 (.toString (.now js/Date))))
+    http-options))
 
 (def raw-request
   "An almost 'batteries-included' request, similar to cljs-http.client/request.
@@ -54,7 +48,8 @@
         X-CSRFToken #(when-let [crsf-token (and get-crsftoken?
                                                 (cks/get "csrftoken"))]
                        (assoc % "X-CSRFToken" crsf-token))]
-    (apply merge ((juxt Authorization Cache-control X-CSRFToken) {"Accept" "application/json"}))))
+    (apply merge ((juxt Authorization Cache-control X-CSRFToken)
+                  {"Accept" "application/json"}))))
 
 (defn upload-file
   "Use google library to upload file"

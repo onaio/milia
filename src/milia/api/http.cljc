@@ -28,7 +28,6 @@
                                            filename
                                            raw-response?)]
        (debug-api method url http-options response)
-
        (when (and (>= status 400) (< status 500)
                   (not suppress-4xx-exceptions?))
          (throw+ {:api-response-status status
