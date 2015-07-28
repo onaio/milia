@@ -26,10 +26,12 @@
   "Return all project for this account and owner or the user."
   ([]
      (all nil))
-  ([owner]
+  ([owner & {:keys [no-cache?]}]
      (let [url (make-url "projects")
            options (if-not (nil? owner) {:query-params {:owner owner}})]
-       (parse-http :get url :http-options options))))
+       (parse-http :get url
+                   :http-options options
+                   :no-cache? no-cache?))))
 
 (defn create
   "Create a project for this account and owner or the user."
