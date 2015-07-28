@@ -6,10 +6,7 @@
             [midje.sweet :refer :all]))
 
 (def image-map {:filename :filename :size 1})
-(def multipart-options-map {:multipart []
-                            :raw-response? true
-                            :suppress-4xx-exceptions? true
-                            :as-map? true})
+(def multipart-options-map {:multipart []})
 (def merged-options (assoc multipart-options-map
                       :headers {"Slug" :filename}))
 (def location-leading-slash "/location")
@@ -29,5 +26,8 @@
              (upload image-map) =>  location-url
              (provided
               (multipart-options image-map "media") => multipart-options-map
-              (parse-http :post upload-url nil merged-options nil)
+              (parse-http :post upload-url
+                          :http-options  merged-options
+                          :as-map? true
+                          :suppress-4xx-exceptions? true)
               => {:status 201 :headers {"Location" location-leading-slash}})))

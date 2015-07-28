@@ -12,14 +12,12 @@
     (let [{:keys [headers status]}
           (parse-http :post
                       upload-url
-                      nil
+                      :http-options
                       (merge
-                       {:headers {"Slug" (:filename file)}
-                        :as-map? true
-                        :suppress-4xx-exceptions? true}
+                       {:headers {"Slug" (:filename file)}}
                        (multipart-options file "media"))
-                      nil)]
+                      :as-map? true
+                      :suppress-4xx-exceptions? true)]
       (when (= status 201)
         ;; A 201 HTTP status code indicates success
-        ;; https://github.com/thumbor/thumbor/wiki/How-to-upload-images#http-status-code
         (str thumbor-server "/" (subs (headers "Location") 1))))))
