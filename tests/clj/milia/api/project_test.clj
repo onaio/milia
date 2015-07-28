@@ -17,7 +17,8 @@
                (all) => :response
                (provided
                 (make-url "projects") => url
-                (parse-http :get url :http-options nil) => :response))
+                (parse-http :get url :http-options nil
+                            :no-cache? nil) => :response))
 
          (fact "Should pass owner as a query parameter"
                (all username) => :response
@@ -26,7 +27,8 @@
                 (parse-http :get
                             url
                             :http-options {:query-params
-                                           {:owner username}}) => :response)))
+                                           {:owner username}}
+                            :no-cache? nil) => :response)))
 
   (facts "about project-create"
          (fact "Should associate data"
@@ -48,7 +50,7 @@
                   (parse-http :post
                               url
                               :http-options {:form-params data-with-owner
-                                             :content-type :json}) 
+                                             :content-type :json})
                   => {:__all__ error}))))
 
   (facts "about get-project"
@@ -92,7 +94,7 @@
                   (parse-http :patch
                               url
                               :http-options {:form-params data
-                                             :content-type :json}) 
+                                             :content-type :json})
                   => :updated-project))))
 
   (facts "about add-tags"

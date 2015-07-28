@@ -24,9 +24,10 @@
   (let [url (make-url "orgs")]
     (parse-http :post url :http-options {:form-params data})))
 
-(defn profile [org-name]
+(defn profile
+  [org-name & {:keys [no-cache?]}]
   (let [url (make-url "orgs" org-name)]
-    (parse-http :get url)))
+    (parse-http :get url :no-cache? no-cache?)))
 
 (defn teams-all
   "Return all the teams for an organization."
