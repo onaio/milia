@@ -126,6 +126,19 @@
                                       url
                                       appended-options) => :response))))
 
+       (fact "should not refresh on 401 and no temp-token"
+             (binding [*credentials* (atom (assoc account
+                                                  :token api-token))]
+               (let [appended-options (options+auth
+                                       (str "Token " api-token))
+                     exception {:status 401
+                                :body (format "{\"detail\": \"%s\"}"
+                                              token-expired-msg)}]
+                 (http-request :method url nil) => exception
+                 (provided
+                  (call-client-method :method url appended-options)
+                  =throws=> (slingshot-exception exception)))))
+
        (fact "should refresh temp token on 401 and rethrow if no change"
              (binding [*credentials* (atom (assoc account
                                                   :token api-token
