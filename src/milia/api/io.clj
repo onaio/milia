@@ -128,6 +128,12 @@
         {:keys [temp_token]} (parse-response body status nil false)]
     (swap! *credentials* merge {:temp-token temp_token})))
 
+(defn- expired-token?
+  "Assume any 401s that were requested with a temporary token are the result
+   of an expired token."
+  [{:keys [status]}]
+  (and (= 401 status) (:temp-token @*credentials*)))
+
 (defn http-request
   "Send an HTTP request and catch some exceptions."
   [method url http-options]
@@ -136,9 +142,7 @@
     (try+  ; Catch all bad statuses
      (try+ ; Catch 401 with token expire messages
       (req-fn)
-      (catch #(and (= 401 (:status %))
-                   (in? bad-token-msgs
-                        (-> % :body parse-json-response :detail))) response
+      (catch #(expired-token? %) response
         (do
           (refresh-temp-token)
           (req-fn))))

@@ -5,11 +5,12 @@
             [slingshot.slingshot :refer [throw+]]))
 
 (defn patch
-  [username params]
+  [username params & {:keys [suppress-4xx-exceptions?]}]
   (let [url (make-url "profiles" username)
         options {:form-params params
                  :content-type :json}]
-    (parse-http :patch url :http-options options :as-map? true)))
+    (parse-http :patch url :http-options options :as-map? true
+                :suppress-4xx-exceptions? suppress-4xx-exceptions?)))
 
 (defn profile
   "Return the profile for the account username or the passed username."
@@ -22,9 +23,10 @@
   "Return the user profile with authentication details."
   ([]
    (user false))
-  ([suppress-4xx-exception?]
+  ([suppress-4xx-exceptions?]
    (let [url (make-url "user")]
-     (parse-http :get url :suppress-4xx-exceptions? suppress-4xx-exception?))))
+     (parse-http :get url
+                 :suppress-4xx-exceptions? suppress-4xx-exceptions?))))
 
 (defn create
   "Create a new user."
@@ -124,7 +126,7 @@
   "Change the user's email address"
   [username email-address]
   (let [params {:email email-address}]
-    (patch username params)))
+    (patch username params :suppress-4xx-exceptions? true)))
 
 (defn expire-temp-token
   "Expire the user's temporary token."

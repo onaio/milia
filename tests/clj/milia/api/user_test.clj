@@ -109,7 +109,8 @@
                              {:form-params {:metadata {:first-login false
                                                        :random "test"}}
                               :content-type :json}
-                             :as-map? true) => :metadata)))
+                             :as-map? true
+                             :suppress-4xx-exceptions? nil) => :metadata)))
 
   (facts "About get-by-email"
          (fact "Should get users for email address"
@@ -150,12 +151,14 @@
                    :url
                    :http-options {:form-params :params
                                   :content-type :json}
-                   :as-map? true) => :response))
+                   :as-map? true
+                   :suppress-4xx-exceptions? nil) => :response))
 
 (fact "change-email-address should submit a partial update for email"
       (change-email-address account :email) => :response
       (provided
-       (patch account {:email :email}) => :response))
+       (patch account {:email :email}
+              :suppress-4xx-exceptions? true) => :response))
 
 (fact "expire-temp-token should call delete on the expire endpoint"
       (expire-temp-token) => :response

@@ -70,8 +70,6 @@
       (let [original-response-channel (apply request-fn args)
             {:keys [status] :as response} (<! original-response-channel)]
         (if (= status 401)
-          (if (in? bad-token-msgs (-> response :body :detail))
-            (set! js/window.location js/window.location)
-            (set! js/window.location "/login"))
+          (set! js/window.location js/window.location)
           (put! response-channel response))))
     response-channel))

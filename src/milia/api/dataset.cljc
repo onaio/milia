@@ -159,7 +159,10 @@
 (defn edit-link
   "Return link to online data entry."
   [username project-id dataset-id instance-id]
-  (let [return-url (make-client-url username project-id dataset-id "submission-editing-complete")
+  (let [return-url (make-client-url username
+                                    project-id
+                                    dataset-id
+                                    "submission-editing-complete")
         url (make-url "data" dataset-id instance-id
                       (str "enketo?return_url=" return-url))]
     (:url (parse-http :get url))))
