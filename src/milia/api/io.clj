@@ -4,19 +4,24 @@
             [clj-http.client :as client]
             [clj-http.conn-mgr :as conn-mgr]
             [clojure.java.io :as io]
+            [clojure.tools.logging :as log]
             [environ.core :refer [env]]
             [milia.helpers.io :refer [error-status?]]
             [milia.utils.file :as file-utils]
-            [milia.utils.remote :as remote]
+            [milia.utils.remote :refer [*credentials* bad-token-msgs make-url]]
             [milia.utils.seq :refer [in?]]
             [slingshot.slingshot :refer [throw+ try+]]))
 
-(def ^:private meths
+(def ^:private client-methods
   {:delete client/delete
    :get client/get
    :patch client/patch
    :post client/post
    :put client/put})
+
+(defn call-client-method
+  [method url req]
+  ((client-methods method) url req))
 
 (defonce connection-manager
   ;; A connection manager so that we can use persistent connections.
@@ -35,9 +40,6 @@
 ;; timeout until a connection is established, 5 seconds less than nginx
 (def connection-timeout 55000)
 
-;; Shadowing CLJX function
-(def make-url remote/make-url)
-
 (defn multipart-options
   "Parse file and return multipart options"
   [file name]
@@ -45,48 +47,42 @@
     {:multipart [{:name name
                   :content data-file}]}))
 
-(defn- add-auth-to-options
+(defn- req+auth
   "Add authorization to options"
-  [{:keys [username password api_token temp_token]} options]
-  (if api_token
-    (assoc options
-      :headers {"Authorization" (if (:use-temp-token options)
-                                  (str "TempToken " temp_token)
-                                  (str "Token " api_token))})
-    (merge options (when password {:digest-auth [username password]}))))
+  [req]
+  (let [{:keys [temp-token token username password]} @*credentials*]
+    (if (or temp-token token)
+      (assoc req
+             :headers {"Authorization" (if temp-token
+                                         (str "TempToken " temp-token)
+                                         (str "Token " token))})
+      (merge req (when password {:digest-auth [username password]})))))
 
-(defn add-to-options
-  [account options url]
-  (assoc (add-auth-to-options account options)
-    :socket-timeout socket-timeout
-    :conn-timeout connection-timeout
-    :connection-manager connection-manager
-    :save-request? (env :debug-api)
-    :debug (env :debug-api)
-    :debug-body (env :debug-api)))
+(defn build-req
+  ([] (build-req nil))
+  ([req]
+   (assoc (req+auth (or req {}))
+          :socket-timeout socket-timeout
+          :conn-timeout connection-timeout
+          :connection-manager connection-manager
+          :save-request? (env :debug-api)
+          :debug (env :debug-api)
+          :debug-body (env :debug-api))))
 
 (defn debug-api
   "Print out debug information."
-  [method url options {:keys [status body request] :as response}]
-  (println "\n-- parse-http output --"
-           "\n\n-- REQUEST --"
-           "\n-- method: " method
-           "\n-- url: " url
-           "\n-- options: " options
-           "\n\n-- RESPONSE --"
-           "\n-- status: " status
-           "\n-- body: " body
-           "\n-- request: " request
-           "\n-- complete response: " response))
-
-(defn http-request
-  "Send an HTTP request and catch some exceptions."
-  [method url options]
-  (try+
-   ((meths method) url options)
-   ;; cautiously default to a fake 555 status if no status is returned
-   (catch #(<= 400 (:status % 555)) response
-     response)))
+  [method url http-options {:keys [status body request] :as response}]
+  (when (env :debug-api)
+    (log/info (str "-- DEBUG API --"
+                   "\nREQUEST"
+                   "\n-- method: " method
+                   "\n-- url: " url
+                   "\n-- http-options: " http-options
+                   "\n\nRESPONSE"
+                   "\n-- status: " status
+                   "\n-- body: " body
+                   "\n-- request: " request
+                   "\n-- complete response: " response))))
 
 (defn parse-json-response
   "Parse a body as JSON catching formatting exceptions."
@@ -106,16 +102,45 @@
         file (clojure.java.io/file path)]
     (.deleteOnExit file)
     (with-open [out-file ((if (instance? String body)
-                            io/writer io/output-stream)
-                          file :append false)]
+                            io/writer io/output-stream) file :append false)]
       (.write out-file body))
     path))
 
 (defn parse-response
   "Parse a response based on status, filename, and flags"
-  [body status filename use-raw-response?]
+  [body status filename raw-response?]
   (if (and filename (not (error-status? status)))
     (parse-binary-response body filename)
-    (if use-raw-response?
-      body
-      (parse-json-response body))))
+    (if raw-response? body (parse-json-response body))))
+
+(defn fetch-user-with-token
+  "Bind credentials so only the token is set and then fetch the user."
+  []
+  (binding
+      [*credentials* (atom (select-keys @*credentials* [:token]))]
+    (client/get (make-url "user") (build-req))))
+
+(defn refresh-temp-token
+  "Fetch the user credentials using the token credential and replace the stored
+   temp-token with the temporary token from the response."
+  []
+  (let [{:keys [body status]} (fetch-user-with-token)
+        {:keys [temp_token]} (parse-response body status nil false)]
+    (swap! *credentials* merge {:temp-token temp_token})))
+
+(defn http-request
+  "Send an HTTP request and catch some exceptions."
+  [method url http-options]
+  ;; If nil, set req to {} as clj-http expects
+  (let [req-fn #(call-client-method method url (build-req http-options))]
+    (try+  ; Catch all bad statuses
+     (try+ ; Catch 401 with token expire messages
+      (req-fn)
+      (catch #(and (= 401 (:status %))
+                   (in? bad-token-msgs
+                        (-> % :body parse-json-response :detail))) response
+        (do
+          (refresh-temp-token)
+          (req-fn))))
+     ;; To avoid NPE, default to a fake 555 status if no status is returned
+     (catch #(<= 400 (:status % 555)) response response))))

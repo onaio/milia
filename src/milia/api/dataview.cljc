@@ -1,54 +1,48 @@
 (ns milia.api.dataview
-  (:require [milia.api.io :refer [make-url]]
-            [milia.api.http :refer [parse-http]]))
+  (:require [milia.api.http :refer [parse-http]]
+            [milia.utils.remote :refer [make-url]]))
 
 (defn create
   "Create new dataview from existing dataset"
-  [account params]
+  [params]
   (let [url (make-url "dataviews")
-        options {:form-params params
-                 :suppress-40x-exceptions? true}]
-    (parse-http :post url account options)))
+        options {:form-params params}]
+    (parse-http :post url :http-options options :suppress-4xx-exceptions? true)))
 
 (defn get
   "Retrieves dataview object using dataview id"
-  [account dataview-id]
-  (let [url (make-url "dataviews" dataview-id)
-        options {:suppress-40x-exceptions? true}]
-    (parse-http :get url account options)))
+  [dataview-id]
+  (let [url (make-url "dataviews" dataview-id)]
+    (parse-http :get url :suppress-4xx-exceptions? true)))
 
 (defn data
   "Retrieves dataview data using dataview id"
-  [account dataview-id]
-  (let [url (make-url "dataviews" dataview-id "data.json")
-        options {:suppress-40x-exceptions? true :raw-response? true}]
-    (parse-http :get url account options)))
+  [dataview-id]
+  (let [url (make-url "dataviews" dataview-id "data.json")]
+    (parse-http :get url :suppress-4xx-exceptions? true :raw-response? true)))
 
 (defn count-data
   "Counts data instances returned by dataview object"
-  [account dataview-id]
+  [dataview-id]
   (let [url (make-url "dataviews" dataview-id "data")
-        options {:suppress-40x-exceptions? true
-                 :query-params {:count true}}]
-    (parse-http :get url account options)))
+        options {:query-params {:count true}}]
+    (parse-http :get url :http-options options :suppress-4xx-exceptions? true)))
 
 (defn all
   "Retrieves all dataview objects"
-  [account]
-  (let [url (make-url "dataviews")
-        options {:suppress-40x-exceptions? true}]
-    (parse-http :get url account options)))
+  []
+  (let [url (make-url "dataviews")]
+    (parse-http :get url :suppress-4xx-exceptions? true)))
 
 (defn update
   "Updates dataview object"
-  [account dataview-id params]
+  [dataview-id params]
   (let [url (make-url "dataviews" dataview-id)
-        options {:form-params params
-                 :suppress-40x-exceptions? true}]
-    (parse-http :put url account options)))
+        options {:form-params params}]
+    (parse-http :put url :http-options options :suppress-4xx-exceptions? true)))
 
 (defn delete
   "Deletes dataview object"
-  [account dataview-id]
+  [dataview-id]
   (let [url (make-url "dataviews" dataview-id)]
-    (parse-http :delete url account)))
+    (parse-http :delete url)))

@@ -2,7 +2,7 @@
   (:require [midje.sweet :refer :all]
             [milia.api.user :refer :all]
             [milia.api.http :refer [parse-http]]
-            [milia.api.io :refer [make-url]]))
+            [milia.utils.remote :refer [make-url]]))
 
 (def username :fake-username)
 (def password :fake-password)
@@ -38,86 +38,87 @@
                             :website "fake-website"})
       data {:form-params params}
       updated-data {:form-params update-params
-                    :content-type :json}
-      updated-data-m (merge updated-data {:as-map? true})]
+                    :content-type :json}]
 
   (facts "About user-profile"
          (fact "Should get correct url"
-               (profile account) => :something
+               (profile username) => :something
                (provided
                 (make-url "profiles" username) => url
-                (parse-http :get url account {:suppress-40x-exceptions? true}) => :something)))
+                (parse-http :get url :suppress-4xx-exceptions? true) => :something)))
 
   (facts "About user"
          (fact "Should get correct url"
-               (user account) => :something
+               (user false) => :something
                (provided
                 (make-url "user") => url
-                (parse-http :get url account {:use-temp-token false
-                                              :suppress-40x-exceptions? false}) => :something)))
+                (parse-http :get url :suppress-4xx-exceptions? false) => :something)))
 
   (facts "About create"
          (fact "Should register a new user"
                (create params) => :someone
                (provided
                 (make-url "profiles") => url
-                (parse-http :post url nil data) => :someone)))
+                (parse-http :post url :http-options data) => :someone)))
 
   (facts "About all"
          (fact "Should get users")
-         (all account) => :userlist
+         (all) => :userlist
          (provided
           (make-url "users") => url
-          (parse-http :get url account) => :userlist))
+          (parse-http :get url) => :userlist))
 
   (facts "About update"
          (fact "Should put to profiles"
-               (update account update-params) => :updated-profile
+               (update username update-params) => :updated-profile
                (provided
                 (make-url "profiles" username) => url
-                (parse-http :put url account updated-data-m)
+                (parse-http :put url
+                            :http-options updated-data
+                            :as-map? true)
                 => :updated-profile)))
 
   (facts "About user change-password"
          (fact "Should post to profiles with passwords"
-               (change-password account :current_password :new_password) => :updated
+               (change-password username :current_password :new_password) => :updated
                (provided
                 (make-url "profiles" username "change_password") => url
                 (parse-http :post
                             url
-                            account
+                            :http-options
                             {:form-params {:current_password :current_password
-                                           :new_password :new_password}
-                             :raw-response? true
-                             :suppress-40x-exceptions? true
-                             :as-map? true}) => :updated)))
+                                           :new_password :new_password}}
+                            :raw-response? true
+                            :suppress-4xx-exceptions? true
+                            :as-map? true) => :updated)))
 
   (facts "About metadata"
          (fact "Should return metadata"
-               (retrieve-metadata account :fake-username) => :metadata
+               (retrieve-metadata :fake-username) => :metadata
                (provided
-                (profile account :fake-username) => {:metadata :metadata}))
+                (profile :fake-username) => {:metadata :metadata}))
 
          (fact "should update metadata"
-               (update-user-metadata account {:first-login false}) => :metadata
+               (update-user-metadata username {:first-login false}) => :metadata
                (provided
                  (make-url "profiles" username) => url
-                 (retrieve-metadata account) => {:random "test"}
+                 (retrieve-metadata username) => {:random "test"}
                  (parse-http :patch
                              url
-                             account
+                             :http-options
                              {:form-params {:metadata {:first-login false
                                                        :random "test"}}
-                              :content-type :json
-                              :as-map? true}) => :metadata)))
+                              :content-type :json}
+                             :as-map? true) => :metadata)))
 
   (facts "About get-by-email"
          (fact "Should get users for email address"
-               (get-by-email account :email) => :user
+               (get-by-email :email) => :user
                (provided
                 (make-url "users") => url
-                (parse-http :get url account {:query-params {:search :email}
-                                              :suppress-40x-exceptions? true})
+                (parse-http :get url
+                            :http-options {:query-params {:search :email}}
+                            :suppress-4xx-exceptions? true)
                 => :user))))
 
 (fact "trigger-password-reset-email should call the reset endpoint"
@@ -142,15 +143,14 @@
          (parse-http :post :url nil {:form-params params}) => nil)))
 
 (fact "patch should submit a patch request"
-      (patch account :params) => :response
+      (patch username :params) => :response
       (provided
        (make-url "profiles" username) => :url
        (parse-http :patch
                    :url
-                   account
-                   {:form-params :params
-                    :content-type :json
-                    :as-map? true}) => :response))
+                   :http-options {:form-params :params
+                                  :content-type :json}
+                   :as-map? true) => :response))
 
 (fact "change-email-address should submit a partial update for email"
       (change-email-address account :email) => :response
@@ -158,7 +158,7 @@
        (patch account {:email :email}) => :response))
 
 (fact "expire-temp-token should call delete on the expire endpoint"
-      (expire-temp-token account) => :response
+      (expire-temp-token) => :response
       (provided
        (make-url "user" "expire") => :url
-       (parse-http :delete :url account) => :response))
+       (parse-http :delete :url) => :response))

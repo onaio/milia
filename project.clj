@@ -3,20 +3,20 @@
       [path]
       (str "resources/public/js/" path))
 
-(defproject onaio/milia "0.1.6-SNAPSHOT"
+(defproject onaio/milia "0.2.0-SNAPSHOT"
   :description "The milia.io Clojure Web API"
   :dependencies [;; CORE MILIA REQUIREMENTS
                  [cheshire "5.2.0"]
                  [clj-http "1.0.1" :exclusions [org.clojure/tools.reader]]
                  [environ "1.0.0"]
                  [org.clojure/clojure "1.7.0"]
+                 [org.clojure/tools.logging "0.3.1"]
                  ;;cljs
                  [cljs-hash "0.0.2"]
                  [org.clojure/clojurescript "0.0-3308"
                   :exclusions [org.clojure/clojure]]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [sablono "0.3.1"]
-                 [prismatic/dommy "0.1.2"]
                  [org.omcljs/om "0.8.8"]
                  [inflections "0.9.7"]
                  [slingshot "0.12.2"]
@@ -28,7 +28,7 @@
   :plugins [[lein-cljsbuild "1.0.5"]
             [lein-midje "3.1.3"]
             [lein-environ "1.0.0"]]
-  :profiles {:dev {:dependencies [[midje "1.6.3"]]
+  :profiles {:dev {:dependencies [[midje "1.7.0"]]
                    :env {:debug-api? false
                          :jetty-min-threads 10
                          :jetty-max-threads 80}}

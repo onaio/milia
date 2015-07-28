@@ -17,3 +17,4 @@ examples/*/out/
 .lein-env
 resources/public/js/lib
 .lein-failures
+.nrepl-port

@@ -1,66 +1,49 @@
 (ns milia.api.http
-  #?(:clj (:require [milia.api.io :refer [parse-response http-request
-                                          debug-api add-to-options ]]
-                    [environ.core :refer [env]]
-                    [milia.utils.seq :refer [in?]]
-                    [slingshot.slingshot :refer [throw+ try+]])
-    :cljs (:require [milia.api.io :refer [token->headers raw-request]]
-                    [cljs-hash.md5  :refer [md5]]
-                    [cljs-http.client :as http]
-                    [milia.utils.request :refer [request]])))
-
-;;; PARSE HTTP ;;;;;
+  (:require [clojure.set :refer [rename-keys]]
+            #?@(:clj [[milia.api.io :refer [build-req parse-response
+                                            http-request debug-api]]
+                      [slingshot.slingshot :refer [throw+]]]
+                :cljs [[milia.api.io :refer [build-http-options token->headers
+                                             http-request raw-request]]
+                       [cljs-hash.md5  :refer [md5]]
+                       [cljs-http.client :as http]
+                       [cljs.core.async :as async :refer [<!]]]))
+  #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]])))
 
 (defn parse-http
   "Send and parse an HTTP response as JSON.
-   Options object has special keys that modify beavior of parse-http:
-   In clj: `suppress-40x-exceptions?`, `as-map?`,`raw-response?`.
-   In cljs: `raw-response?`, `no-cache?`."
-  ([method url account]
-   (parse-http method url account {}))
-  ([method url account options]
-   (parse-http method url account options nil))
-  ([method url account options filename]
-   (let [{:keys [suppress-40x-exceptions? raw-response? as-map?
-                 no-cache? must-revalidate?]} options]
-     ;; CLJ: synchronous implementation, checks status before returning.
-     ;; no-cache? has no meaning in clj a.t.m.
-     #?(:clj
-        (let [appended-options (add-to-options account options url)
-              {:keys [body status]
-               :as response} (http-request method url appended-options)
-              parsed-response (parse-response body
-                                              status
-                                              filename
-                                              raw-response?)]
-          (when (env :debug-api)
-            (debug-api method url appended-options response))
-          (when (and (in? [400 401 404] status) (not suppress-40x-exceptions?))
-            (throw+ {:api-response-status status :parsed-api-response parsed-response}))
-          (if as-map?
-            (assoc response :body parsed-response)
-            parsed-response))
-        ;; CLJS: asynchronous implementation, returns a channel.
-        ;; suppress-40x-exceptions?, as-map? have no meaning in cljs a.t.m.
-        :cljs
-        (let [auth-token account ; in cljs, we just get the auth-token, not full account
-              http-request (if raw-response? raw-request request) ;; v0
-              ;; For :post / :put / :patch, we need :form-params, for the rest :query-params
-              options (if-not (contains? #{:post :put :patch} method)
-                        (assoc options :query-params (:form-params options))
-                        options)
-              headers (token->headers :token auth-token
-                                      :get-crsftoken? (= method http/delete)
-                                      :must-revalidate? must-revalidate?)
-              ;; Add timestamp query param to all XHR requests
-              ;; (to be removed in next release)
-              time-params (when no-cache? {:t (md5 (.toString (.now js/Date)))})
-              options (merge options {:query-params time-params})
-              all-params (merge options
-                                {:xhr true
-                                 :headers headers
-                                 :method method
-                                 :url url})]
-          (when filename
-            (throw (js/Error. "File downloads auth not supported via js")))
-          (http-request all-params))))))
+   Additional arguments modify beavior of parse-http:
+   In both: `raw-response?`, `filename`, `http-options`.
+   In CLJ: `suppress-4xx-exceptions?`, `as-map?`.
+   In CLJS: `callback`, `no-cache?`."
+  [method url & {:keys [callback filename http-options suppress-4xx-exceptions?
+                        raw-response? as-map? no-cache? must-revalidate?]}]
+  ;; CLJ: synchronous implementation, checks status before returning.
+  ;; callback, no-cache? have no meaning in CLJ a.t.m.
+  #?(:clj
+     (let [{:keys [body status] :as response} (http-request
+                                               method url http-options)
+           parsed-response (parse-response body
+                                           status
+                                           filename
+                                           raw-response?)]
+       (debug-api method url http-options response)
+       (when (and (>= status 400) (< status 500)
+                  (not suppress-4xx-exceptions?))
+         (throw+ {:api-response-status status
+                  :parsed-api-response parsed-response}))
+       (if as-map?
+         (assoc response :body parsed-response) parsed-response))
+     ;; CLJS: asynchronous implementation, returns a channel.
+     ;; suppress-4xx-exceptions?, as-map? have no meaning in CLJS a.t.m.
+     :cljs
+     (if filename
+       (throw (js/Error. "File downloads auth not supported via JS"))
+       (let [request-fn (if raw-response? raw-request http/request)
+             headers (token->headers :get-crsftoken? (= method :delete)
+                                     :must-revalidate? must-revalidate?)
+             ch (http-request
+                 request-fn
+                 (merge (build-http-options http-options method no-cache?)
+                        {:xhr true :headers headers :method method :url url}))]
+         (if callback (go (-> ch <! callback)) ch)))))
