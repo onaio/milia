@@ -15,13 +15,11 @@
 (defn build-http-options
   "Build http-options based on arguments."
   [http-options method no-cache?]
-  (if (in? [:post :put :patch] method)
-    (assoc-in http-options [:form-params :xhr] true)
-    (assoc-in
-      (if no-cache?
-        (assoc-in http-options [:query-params :t] (md5 (.toString (.now js/Date))))
-        http-options)
-      [:query-params :xhr] true)))
+  (let [param-key (if (in? [:post :put :patch] method) :form-params :query-params)
+        options+xhr (assoc-in http-options [param-key :xhr] true)]
+    (if (and no-cache? (= param-key :query-params))
+      (assoc-in options+xhr [param-key :t] (md5 (.toString (.now js/Date))))
+      options+xhr)))
 
 (def raw-request
   "An almost 'batteries-included' request, similar to cljs-http.client/request.
