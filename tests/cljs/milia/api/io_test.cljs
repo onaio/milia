@@ -19,13 +19,25 @@
 
 (deftest build-http-options
   (let [params {:a 1}
-        http-options {:query-params (assoc params :xhr true)}]
-    ;; Test http-options build correctly with no-cache? nil;
+        params-w-xhr-true (assoc params :xhr true)
+        get-http-options {:query-params params-w-xhr-true}
+        post-http-options {:form-params params-w-xhr-true}]
+    ;; Test http-options build correctly for :get request with no-cache? nil;
     ;; {:xhr true} should be added to :query-params.
-    (is (= (io/build-http-options {:query-params params} nil) http-options))
+    (is (= (io/build-http-options {:query-params params} :get nil) get-http-options))
 
-    ;; Test http-options build correctly with no-cache? true;
+    ;; Test http-options build correctly for :get request with no-cache? true;
     ;; {:xhr true} and {:t (timestamp)} should be added to :query-params.
-    (is (contains? (-> (io/build-http-options {:query-params params} true)
-                       :query-params keys set) 
-                   :t))))
+    (is (contains? (-> (io/build-http-options {:query-params params} :get true)
+                       :query-params keys set)
+                   :t))
+
+    ;; Test http-options build correctly for :post/:patch/:put request with no-cache? nil;
+    ;; {:xhr true} should be added to :form-params.
+    (is (= (io/build-http-options {:form-params params} :post nil) post-http-options))
+    (is (= (io/build-http-options {:form-params params} :patch nil) post-http-options))
+    (is (= (io/build-http-options {:form-params params} :put nil) post-http-options))
+
+    ;; POST requests are never cached, this test confirms timestamp is not added when no-cache?
+    ;; is set to true.
+    (is (= (io/build-http-options {:form-params params} :post true) post-http-options))))
