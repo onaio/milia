@@ -15,3 +15,17 @@
       (is (= (io/token->headers :token temp-token)
              {"Accept" "application/json"
               "Authorization" (str "TempToken "  temp-token)})))))
+
+
+(deftest build-http-options
+  (let [params {:a 1}
+        http-options {:query-params (assoc params :xhr true)}]
+    ;; Test http-options build correctly with no-cache? nil;
+    ;; {:xhr true} should be added to :query-params.
+    (is (= (io/build-http-options {:query-params params} nil) http-options))
+
+    ;; Test http-options build correctly with no-cache? true;
+    ;; {:xhr true} and {:t (timestamp)} should be added to :query-params.
+    (is (contains? (-> (io/build-http-options {:query-params params} true)
+                       :query-params keys set) 
+                   :t))))
