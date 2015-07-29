@@ -45,5 +45,5 @@
              ch (http-request
                  request-fn
                  (merge (build-http-options http-options method no-cache?)
-                        {:xhr true :headers headers :method method :url url}))]
+                        {:headers headers :method method :url url}))]
          (if callback (go (-> ch <! callback)) ch)))))
