@@ -14,10 +14,12 @@
 
 (defn build-http-options
   "Build http-options based on arguments."
-  [http-options method no-cache?]
-  (if no-cache?
+  [http-options no-cache?]
+  (assoc-in
+    (if no-cache?
     (assoc-in http-options [:query-params :t] (md5 (.toString (.now js/Date))))
-    http-options))
+    http-options)
+    [:query-params :xhr] true))
 
 (def raw-request
   "An almost 'batteries-included' request, similar to cljs-http.client/request.

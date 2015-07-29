@@ -44,6 +44,6 @@
                                      :must-revalidate? must-revalidate?)
              ch (http-request
                  request-fn
-                 (merge (build-http-options http-options method no-cache?)
-                        {:xhr true :headers headers :method method :url url}))]
+                 (merge (build-http-options http-options no-cache?)
+                        {:headers headers :method method :url url}))]
          (if callback (go (-> ch <! callback)) ch)))))
