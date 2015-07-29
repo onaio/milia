@@ -108,19 +108,15 @@
                             (when reset-subject
                               {:email_subject reset-subject}))]
      ;; Unauthenticated API request does not need an account
-     (parse-http :post url nil {:form-params form-params}))))
+     (parse-http :post url :http-options {:form-params form-params}))))
 
 (defn reset-password
   [new-password token uid]
   (let [url (make-url "user" "reset")]
-    (parse-http
-     :post
-     url
-     nil
-     {:form-params
-      {:new_password new-password
-       :token token
-       :uid uid}})))
+    (parse-http :post url
+                :http-options {:form-params {:new_password new-password
+                                             :token token
+                                             :uid uid}})))
 
 (defn change-email-address
   "Change the user's email address"

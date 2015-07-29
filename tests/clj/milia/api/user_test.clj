@@ -131,7 +131,8 @@
         (trigger-password-reset-email email reset-url subject) => nil
         (provided
          (make-url "user" "reset") => api-endpoint-url
-         (parse-http :post api-endpoint-url nil {:form-params params}) => nil)))
+         (parse-http
+          :post api-endpoint-url :http-options {:form-params params}) => nil)))
 
 (fact "reset-password should call the reset password endpoint"
       (let [new-password "spiffing new password"
@@ -141,7 +142,7 @@
         (reset-password new-password token uid) => nil
         (provided
          (make-url "user" "reset") => :url
-         (parse-http :post :url nil {:form-params params}) => nil)))
+         (parse-http :post :url :http-options {:form-params params}) => nil)))
 
 (fact "patch should submit a patch request"
       (patch username :params) => :response
