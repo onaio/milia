@@ -63,9 +63,8 @@
     ch))
 
 (defn get-async-export-data
-  [dataset-id fmt http-method & {:keys [raw-response?]}]
+  [dataset-id fmt http-method & args]
   "Returns a channel, which will have the async _data_
    downloaded using http-method when ready."
   (go (let [url (<! (get-async-export-url dataset-id fmt))]
-        (<! (parse-http http-method url
-                        :raw-response? raw-response?)))))
+        (<! (apply parse-http (concat [http-method url] args))))))

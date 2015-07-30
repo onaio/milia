@@ -152,7 +152,7 @@
                  (provided
                   (call-client-method :method url appended-options)
                   =throws=> (slingshot-exception exception)
-                  (refresh-temp-token) => nil))))
+                  (#'milia.api.io/refresh-temp-token) => nil))))
 
        (fact "should refresh temp token on 401 and succeed on change"
              (binding [*credentials* (atom (assoc account
