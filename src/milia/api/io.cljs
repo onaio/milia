@@ -40,18 +40,15 @@
 (defn token->headers
   "Builds request headers for the HTTP request by adding
   Authorization, X-CSRFToken and Cache-control headers where necessary"
-  [& {:keys [get-crsftoken? must-revalidate?]}]
-  (let [temp-token (:temp-token @*credentials*)
-        Authorization #(when temp-token
-                         (assoc % "Authorization"
-                                (str "TempToken " temp-token)))
-        Cache-control #(when must-revalidate?
-                         (assoc % "Cache-control" "must-revalidate"))
-        X-CSRFToken #(when-let [crsf-token (and get-crsftoken?
-                                                (cks/get "csrftoken"))]
-                       (assoc % "X-CSRFToken" crsf-token))]
-    (apply merge ((juxt Authorization Cache-control X-CSRFToken)
-                  {"Accept" "application/json"}))))
+  [& {:keys [get-crsftoken? must-revalidate? accept-header]}]
+  (let [temp-token (:temp-token @*credentials*)]
+    (into {} [(when temp-token
+                ["Authorization" (str "TempToken " temp-token)])
+              (when must-revalidate?
+                ["Cache-control" "must-revalidate"])
+              (when-let [crsf-token (and get-crsftoken? (cks/get "csrftoken"))]
+                ["X-CSRFToken" crsf-token])
+              ["Accept" (or accept-header "application/json")]])))
 
 (defn upload-file
   "Use google library to upload file"

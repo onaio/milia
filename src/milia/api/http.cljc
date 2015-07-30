@@ -15,11 +15,11 @@
    Additional arguments modify beavior of parse-http:
    In both: `raw-response?`, `filename`, `http-options`.
    In CLJ: `suppress-4xx-exceptions?`, `as-map?`.
-   In CLJS: `callback`, `no-cache?`."
-  [method url & {:keys [callback filename http-options suppress-4xx-exceptions?
-                        raw-response? as-map? no-cache? must-revalidate?]}]
+   In CLJS: `accept-header` `callback`, `no-cache?`."
+  [method url & {:keys [accept-header callback filename http-options
+                        suppress-4xx-exceptions? raw-response? as-map?
+                        no-cache? must-revalidate?]}]
   ;; CLJ: synchronous implementation, checks status before returning.
-  ;; callback, no-cache? have no meaning in CLJ a.t.m.
   #?(:clj
      (let [{:keys [body status] :as response} (http-request
                                                method url http-options)
@@ -35,13 +35,13 @@
        (if as-map?
          (assoc response :body parsed-response) parsed-response))
      ;; CLJS: asynchronous implementation, returns a channel.
-     ;; suppress-4xx-exceptions?, as-map? have no meaning in CLJS a.t.m.
      :cljs
      (if filename
        (throw (js/Error. "File downloads auth not supported via JS"))
        (let [request-fn (if raw-response? raw-request http/request)
              headers (token->headers :get-crsftoken? (= method :delete)
-                                     :must-revalidate? must-revalidate?)
+                                     :must-revalidate? must-revalidate?
+                                     :accept-header accept-header)
              ch (http-request
                  request-fn
                  (merge (build-http-options http-options method no-cache?)
