@@ -21,7 +21,7 @@
                  [inflections "0.9.7"]
                  [slingshot "0.12.2"]
                  ;; CLIENT REQUIREMENTS
-                 [cljs-http "0.1.17"]
+                 [cljs-http "0.1.35"]
                  [com.cognitect/transit-cljs "0.8.188"]]
   :license "Apache 2"
   :url "https://github.com/onaio/milia"
