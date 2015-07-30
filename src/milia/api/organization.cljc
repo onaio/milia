@@ -22,8 +22,9 @@
 
 (defn create [data]
   (let [url (make-url "orgs")]
-    (parse-http :post url :http-options {:form-params data})))
-
+    (parse-http :post url :http-options {:form-params data
+                                         :suppress-40x-exceptions? true
+                                         :as-map? true})))
 (defn profile
   [org-name & {:keys [no-cache?]}]
   (let [url (make-url "orgs" org-name)]
