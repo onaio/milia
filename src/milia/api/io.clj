@@ -113,14 +113,14 @@
     (parse-binary-response body filename)
     (if raw-response? body (parse-json-response body))))
 
-(defn fetch-user-with-token
+(defn- fetch-user-with-token
   "Bind credentials so only the token is set and then fetch the user."
   []
   (binding
       [*credentials* (atom (select-keys @*credentials* [:token]))]
     (client/get (make-url "user") (build-req))))
 
-(defn refresh-temp-token
+(defn- refresh-temp-token
   "Fetch the user credentials using the token credential and replace the stored
    temp-token with the temporary token from the response."
   []
