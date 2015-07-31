@@ -31,9 +31,9 @@
               (make-url "orgs") => url
               (parse-http :post
                           url
-                         :http-options {:form-params :data
-                                        :suppress-40x-exceptions? true
-                                        :as-map? true}) => :something)))
+                         :http-options {:form-params :data}
+                         :suppress-4xx-exceptions? true
+                         :as-map? true) => :something)))
 
 (facts "about teams"
        (fact "should get correct url"
