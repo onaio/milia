@@ -137,7 +137,6 @@
 (defn http-request
   "Send an HTTP request and catch some exceptions."
   [method url http-options]
-  ;; If nil, set req to {} as clj-http expects
   (let [req-fn #(call-client-method method url (build-req http-options))]
     (try+  ; Catch all bad statuses
      (try+ ; Catch 401 with token expire messages
