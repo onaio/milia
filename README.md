@@ -54,19 +54,26 @@ permanent token and retrieve a new temporary token:
 
 ### Credential auto-renewal
 
-As explained above, if a temp-token is supplied in the credentials atom it
+As explained above, if a `temp-token` is supplied in the credentials atom it
 will be used for authentication before any other methods. As the name would
 suggest temp-tokens are temporary and do expire. How an expiration is handled
 differs depending on the target platform.
 
-In CLJ a request is made the the `user` endpoint, which supplies credentials
-using the `token`, which is a permanent key. This returns a new `temp-token`,
-which we call `swap!` with to insert into the credentials atom. Then the same
-request is retried. If it fails again an exception is raised or returned as a
-map, depending on the value of `supress-4xx-exceptions?` in the originating
-call.
+In CLJ, if a request fails with a 401 authorization error:
 
-In CLJS *TODO*.
+1. A request is made to the `user` endpoint using the `token` credential,
+which is a permanent key. If a token was not supplied, this request will fail
+and the failure is returned.
+2. If this request succeeds, we will receive a new `temp-token`. We then call
+`swap!` and insert the refreshed `temp-token` into the credentials atom.
+3. We retry our initial request. If it fails again, an exception is raised
+or returned depending on the value of the `supress-4xx-exceptions?` option
+in the originating call.
+
+In CLJS, if a request fails with a 401 authorization error:
+
+We reload the page. *TODO* attempt a session based refresh mediated by
+a client backend.
 
 ## Setting up a remote server
 You can change the remote server URLs by importing and updating the hosts atom:
@@ -88,22 +95,8 @@ You can change the remote server URLs by importing and updating the hosts atom:
 Set the environment variable `DEBUG_API` to true to enable console debugging output on API requests.
 
 ## [Todo] Proposed Client Architecture
-Since the requests to the ONA api from `cljs` or `clj` all return the same data, all the endpoints should be converted into cljx files that can be reused in other projects/dashboards.
+Convert remaining API endpoint files to cljc:
 
-* src/cljx/milia/api
-    * charts
-    * organizations
-    * projects
-    * user
-    * profiles(Currently, this functionality is in the user namespace)
-    * forms(Both forms and data are currently encapsulated in dataset namespace)
-    * data
-    * osm
-    * restservices
-    * notes
-    * media
-    * teams
-* src/cljs/milia/api
-    * async_export
-* src/cljx/milia/io
-    * requests
+* charts
+* images
+* j2x
