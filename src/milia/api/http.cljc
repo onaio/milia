@@ -28,8 +28,10 @@
                                            filename
                                            raw-response?)]
        (debug-api method url http-options response)
-       (when (and (>= status 400) (< status 500)
-                  (not suppress-4xx-exceptions?))
+       ;; Assume that a nil status indicates an exception
+       (when (or (nil? status)
+                 (and (>= status 400) (< status 500)
+                      (not suppress-4xx-exceptions?)))
          (throw+ {:api-response-status status
                   :parsed-api-response parsed-response}))
        (if as-map?
