@@ -15,11 +15,15 @@
 (defn build-http-options
   "Build http-options based on arguments."
   [http-options method no-cache?]
-  (let [param-key (if (in? [:post :put :patch] method) :form-params :query-params)
-        options+xhr (assoc-in http-options [param-key :xhr] true)]
-    (if (and no-cache? (= param-key :query-params))
-      (assoc-in options+xhr [param-key :t] (md5 (.toString (.now js/Date))))
-      options+xhr)))
+  (let [stateful-method? (in? [:post :put :patch] method)]
+    ;; if JSON Params and stateful do not alter
+    (if (and (:json-params http-options) stateful-method?)
+      http-options
+      (let [param-key (if stateful-method? :form-params :query-params)
+            options+xhr (assoc-in http-options [param-key :xhr] true)]
+        (if (and no-cache? (not stateful-method?))
+          (assoc-in options+xhr [param-key :t] (md5 (.toString (.now js/Date))))
+          options+xhr)))))
 
 (def raw-request
   "An almost 'batteries-included' request, similar to cljs-http.client/request.
@@ -33,7 +37,6 @@
       http/wrap-query-params
       http/wrap-basic-auth
       http/wrap-oauth
-      http/wrap-android-cors-bugfix
       http/wrap-method
       http/wrap-url))
 

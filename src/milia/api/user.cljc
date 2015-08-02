@@ -1,14 +1,14 @@
 (ns milia.api.user
   (:require [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]
-            [milia.utils.seq :refer [has-keys?]]
-            [slingshot.slingshot :refer [throw+]]))
+            [milia.utils.seq :refer [has-keys?]]))
 
 (defn patch
   [username params & {:keys [suppress-4xx-exceptions?]}]
   (let [url (make-url "profiles" username)
-        options {:form-params params
-                 :content-type :json}]
+        options {#?(:clj :form-params
+                    :cljs :json-params) params
+                 #?(:clj :content-type) #?(:clj :json)}]
     (parse-http :patch url :http-options options :as-map? true
                 :suppress-4xx-exceptions? suppress-4xx-exceptions?)))
 
