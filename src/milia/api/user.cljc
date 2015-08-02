@@ -8,7 +8,7 @@
   (let [url (make-url "profiles" username)
         options {#?(:clj :form-params
                     :cljs :json-params) params
-                 :content-type :json}]
+                 #?(:clj :content-type) #?(:clj :json)}]
     (parse-http :patch url :http-options options :as-map? true
                 :suppress-4xx-exceptions? suppress-4xx-exceptions?)))
 
