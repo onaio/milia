@@ -127,10 +127,10 @@
      "Update the project"
      [projectid owner params]
      (let [url (str "/" owner "/" projectid "/project-settings")
-           query-params (merge {:project-id projectid
+           form-params (merge {:project-id projectid
                                :patch true}
-                               params)]
-       (parse-http :post url :http-options query-params))))
+                              params)]
+       (parse-http :post url :http-options {:form-params form-params}))))
 
 #?(:cljs
    (defn update-public
