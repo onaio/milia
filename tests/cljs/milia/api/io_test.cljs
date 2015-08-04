@@ -14,8 +14,17 @@
               "Cache-control" "must-revalidate"}))
       (is (= (io/token->headers :token temp-token)
              {"Accept" "application/json"
-              "Authorization" (str "TempToken "  temp-token)})))))
+              "Authorization" (str "TempToken "  temp-token)}))
 
+      (testing "do not add authentication header when token is null"
+        (swap! *credentials* assoc :temp-token "null")
+        (is (= (io/token->headers :token "null")
+             {"Accept" "application/json"})))
+
+      (testing "do not add authentication header when token is empty string"
+        (swap! *credentials* assoc :temp-token "")
+        (is (= (io/token->headers :token "")
+             {"Accept" "application/json"}))))))
 
 (deftest build-http-options
   (let [params {:a 1}
