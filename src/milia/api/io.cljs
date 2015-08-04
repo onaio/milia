@@ -9,7 +9,8 @@
             [goog.net.cookies :as cks]
             [goog.events :as gev]
             [milia.utils.remote :refer [*credentials* hosts bad-token-msgs]]
-            [milia.utils.seq :refer [in?]])
+            [milia.utils.seq :refer [in?]]
+            [milia.utils.string :refer [is-not-null?]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (defn build-http-options
@@ -45,7 +46,8 @@
   Authorization, X-CSRFToken and Cache-control headers where necessary"
   [& {:keys [get-crsftoken? must-revalidate? accept-header]}]
   (let [temp-token (:temp-token @*credentials*)]
-    (into {} [["Authorization" (str "TempToken " temp-token)]
+    (into {} [(when (and temp-token (is-not-null? temp-token))
+                ["Authorization" (str "TempToken " temp-token)])
               (when must-revalidate?
                 ["Cache-control" "must-revalidate"])
               (when-let [crsf-token (and get-crsftoken? (cks/get "csrftoken"))]
