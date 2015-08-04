@@ -46,7 +46,7 @@
   Authorization, X-CSRFToken and Cache-control headers where necessary"
   [& {:keys [get-crsftoken? must-revalidate? accept-header]}]
   (let [temp-token (:temp-token @*credentials*)]
-    (into {} [(when (and temp-token (is-not-null? temp-token))
+    (into {} [(when (and (not-empty temp-token) (is-not-null? temp-token))
                 ["Authorization" (str "TempToken " temp-token)])
               (when must-revalidate?
                 ["Cache-control" "must-revalidate"])
