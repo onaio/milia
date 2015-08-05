@@ -122,18 +122,7 @@
     (parse-http :patch url :http-options {:form-params form-params
                                           :content-type :json})))
 
-#?(:cljs
-   (defn update-project
-     "Update the project"
-     [projectid owner params]
-     (let [url (str "/" owner "/" projectid "/project-settings")
-           form-params (merge {:project-id projectid
-                               :patch true}
-                              params)]
-       (parse-http :post url :http-options {:form-params form-params}))))
-
-#?(:cljs
-   (defn update-public
-     "Update the project public setting."
-     [projectid owner public]
-     (update-project projectid owner {:public public})))
+(defn update-public
+  "Update the project public setting."
+  [projectid public]
+  (update projectid {:public public}))
