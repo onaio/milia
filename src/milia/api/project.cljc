@@ -8,8 +8,9 @@
 (defn- add-id
   "Parse and add the projects ID."
   [project-data]
-  (merge project-data
-         {:id (-> project-data :url last-url-param)}))
+  (when-not (string? project-data)
+    (merge project-data
+           {:id (-> project-data :url last-url-param)})))
 
 (defn get-forms
   "Get the forms for this account and owner of the user."
@@ -18,9 +19,9 @@
     (parse-http :get url)))
 
 (defn get-project [id]
-  (let [url (make-url "projects" id)]
-    #?(:clj (add-id (parse-http :get url))
-       :cljs (parse-http :get url))))
+  (let [url (make-url "projects" id)
+        data (parse-http :get url)]
+    #?(:clj (add-id data) :cljs data)))
 
 (defn all
   "Return all project for this account and owner or the user."
