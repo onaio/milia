@@ -50,7 +50,7 @@
           (throw+ error)
           (add-id project-data)))
      #?(:cljs
-        (parse-http :post url :form-params form-params))))
+        (parse-http :post url :http-options {:json-params form-params}))))
 
 (defn update
   "Update project metadata"
