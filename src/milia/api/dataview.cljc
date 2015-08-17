@@ -21,6 +21,12 @@
   (let [url (make-url "dataviews" dataview-id "data.json")]
     (parse-http :get url :suppress-4xx-exceptions? true :raw-response? true)))
 
+(defn form
+  "Retrieves form used to create dataview"
+  [dataview-id]
+  (let [url (make-url "dataviews" dataview-id "form.json")]
+    (parse-http :get url :suppress-4xx-exceptions? true)))
+
 (defn count-data
   "Counts data instances returned by dataview object"
   [dataview-id]
