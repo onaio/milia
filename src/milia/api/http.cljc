@@ -19,8 +19,8 @@
    When a request fails for one of the following reasons, an exception is thrown
    with a map containing a `:reason` key, and an optional `:detail` key
     1. No response: {:reason :no-http-response}
-    2. 4xx response: {:reason :http-client-error :detail {:api-response-status <status-code> :parsed-api-response <parsed-json-from-server>}
-    3. 5xx response: {:reason :http-server-error :detail {:response <raw-response>}"
+    2. 4xx response: {:reason :http-client-error :detail {:status-code <status-code> :parsed-api-response <parsed-json-from-server>}
+    3. 5xx response: {:reason :http-server-error :detail {:response <raw-response> :status-code <status-code>}"
   [method url & {:keys [accept-header callback filename http-options
                         suppress-4xx-exceptions? raw-response? as-map?
                         no-cache? must-revalidate?]}]
@@ -42,10 +42,11 @@
              (< status 500)
              (not suppress-4xx-exceptions?))
         (throw+ {:reason :http-client-error
-                 :detail {:api-response-status status
+                 :detail {:status-code status
                           :parsed-api-response parsed-response}})
         (>= status 500) (throw+ {:reason :http-server-error
-                                 :detail {:response response}}))
+                                 :detail {:status-code status
+                                          :response-body body}}))
        (if as-map?
          (assoc response :body parsed-response) parsed-response))
      ;; CLJS: asynchronous implementation, returns a channel.

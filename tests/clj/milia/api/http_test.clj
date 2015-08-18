@@ -24,18 +24,22 @@
      (http-request :method :url nil) => nil
      (parse-response nil nil nil nil) => nil))
   (fact "throws an exception when the API server returns a 4xx"
-    (let [status-code (rand-nth http-4xx-codes)]
+    (let [status-code (rand-nth http-4xx-codes)
+          exception-pattern (str "throw+: {:reason :http-client-error, :detail {:status-code "
+                                 status-code
+                                 ", :parsed-api-response nil}}")]
       (parse-http :method :url)
-      => (throws "throw+: {:reason :http-client-error, :detail {:api-response-status 401, :parsed-api-response nil}}")
+      => (throws exception-pattern)
       (provided
-       (http-request :method :url nil) => {:body :body :status 401}
-       (parse-response :body 401 nil nil) => nil)))
+       (http-request :method :url nil) => {:body :body :status status-code}
+       (parse-response :body status-code nil nil) => nil)))
   (fact "throws an exception when the API server returns a 5xx"
-    (let [status-code (rand-nth http-5xx-codes)]
+    (let [status-code (rand-nth http-5xx-codes)
+          exception-pattern (str "throw+: {:reason :http-server-error, :detail {:status-code "
+                                 status-code
+                                 ", :response-body :something-nasty}}")]
       (parse-http :method :url)
-      => (throws (str "throw+: {:reason :http-server-error, :detail {:response {:body :something-nasty, :status "
-                               status-code
-                               "}}}"))
+      => (throws exception-pattern)
       (provided
        (http-request :method :url nil) => {:body :something-nasty :status status-code}
        (parse-response :something-nasty status-code nil nil) => nil))))
