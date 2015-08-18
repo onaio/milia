@@ -15,7 +15,12 @@
    Additional arguments modify beavior of parse-http:
    In both: `raw-response?`, `filename`, `http-options`.
    In CLJ: `suppress-4xx-exceptions?`, `as-map?`.
-   In CLJS: `accept-header` `callback`, `no-cache?`."
+   In CLJS: `accept-header` `callback`, `no-cache?`.
+   When a request fails for one of the following reasons, an exception is thrown
+   with a map containing a `:reason` key, and an optional `:detail` key
+    1. No response: {:reason :no-http-response}
+    2. 4xx response: {:reason :http-client-error :detail {:api-response-status <status-code> :parsed-api-response <parsed-json-from-server>}
+    3. 5xx response: {:reason :http-server-error :detail {:response <raw-response>}"
   [method url & {:keys [accept-header callback filename http-options
                         suppress-4xx-exceptions? raw-response? as-map?
                         no-cache? must-revalidate?]}]
@@ -29,11 +34,18 @@
                                            raw-response?)]
        (debug-api method url http-options response)
        ;; Assume that a nil status indicates an exception
-       (when (or (nil? status)
-                 (and (>= status 400) (< status 500)
-                      (not suppress-4xx-exceptions?)))
-         (throw+ {:api-response-status status
-                  :parsed-api-response parsed-response}))
+       (cond
+        (nil? response)
+        (throw+ {:reason :no-http-response})
+        (and status
+             (>= status 400)
+             (< status 500)
+             (not suppress-4xx-exceptions?))
+        (throw+ {:reason :http-client-error
+                 :detail {:api-response-status status
+                          :parsed-api-response parsed-response}})
+        (>= status 500) (throw+ {:reason :http-server-error
+                                 :detail {:response response}}))
        (if as-map?
          (assoc response :body parsed-response) parsed-response))
      ;; CLJS: asynchronous implementation, returns a channel.
