@@ -22,8 +22,7 @@
                       :as-map? true) => upload-response)))
 (facts "about downloading xls-report-templates"
        "Should download xls report template"
-       (j2x/download-xls-report-template :account
-                                         :filename
+       (j2x/download-xls-report-template :filename
                                          :template-token) => :byte-array
        (provided
          (r/make-j2x-url "templates" :template-token) => :url
