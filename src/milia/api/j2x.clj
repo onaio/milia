@@ -18,6 +18,6 @@
 
 (defn download-xls-report-template
   "Download xls report template from the j2x service"
-  [account filename template-token]
+  [filename template-token]
   (let [url (make-j2x-url "templates" template-token)]
     (parse-http :get url :http-options {:as :byte-array} :as-map? true :filename filename)))
