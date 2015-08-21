@@ -1,6 +1,8 @@
 (ns milia.api.io-test
   (:require-macros [cljs.test :refer (is deftest testing)])
-  (:require [cljs.test :as t]
+  (:require [cljs.core.async :refer [chan]]
+            [cljs-http.client :as http]
+            [cljs.test :as t]
             [milia.api.io :as io]
             [milia.utils.remote :refer [*credentials*]]))
 
@@ -60,3 +62,12 @@
       (doseq [method [:post :patch :put]]
         (is (= (io/build-http-options {:json-params params} method true)
               {:json-params params}))))))
+
+(deftest http-request
+  (testing "http-request to stage"
+   (with-redefs [chan (fn [] "success")
+                 put! (fn [chan response] response)
+                 http/get (fn [request] {:status 200
+                                         :body "success"})]
+                (is (= "success"
+                       (io/http-request http/get "stage.ona.io"))))))
