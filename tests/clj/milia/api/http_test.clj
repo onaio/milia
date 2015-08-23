@@ -17,29 +17,37 @@
   [500 501 502 503 504 505 506 507 508 509 510 511 520 522 598 599])
 
 (facts "about parse-http"
-  (fact "throws an exception when the API server is not reachable"
-    (parse-http :method :url)
-    => (throws "throw+: {:reason :no-http-response}")
-    (provided
-     (http-request :method :url nil) => nil
-     (parse-response nil nil nil nil) => nil))
-  (fact "throws an exception when the API server returns a 4xx"
-    (let [status-code (rand-nth http-4xx-codes)
-          exception-pattern (str "throw+: {:reason :http-client-error, :detail {:status-code "
-                                 status-code
-                                 ", :parsed-api-response nil}}")]
-      (parse-http :method :url)
-      => (throws exception-pattern)
-      (provided
-       (http-request :method :url nil) => {:body :body :status status-code}
-       (parse-response :body status-code nil nil) => nil)))
-  (fact "throws an exception when the API server returns a 5xx"
-    (let [status-code (rand-nth http-5xx-codes)
-          exception-pattern (str "throw+: {:reason :http-server-error, :detail {:status-code "
-                                 status-code
-                                 ", :response-body :something-nasty}}")]
-      (parse-http :method :url)
-      => (throws exception-pattern)
-      (provided
-       (http-request :method :url nil) => {:body :something-nasty :status status-code}
-       (parse-response :something-nasty status-code nil nil) => nil))))
+       (fact "throws an exception when the API server is not reachable"
+             (parse-http :method :url)
+             => (throws "throw+: {:reason :no-http-response}")
+             (provided
+              (http-request :method :url nil) => nil
+              (parse-response nil nil nil nil) => nil))
+       (fact
+        "throws an exception when the API server returns a 4xx"
+        (doseq [status-code http-4xx-codes]
+          (let [exception-pattern
+                (str
+                 "throw+: {:reason :http-client-error, :detail {:status-code "
+                 status-code
+                 ", :parsed-api-response nil}}")]
+            (parse-http :method :url)
+            => (throws exception-pattern)
+            (provided
+             (http-request :method :url nil) => {:body :body
+                                                 :status status-code}
+             (parse-response :body status-code nil nil) => nil))))
+       (fact
+        "throws an exception when the API server returns a 5xx"
+        (doseq [status-code http-5xx-codes]
+          (let [exception-pattern
+                (str
+                 "throw+: {:reason :http-server-error, :detail {:status-code "
+                 status-code
+                 ", :response-body :something-nasty}}")]
+            (parse-http :method :url)
+            => (throws exception-pattern)
+            (provided
+             (http-request :method :url nil) => {:body :something-nasty
+                                                 :status status-code}
+             (parse-response :something-nasty status-code nil nil) => nil)))))
