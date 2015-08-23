@@ -10,6 +10,12 @@
                        [cljs.core.async :as async :refer [<!]]]))
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]])))
 
+(defn- throw-error
+  [reason status parsed-response]
+  (throw+ {:reason reason
+                 :detail {:status-code status
+                          :parsed-api-response parsed-response}}))
+
 (defn parse-http
   "Send and parse an HTTP response as JSON.
    Additional arguments modify beavior of parse-http:
@@ -35,18 +41,11 @@
        (debug-api method url http-options response)
        ;; Assume that a nil status indicates an exception
        (cond
-        (nil? response)
-        (throw+ {:reason :no-http-response})
+        (nil? response) (throw+ {:reason :no-http-response})
         (and status
-             (>= status 400)
-             (< status 500)
-             (not suppress-4xx-exceptions?))
-        (throw+ {:reason :http-client-error
-                 :detail {:status-code status
-                          :parsed-api-response parsed-response}})
-        (>= status 500) (throw+ {:reason :http-server-error
-                                 :detail {:status-code status
-                                          :response-body body}}))
+             (>= status 400) (< status 500) (not suppress-4xx-exceptions?))
+        (throw-error :http-client-error status parsed-response)
+        (>= status 500) (throw-error :http-server-error status body))
        (if as-map?
          (assoc response :body parsed-response) parsed-response))
      ;; CLJS: asynchronous implementation, returns a channel.
