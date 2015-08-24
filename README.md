@@ -88,25 +88,28 @@ Milia will raise an exception if:
     false,
 3. the server returns a 5xxx status code.
 
-If milia raises an exception its format will be as below depending on the
-type of exception:
+If milia raises an exception it will be a map with the key `reason` and,
+depending on the type, a key `detail` which is another map with the keys
+`response` and `status-code`. Examples are shown below:
 
-1. No response:
-  ```clojure
-  {:reason :no-http-response}
-  ```
-2. 4xx response:
-  ```clojure
-  {:reason :http-client-error
-   :detail {:status-code <status-code>
-            :response <parsed-json-from-server>}
-   ```
-3. 5xx response:
-   ```clojure
-   {:reason :http-server-error
-    :detail {:response <raw-response>
-             :status-code <status-code>}
-   ```
+No response:
+```clojure
+{:reason :no-http-response}
+```
+
+4xx response:
+```clojure
+{:reason :http-client-error
+ :detail {:response <parsed-json-from-server>
+          :status-code <status-code>}
+```
+
+5xx response:
+```clojure
+{:reason :http-server-error
+ :detail {:response <raw-response>
+          :status-code <status-code>}
+```
 
 ## Setting up a remote server
 You can change the remote server URLs by importing and updating the hosts atom:
