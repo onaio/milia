@@ -1,8 +1,7 @@
 (ns milia.api.http-test
   (:require [midje.sweet :refer :all]
             [milia.api.http :refer [parse-http]]
-            [milia.api.io :refer [debug-api http-request parse-response]]
-            [milia.helpers :refer [slingshot-exception]]))
+            [milia.api.io :refer [debug-api http-request parse-response]]))
 
 (def http-4xx-codes
   "Valid HTTP 4xx codes
@@ -30,7 +29,7 @@
                 (str
                  "throw+: {:reason :http-client-error, :detail {:status-code "
                  status-code
-                 ", :parsed-api-response nil}}")]
+                 ", :response nil}}")]
             (parse-http :method :url)
             => (throws exception-pattern)
             (provided
@@ -44,7 +43,7 @@
                 (str
                  "throw+: {:reason :http-server-error, :detail {:status-code "
                  status-code
-                 ", :response-body :something-nasty}}")]
+                 ", :response :something-nasty}}")]
             (parse-http :method :url)
             => (throws exception-pattern)
             (provided

@@ -11,10 +11,10 @@
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]])))
 
 (defn- throw-error
-  [reason status parsed-response]
+  [reason status response]
   (throw+ {:reason reason
                  :detail {:status-code status
-                          :parsed-api-response parsed-response}}))
+                          :response response}}))
 
 (defn parse-http
   "Send and parse an HTTP response as JSON.
@@ -25,8 +25,12 @@
    When a request fails for one of the following reasons, an exception is thrown
    with a map containing a `:reason` key, and an optional `:detail` key
     1. No response: {:reason :no-http-response}
-    2. 4xx response: {:reason :http-client-error :detail {:status-code <status-code> :parsed-api-response <parsed-json-from-server>}
-    3. 5xx response: {:reason :http-server-error :detail {:response <raw-response> :status-code <status-code>}"
+    2. 4xx response: {:reason :http-client-error
+                      :detail {:status-code <status-code>
+                               :response <parsed-json-from-server>}
+    3. 5xx response: {:reason :http-server-error
+                      :detail {:response <raw-response>
+                               :status-code <status-code>}"
   [method url & {:keys [accept-header callback filename http-options
                         suppress-4xx-exceptions? raw-response? as-map?
                         no-cache? must-revalidate?]}]
