@@ -75,6 +75,42 @@ In CLJS, if a request fails with a 401 authorization error:
 We reload the page. *TODO* attempt a session based refresh mediated by
 a client backend.
 
+## Handling Errors
+
+If the server that milia attempts to connect to returns an exceptional status,
+>=400, or if there is a connection problem, milia may raise an exception.
+
+Milia will raise an exception if:
+
+1. there is a connection problem in which the server does no return a response
+   or returns a response that does not include a status code,
+2. the server returns a 4xx status and the `suppress-4xx-exceptions?` flag is
+    false,
+3. the server returns a 5xxx status code.
+
+If milia raises an exception it will be a map with the key `reason` and,
+depending on the type, a key `detail` which is another map with the keys
+`response` and `status-code`. Examples are shown below:
+
+No response:
+```clojure
+{:reason :no-http-response}
+```
+
+4xx response:
+```clojure
+{:reason :http-client-error
+ :detail {:response <parsed-json-from-server>
+          :status-code <status-code>}
+```
+
+5xx response:
+```clojure
+{:reason :http-server-error
+ :detail {:response <raw-response>
+          :status-code <status-code>}
+```
+
 ## Setting up a remote server
 You can change the remote server URLs by importing and updating the hosts atom:
 
