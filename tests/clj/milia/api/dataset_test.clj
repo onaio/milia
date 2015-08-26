@@ -254,7 +254,9 @@
                          (make-url "forms" :dataset-id "csv_import") => url
                          (multipart-options :file "csv_file")
                          => multipart-options-map
-                         (parse-http :post :fake-url :http-options multipart-options-map)
+                         (parse-http :post :fake-url :http-options multipart-options-map
+                                                     :suppress-4xx-exceptions? true
+                                                     :as-map? true)
                          => :response)))))
 
   (fact "Should download xls report"

@@ -233,4 +233,6 @@
      [dataset-id media-file]
      (let [url (make-url "forms" dataset-id "csv_import")
            multipart (multipart-options media-file "csv_file")]
-       (parse-http :post url :http-options multipart))))
+       (parse-http :post url :http-options multipart
+                             :suppress-4xx-exceptions? true
+                             :as-map? true))))
