@@ -30,7 +30,8 @@
             options (if-let [xls_file  (:xls_file upload)]
                       (multipart-options xls_file "xls_file")
                       {:form-params upload})]
-        (parse-http :post url :http-options options)))))
+        (parse-http :post url :http-options options
+                              :suppress-4xx-exceptions? true)))))
 
 #?(:clj
    (defn patch
@@ -42,8 +43,9 @@
       (let [url (make-url "forms" dataset-id)
             options (if-let [xls_file (:xls_file upload)]
                       (multipart-options xls_file "xls_file")
-                      {:form-params params})]
-        (parse-http :patch url :http-options options)))))
+                      {:form-params upload})]
+        (parse-http :patch url :http-options options
+                               :suppress-4xx-exceptions? true)))))
 
 (defn clone
   "Clone the dataset given by ID into the account with the given username."
