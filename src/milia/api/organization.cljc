@@ -31,8 +31,7 @@
     (parse-http :get url :no-cache? no-cache?)))
 
 (defn can-user-create-project-under-organization?
-  "Return whether a user can create projects within an organization
-   organization-list is an optional argument"
+  "Return whether a user can create projects within an organization"
   [username-to-check organization]
   (let [role
         (->> organization
