@@ -66,7 +66,7 @@
 
        (fact "Should throw an exception if API response has 401 HTTP status"
              (parse-http :method url :raw-response? true)
-             => (throws Exception #"throw\+.*:api-response-status 401")
+             => (throws Exception #"throw\+.*:status-code 401")
              (provided
               (http-request :method url nil) => {:status 401}))
 

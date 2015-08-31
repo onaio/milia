@@ -162,7 +162,8 @@
            (make-url "forms") => url
            (parse-http :post
                        url
-                       :http-options options) => :response)))
+                       :http-options options
+                       :suppress-4xx-exceptions? true) => :response)))
 
   (fact "about move dataset to folder"
         (move-to-project 1 :project-id) => :form
@@ -201,6 +202,30 @@
                                                 {:name "data_file"
                                                  :content :media-file}]})
          => :response))
+(facts "About patch"
+    (let [options {:form-params nil}
+          file {:xls_file :uploaded-file}
+          multipart-options-map {:multi :part}]
+      (fact "Should call parse-http with patch"
+            (patch :dataset-id :params) => :response
+            (provided
+             (make-url "forms" :dataset-id) => url
+             (parse-http :patch
+                         url
+                         :http-options options
+                         :suppress-4xx-exceptions? true) => :response))
+
+      (fact "Should call parse-http with multipart options"
+            (patch :dataset-id :params file) => :response
+            (provided
+             (make-url "forms" :dataset-id) => url
+             (multipart-options :uploaded-file "xls_file")
+             => multipart-options-map
+             (parse-http :patch
+                         url
+                         :http-options multipart-options-map
+                         :suppress-4xx-exceptions? true)
+             => :response))))
 
   (facts "about xls template reports"
          (let [media-file {:filename "filename"}
@@ -223,30 +248,7 @@
                                               :data_value data-value}})
                   => add-xls-response)))
 
-         (facts "About patch"
-                (let [options {:form-params :params}
-                      file {:xls_file :uploaded-file}
-                      multipart-options-map {:multi :part}]
-                  (fact "Should call parse-http with patch"
-                        (patch :dataset-id :params) => :response
-                        (provided
-                         (make-url "forms" :dataset-id) => url
-                         (parse-http :patch
-                                     url
-                                     :http-options options) => :response))
-
-                  (fact "Should call parse-http with multipart options"
-                        (patch :dataset-id :params file) => :response
-                        (provided
-                         (make-url "forms" :dataset-id) => url
-                         (multipart-options :uploaded-file "xls_file")
-                         => multipart-options-map
-                         (parse-http :patch
-                                     url
-                                     :http-options multipart-options-map)
-                         => :response))))
-
-         (facts "About CSV Imports"
+            (facts "About CSV Imports"
                 (fact "should import csv file to dataset endpoint"
                       (let [multipart-options-map {:multi :part}]
                         (csv-import :dataset-id :file) => :response
@@ -254,7 +256,9 @@
                          (make-url "forms" :dataset-id "csv_import") => url
                          (multipart-options :file "csv_file")
                          => multipart-options-map
-                         (parse-http :post :fake-url :http-options multipart-options-map)
+                         (parse-http :post :fake-url :http-options multipart-options-map
+                                                     :suppress-4xx-exceptions? true
+                                                     :as-map? true)
                          => :response)))))
 
   (fact "Should download xls report"
