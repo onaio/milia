@@ -42,6 +42,11 @@
     (or (= role "manager")
         (= role "owner"))))
 
+(defn get-organizations-where-user-can-create-projects
+  [username-to-check]
+  (->> (all)
+       (filter #(can-user-create-project-under-organization? username-to-check %))))
+
 (defn teams-all
   "Return all the teams for an organization."
   []
