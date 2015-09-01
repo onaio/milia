@@ -10,11 +10,12 @@
                        [cljs.core.async :as async :refer [<!]]]))
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]])))
 
-(defn- throw-error
-  [reason status response]
-  (throw+ {:reason reason
-                 :detail {:status-code status
-                          :response response}}))
+#?(:clj
+   (defn- throw-error
+     [reason status response]
+     (throw+ {:reason reason
+              :detail {:status-code status
+                       :response response}})))
 
 (defn parse-http
   "Send and parse an HTTP response as JSON.
