@@ -30,6 +30,23 @@
   (let [url (make-url "orgs" org-name)]
     (parse-http :get url :no-cache? no-cache?)))
 
+(defn can-user-create-project-under-organization?
+  "Return whether a user can create projects within an organization"
+  [username-to-check organization]
+  (let [role
+        (->> organization
+             :users
+             (filter #(= (:user %) username-to-check))
+             first
+             :role)]
+    (or (= role "manager")
+        (= role "owner"))))
+
+(defn get-organizations-where-user-can-create-projects
+  [username-to-check]
+  (->> (all)
+       (filter #(can-user-create-project-under-organization? username-to-check %))))
+
 (defn teams-all
   "Return all the teams for an organization."
   []

@@ -156,3 +156,24 @@
       (provided
         (make-url "teams" :team-id "share") => :url
         (parse-http :post :url :http-options {:form-params :data}) => :updated-team))
+
+(facts "about can-user-create-project-under-organization?"
+  (let [owner "i_own_this"
+        manager "i_run_this"
+        member "i_mostly_take_orders"
+        outsider "i_simply_exist"
+        organization {:org "Big Tent"
+                      :users [{:user manager
+                               :role "manager"}
+                              {:user owner
+                               :role "owner"}
+                              {:user member
+                               :role "editor"}]}]
+    (fact "returns true if user has 'owner' role"
+      (can-user-create-project-under-organization? owner organization) => true)
+    (fact "returns true if user has 'manager' role"
+      (can-user-create-project-under-organization? manager organization) => true)
+    (fact "returns false if user has 'editor' role"
+      (can-user-create-project-under-organization? member organization) => false)
+    (fact "returns false if user does not belong to organization"
+      (can-user-create-project-under-organization? outsider organization))))
