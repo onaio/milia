@@ -51,6 +51,7 @@
          (parse-http :get
                      url
                      :raw-response? nil
+                     :accept-header nil
                      :must-revalidate? nil) => :something))
 
   (fact "about dataset-getdata :raw"
@@ -60,6 +61,7 @@
          (parse-http :get
                      url
                      :raw-response? true
+                     :accept-header nil
                      :must-revalidate? true) => :something))
 
   (fact "about dataset-getrecord"
