@@ -80,11 +80,14 @@
 
 (defn data
   "Return the data associated with a dataset."
-  [dataset-id & {:keys [:format :raw? :must-revalidate?]
+  [dataset-id & {:keys [:format :raw? :must-revalidate? :accept-header]
                          #?@(:cljs [:or {:format "json"}])}]
   (let [dataset-suffix (if format (str dataset-id "." format) dataset-id)
         url (make-url "data" dataset-suffix)]
-    (parse-http :get url :raw-response? raw? :must-revalidate? must-revalidate?)))
+    (parse-http :get url
+                :raw-response? raw?
+                :must-revalidate? must-revalidate?
+                :accept-header accept-header)))
 
 (defn record
   "Retrieve a record from the dataset."
