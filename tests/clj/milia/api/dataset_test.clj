@@ -51,8 +51,8 @@
          (parse-http :get
                      url
                      :raw-response? nil
-                     :accept-header nil
-                     :must-revalidate? nil) => :something))
+                     :must-revalidate? nil
+                     :accept-header nil) => :something))
 
   (fact "about dataset-getdata :raw"
         (data :dataset-id :raw? true :must-revalidate? true) => :something
@@ -61,8 +61,19 @@
          (parse-http :get
                      url
                      :raw-response? true
-                     :accept-header nil
-                     :must-revalidate? true) => :something))
+                     :must-revalidate? true
+                     :accept-header nil) => :something))
+
+  (fact "about dataset-getdata with :accept-header"
+        (data :dataset-id :accept-header "text/*" :must-revalidate? true) => :something
+        (provided
+         (make-url "data" :dataset-id) => url
+         (parse-http :get
+                     url
+                     :raw-response? nil
+                     :must-revalidate? true
+                     :accept-header "text/*") => :something))
+
 
   (fact "about dataset-getrecord"
         (record :dataset-id :record-id) => :something
