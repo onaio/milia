@@ -32,6 +32,8 @@
     {:keys [meta-id
             data-id
             remove-group-name?
+            do-not-split-multi-selects?
+            group-delimiter
             version
             is-filtered-dataview?]}]
    (go
@@ -39,6 +41,10 @@
            (str "export_async.json?format=" fmt
                 (when meta-id (str "&meta="meta-id))
                 (when data-id (str "&data_id="meta-id))
+                (when group-delimiter
+                  (str "&group_delimiter=" group-delimiter))
+                (when do-not-split-multi-selects?
+                  (str "&dont_split_select_multiples=true"))
                 (when remove-group-name?
                   (str "&remove_group_name="remove-group-name?))
                 (when version (str "&_version="version)))
