@@ -4,7 +4,7 @@
 
 (defn create
   "Create a rest service.
-   `xform-id` is the id of the x-form to associate the service with
+   `xform-id` is the numeric id of the x-form to associate the service with
    `name` is one of 1. `generic_json`
                     2. `generic_xml`
                     3. `textit`
@@ -30,12 +30,12 @@
   [id]
   (parse-http :delete (make-url "restservices" id)))
 
-(defn get
-  "Get information for a specific rest service"
-  [id]
-  (parse-http :get (make-url "restservices" id)))
-
 (defn get-all
   "Get all rest services the requesting user has access to"
   []
   (parse-http :get (make-url "restservices")))
+
+(defn get-by-id
+  "Get information for a specific rest service"
+  [id]
+  (parse-http :get (make-url "restservices" id)))
