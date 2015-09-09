@@ -35,6 +35,19 @@
                          :suppress-4xx-exceptions? true
                          :as-map? true) => :something)))
 
+(facts "about teams-all"
+       (let [base-url (make-url "teams")
+             organization-name "some-organization"
+             url-with-filter (str base-url "?org=" organization-name)]
+         (fact "calls parse-http without org filter when called without an argument"
+               (teams-all) => :api-response
+               (provided
+                (parse-http :get base-url) => :api-response))
+         (fact "calls parse-http with org filter when an organization-name is supplied"
+               (teams-all organization-name) => :api-response
+               (provided
+                (parse-http :get url-with-filter) => :api-response))))
+
 (facts "about teams"
        (fact "should get correct url"
              (teams org-name) => fake-teams
