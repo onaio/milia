@@ -20,9 +20,12 @@
   (parse-http :post
               (make-url "restservices")
               :http-options
-              {:form-params {:xform xform-id
-                             :name name
-                             :service_url service-url}
+              {:form-params
+               (merge
+                {:xform xform-id
+                 :name name
+                 :service_url service-url}
+                options)
                :content-type :json}))
 
 (defn delete
