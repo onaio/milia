@@ -10,3 +10,5 @@
   "True if elem is in list, false otherwise."
   [list elem]
   (boolean (some #(= elem %) list)))
+
+(def select-values (comp vals select-keys))
