@@ -1,8 +1,10 @@
 (ns milia.api.async-export
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<! chan put! timeout]]
+            [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
-            [milia.utils.remote :refer [make-url]]))
+            [milia.utils.remote :refer [make-url]]
+            [milia.utils.seq :refer [select-values]]))
 
 (defn- monitor-async-export!
   [dataset-id job-id fmt on-export-url is-filtered-dataview?
@@ -22,6 +24,23 @@
            (reset! done-polling? true))
          (<! (timeout millis)))))))
 
+(def export-option-keys
+  ["meta" "data_id" "group_delimiter" "do_not_split_select_multiples"
+   "remove_group_name" "_version"])
+(def export-option-values
+  [:meta-id :data-id :remove-group-name? :do-not-split-multi-selects?
+   :group-delimiter :version])
+
+(defn- add-param [key value] (when value (str "&" key "=" value)))
+
+(defn build-export-suffix
+  "Build the export options string to pass to the Ona API."
+  [fmt options]
+  (apply str (concat ["export_async.json?format=" fmt]
+                     (map add-param
+                          export-option-keys
+                          (select-values options export-option-values)))))
+
 (defn- trigger-async-export!
   "Triggers async export and watches it via polling.
    Fires on-job-id callback on receving :job_uuid from server, then monitors
@@ -29,19 +48,9 @@
   ([dataset-id fmt on-job-id on-export-url]
    (trigger-async-export! dataset-id fmt on-job-id on-export-url nil))
   ([dataset-id fmt on-job-id on-export-url
-    {:keys [meta-id
-            data-id
-            remove-group-name?
-            version
-            is-filtered-dataview?]}]
+    {:keys [is-filtered-dataview?] :as options}]
    (go
-     (let [export-suffix
-           (str "export_async.json?format=" fmt
-                (when meta-id (str "&meta="meta-id))
-                (when data-id (str "&data_id="meta-id))
-                (when remove-group-name?
-                  (str "&remove_group_name="remove-group-name?))
-                (when version (str "&_version="version)))
+     (let [export-suffix (build-export-suffix fmt options)
            export-endpoint (if is-filtered-dataview? "dataviews" "forms")
            export-url (make-url export-endpoint dataset-id export-suffix)
            response (:body (<! (parse-http :get export-url)))]
