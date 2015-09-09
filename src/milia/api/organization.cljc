@@ -49,9 +49,14 @@
 
 (defn teams-all
   "Return all the teams for an organization."
-  []
-  (let [url (make-url "teams")]
-    (parse-http :get url)))
+  ([]
+   (teams-all nil))
+  ([organization-name]
+   (let [base-url (make-url "teams")
+         url (if organization-name
+               (str base-url "?org=" organization-name)
+               base-url)]
+     (parse-http :get url))))
 
 (defn teams
   "Return the teams for an organization, removing 'members' team that is used
