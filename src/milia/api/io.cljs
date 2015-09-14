@@ -55,14 +55,19 @@
               ["Accept" (or accept-header "application/json")]])))
 
 (defn upload-file
-  "Use google library to upload file"
-  [form chan]
-  (let [io-obj (IframeIo.)
-        url (.-action form)]
+  "Use goog.net.IframeIo to upload file. Receives an HTML form object,
+  a core.async channel where result message will be put
+  and (optionally) an id to include in the result message."
+  [form chan & [id]]
+  (let [io-obj   (IframeIo.)
+        data-out {:io-obj io-obj}
+        data-out (if id (assoc data-out :id id)
+                     data-out)
+        url      (.-action form)]
     (gev/listen io-obj (.-SUCCESS goog.net.EventType)
-                #(put! chan {:success? true :io-obj io-obj}))
+                #(put! chan (assoc data-out :success? true)))
     (gev/listen io-obj (.-ERROR goog.net.EventType)
-                #(put! chan {:success? false :io-obj io-obj}))
+                #(put! chan (assoc data-out :success? false)))
     (.sendFromForm io-obj form url)))
 
 (defn http-request
