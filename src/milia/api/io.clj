@@ -23,17 +23,6 @@
   [method url req]
   ((client-methods method) url req))
 
-(defonce connection-manager
-  ;; A connection manager so that we can use persistent connections.
-  (conn-mgr/make-reusable-conn-manager
-   {
-    ;; max simultaneous connections per host
-    :default-per-route (env :jetty-min-threads)
-    ;; max threads used for connecting
-    :threads (env :jetty-min-threads)
-    ;; time connections left open in seconds
-    :timeout 10}))
-
 ;; timeout waiting for data, 5 seconds less than nginx
 (def socket-timeout 115000)
 
@@ -64,7 +53,6 @@
    (assoc (req+auth (or req {}))
           :socket-timeout socket-timeout
           :conn-timeout connection-timeout
-          :connection-manager connection-manager
           :save-request? (env :debug-api)
           :debug (env :debug-api)
           :debug-body (env :debug-api))))
@@ -139,11 +127,15 @@
   [method url http-options]
   (let [req-fn #(call-client-method method url (build-req http-options))]
     (try+  ; Catch all bad statuses
-     (try+ ; Catch 401 with token expire messages
-      (req-fn)
-      (catch #(expired-token? %) response
-        (do
-          (refresh-temp-token)
-          (req-fn))))
+     (client/with-connection-pool
+       {:default-per-route (env :jetty-min-threads)
+        :threads (env :jetty-min-threads)
+        :timeout 10}
+       (try+ ; Catch 401 with token expire messages
+        (req-fn)
+        (catch #(expired-token? %) response
+          (do
+            (refresh-temp-token)
+            (req-fn)))))
      ;; To avoid NPE, default to a fake 555 status if no status is returned
      (catch #(<= 400 (:status % 555)) response response))))
