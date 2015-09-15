@@ -56,20 +56,26 @@
               ["Accept" (or accept-header "application/json")]])))
 
 (defn upload-file
-  "Use goog.net.IframeIo to upload file. Receives an HTML form object,
+  "Use goog.net.XhrIo to upload file. Receives an HTML form object,
   a core.async channel where result message will be put
-  and (optionally) an id to include in the result message."
-  [form chan & [id]]
-  (let [io-obj   (IframeIo.)
+  and (optionally) an id to include in the result message. Returns the
+  XhrIo object that can be used to abort request. More XhrIo API
+  docs at:
+  https://closure-library.googlecode.com/git-history/docs/class_goog_net_XhrIo.html"
+  [form chan id url]
+  (let [io-obj   (XhrIo.)
         data-out {:io-obj io-obj}
         data-out (if id (assoc data-out :id id)
                      data-out)
         url      (.-action form)]
-    (gev/listen io-obj (.-SUCCESS goog.net.EventType)
+    ;; event handlers
+    (gev/listen io-obj goog.net.EventType.SUCCESS
                 #(put! chan (assoc data-out :success? true)))
-    (gev/listen io-obj (.-ERROR goog.net.EventType)
+    (gev/listen io-obj goog.net.EventType.ERROR
                 #(put! chan (assoc data-out :success? false)))
-    (.sendFromForm io-obj form url)))
+    ;; make the requests
+    (.send io-obj url "POST" form)
+    io-obj))
 
 (defn http-request
   "Wraps cljs-http.client/request and redirects if status is 401"
