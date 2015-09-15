@@ -73,6 +73,11 @@
                 #(put! chan (assoc data-out :success? true)))
     (gev/listen io-obj goog.net.EventType.ERROR
                 #(put! chan (assoc data-out :success? false)))
+    (gev/listen io-obj goog.net.EventType.PROGRESS
+                #(put! chan (assoc data-out :progress
+                                   {:length-computable (.-lengthComputable %)
+                                    :loaded            (.-loaded %)
+                                    :total             (.-total %)})))
     ;; make the requests
     (.send io-obj url "POST" form)
     io-obj))
