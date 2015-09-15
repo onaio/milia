@@ -62,7 +62,7 @@
   XhrIo object that can be used to abort request. More XhrIo API
   docs at:
   https://closure-library.googlecode.com/git-history/docs/class_goog_net_XhrIo.html"
-  [form chan id url]
+  [form chan & [id]]
   (let [io-obj   (XhrIo.)
         data-out {:io-obj io-obj}
         data-out (if id (assoc data-out :id id)
