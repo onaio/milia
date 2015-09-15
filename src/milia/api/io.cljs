@@ -1,5 +1,6 @@
 (ns milia.api.io
-  (:import goog.net.IframeIo)
+  (:import [goog.net XhrIo]
+           [goog.net.EventType])
   (:require [cljs.core.async :refer [<! put! chan]]
             [cljs-hash.md5  :refer [md5]]
             [cljs-http.client :as http]
