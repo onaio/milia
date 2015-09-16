@@ -127,15 +127,11 @@
   [method url http-options]
   (let [req-fn #(call-client-method method url (build-req http-options))]
     (try+  ; Catch all bad statuses
-     (client/with-connection-pool
-       {:default-per-route (env :jetty-min-threads)
-        :threads (env :jetty-min-threads)
-        :timeout 10}
-       (try+ ; Catch 401 with token expire messages
-        (req-fn)
-        (catch #(expired-token? %) response
-          (do
-            (refresh-temp-token)
-            (req-fn)))))
+     (try+ ; Catch 401 with token expire messages
+      (req-fn)
+      (catch #(expired-token? %) response
+        (do
+          (refresh-temp-token)
+          (req-fn))))
      ;; To avoid NPE, default to a fake 555 status if no status is returned
      (catch #(<= 400 (:status % 555)) response response))))
