@@ -18,34 +18,32 @@
     (parse-http :get url)))
 
 #?(:clj
+   (defn- maybe-request-file
+     ""
+     [method url params]
+     (let [options (if-let [xls_file  (:xls_file params)]
+                     (multipart-options xls_file "xls_file")
+                     {:form-params params})]
+       (parse-http method url :http-options options
+                   :suppress-4xx-exceptions? true))))
+#?(:clj
    (defn create
      "Create a new dataset from a file."
-     ([upload]
-      (create upload nil))
-     ([upload project-id]
-      (let [url (apply make-url (if project-id ["projects"
-                                                project-id
-                                                "forms"]
-                                    ["forms"]))
-            options (if-let [xls_file  (:xls_file upload)]
-                      (multipart-options xls_file "xls_file")
-                      {:form-params upload})]
-        (parse-http :post url :http-options options
-                              :suppress-4xx-exceptions? true)))))
+     ([params]
+      (create params nil))
+     ([params project-id]
+      (let [url (apply make-url (if project-id
+                                  ["projects" project-id "forms"]
+                                  ["forms"]))]
+        (maybe-request-file :post url params)))))
 
 #?(:clj
    (defn patch
      "Set the metadata for a dataset using PATCH. Only a subset of the
-  required parameters are needed."
-     ([dataset-id params]
-      (patch dataset-id params nil))
-     ([dataset-id params upload]
-      (let [url (make-url "forms" dataset-id)
-            options (if-let [xls_file (:xls_file upload)]
-                      (multipart-options xls_file "xls_file")
-                      {:form-params upload})]
-        (parse-http :patch url :http-options options
-                               :suppress-4xx-exceptions? true)))))
+      required parameters are needed."
+     [dataset-id params]
+     (let [url (make-url "forms" dataset-id)]
+       (maybe-request-file :patch url params))))
 
 (defn clone
   "Clone the dataset given by ID into the account with the given username."
