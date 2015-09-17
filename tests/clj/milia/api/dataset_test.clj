@@ -256,8 +256,7 @@
                   (parse-http :patch
                               url
                               :http-options multipart-options-map
-                              :suppress-4xx-exceptions? true)
-                  => :response))))
+                              :suppress-4xx-exceptions? true) => :response))))
 
   (facts "about xls template reports"
          (let [media-file {:filename "filename"}
