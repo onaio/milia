@@ -1,5 +1,6 @@
 (ns milia.api.io
-  (:import [com.fasterxml.jackson.core JsonParseException])
+  (:import [com.fasterxml.jackson.core JsonParseException]
+           [org.apache.http NoHttpResponseException])
   (:require [cheshire.core :as json]
             [clj-http.client :as client]
             [clj-http.conn-mgr :as conn-mgr]
@@ -51,11 +52,11 @@
   ([] (build-req nil))
   ([req]
    (assoc (req+auth (or req {}))
-          :socket-timeout socket-timeout
-          :conn-timeout connection-timeout
-          :save-request? (env :debug-api)
-          :debug (env :debug-api)
-          :debug-body (env :debug-api))))
+     :conn-timeout connection-timeout
+     :socket-timeout socket-timeout
+     :save-request? (env :debug-api)
+     :debug (env :debug-api)
+     :debug-body (env :debug-api))))
 
 (defn debug-api
   "Print out debug information."
@@ -123,19 +124,25 @@
   (and (= 401 status) (:temp-token @*credentials*)))
 
 (defn http-request
-  "Send an HTTP request and catch some exceptions."
+  "Send HTTP request and handle exceptions"
   [method url http-options]
-  (let [req-fn #(call-client-method method url (build-req http-options))]
-    (try+  ; Catch all bad statuses
+  (let [send-request
+        #(call-client-method method url (build-req http-options))]
+    (try+
      (client/with-connection-pool
        {:default-per-route (env :jetty-min-threads)
-        :threads (env :jetty-min-threads)
-        :timeout 10}
-       (try+ ; Catch 401 with token expire messages
-        (req-fn)
+        :threads (env :jetty-min-threads)}
+       (try+
+        (send-request)
         (catch #(expired-token? %) response
-          (do
-            (refresh-temp-token)
-            (req-fn)))))
-     ;; To avoid NPE, default to a fake 555 status if no status is returned
-     (catch #(<= 400 (:status % 555)) response response))))
+          (refresh-temp-token)
+          (send-request))
+        (catch NoHttpResponseException _
+          ;; Because Core doesn't respond with a 401 on unauthorized PATCH requests
+          (refresh-temp-token)
+          (send-request))))
+     (catch #(or (nil? (:status %))
+                 (<= 400 (:status %))) response
+       ;; This deals with secondary error responses that do not match the
+       ;; expired-token? criteria
+       response))))
