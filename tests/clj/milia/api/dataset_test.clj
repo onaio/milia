@@ -50,6 +50,7 @@
          (make-url "data" :dataset-id) => url
          (parse-http :get
                      url
+                     :http-options {:query-params nil}
                      :raw-response? nil
                      :must-revalidate? nil
                      :accept-header nil) => :something))
@@ -60,6 +61,7 @@
          (make-url "data" :dataset-id) => url
          (parse-http :get
                      url
+                     :http-options {:query-params nil}
                      :raw-response? true
                      :must-revalidate? true
                      :accept-header nil) => :something))
@@ -70,10 +72,22 @@
          (make-url "data" :dataset-id) => url
          (parse-http :get
                      url
+                     :http-options {:query-params nil}
                      :raw-response? nil
                      :must-revalidate? true
                      :accept-header "text/*") => :something))
 
+  (fact "about dataset-getdata with :query"
+        (let [query (str "{\"_submitted_by\":\""username"\"}")]
+          (data :dataset-id :query-params {:query query}) => :something
+          (provided
+            (make-url "data" :dataset-id) => url
+            (parse-http :get
+                        url
+                        :http-options {:query-params {:query query}}
+                        :raw-response? nil
+                        :must-revalidate? nil
+                        :accept-header nil) => :something)))
 
   (fact "about dataset-getrecord"
         (record :dataset-id :record-id) => :something
