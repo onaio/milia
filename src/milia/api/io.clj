@@ -128,15 +128,22 @@
   [method url http-options]
   (let [send-request
         #(call-client-method method url (build-req http-options))]
-    (client/with-connection-pool
-      {:default-per-route (env :jetty-min-threads)
-       :threads (env :jetty-min-threads)}
-      (try+
-       (send-request)
-       (catch #(expired-token? %) response
-         (refresh-temp-token)
-         (send-request))
-       (catch NoHttpResponseException _
-         ;; Because Core doesn't respond with a 401 on unauthorized PATCH requests
-         (refresh-temp-token)
-         (send-request))))))
+    (try+
+     (client/with-connection-pool
+       {:default-per-route (env :jetty-min-threads)
+        :threads (env :jetty-min-threads)}
+       (try+
+        (send-request)
+        (catch #(expired-token? %) response
+          (refresh-temp-token)
+          (send-request))
+        (catch NoHttpResponseException _
+          ;; Because Core doesn't respond with a 401 on unauthorized PATCH requests
+          (refresh-temp-token)
+          (send-request))
+        (catch #(nil? (:status %)) response
+          (throw+ {:reason :no-status}))))
+     (catch #(= 401 (:status %)) response
+       ;; This deals with secondary 401 responses that do not match the
+       ;; expired-token? criteria
+       response))))
