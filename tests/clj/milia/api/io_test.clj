@@ -179,6 +179,17 @@
                   (call-client-method :method url refreshed-options)
                   => :response))))
 
+       (fact "should return response on nil status"
+             (binding [*credentials* (atom (assoc account
+                                                  :token api-token))]
+               (let [appended-options (options+auth
+                                       (str "Token " api-token))
+                     exception {:status nil}]
+                 (http-request :method url nil) => exception
+                 (provided
+                  (call-client-method :method url appended-options)
+                  =throws=> (slingshot-exception exception)))))
+
        (fact "should return response on 50x error"
              (binding [*credentials* (atom (assoc account
                                                   :token api-token))]

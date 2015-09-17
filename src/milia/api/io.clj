@@ -140,10 +140,9 @@
         (catch NoHttpResponseException _
           ;; Because Core doesn't respond with a 401 on unauthorized PATCH requests
           (refresh-temp-token)
-          (send-request))
-        (catch #(nil? (:status %)) response
-          (throw+ {:reason :no-status}))))
-     (catch #(<= 400 (:status %)) response
+          (send-request))))
+     (catch #(or (nil? (:status %))
+                 (<= 400 (:status %))) response
        ;; This deals with secondary error responses that do not match the
        ;; expired-token? criteria
        response))))

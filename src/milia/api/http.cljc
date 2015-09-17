@@ -47,6 +47,7 @@
        ;; Assume that a nil status indicates an exception
        (cond
         (nil? response) (throw+ {:reason :no-http-response})
+        (nil? status) (throw+ {:reason :no-http-status})
         (and status
              (>= status 400) (< status 500) (not suppress-4xx-exceptions?))
         (throw-error :http-client-error status parsed-response)
