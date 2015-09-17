@@ -19,7 +19,7 @@
 
 #?(:clj
    (defn- send-file-or-params
-     ""
+     "Send request with file or params"
      [method url params]
      (let [options (if-let [xls_file  (:xls_file params)]
                      (multipart-options xls_file "xls_file")
