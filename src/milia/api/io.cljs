@@ -64,9 +64,7 @@
   https://closure-library.googlecode.com/git-history/docs/class_goog_net_XhrIo.html"
   [form chan & [id]]
   (let [io-obj   (XhrIo.)
-        data-out {:io-obj io-obj}
-        data-out (if id (assoc data-out :id id)
-                     data-out)
+        data-out (merge {:io-obj io-obj} (when id {:id id}))
         url      (.-action form)]
     ;; event handlers
     (gev/listen io-obj goog.net.EventType.SUCCESS
