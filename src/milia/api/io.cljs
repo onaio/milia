@@ -1,5 +1,6 @@
 (ns milia.api.io
-  (:import goog.net.IframeIo)
+  (:import [goog.net XhrIo]
+           [goog.net.EventType])
   (:require [cljs.core.async :refer [<! put! chan]]
             [cljs-hash.md5  :refer [md5]]
             [cljs-http.client :as http]
@@ -55,15 +56,29 @@
               ["Accept" (or accept-header "application/json")]])))
 
 (defn upload-file
-  "Use google library to upload file"
-  [form chan]
-  (let [io-obj (IframeIo.)
-        url (.-action form)]
-    (gev/listen io-obj (.-SUCCESS goog.net.EventType)
-                #(put! chan {:success? true :io-obj io-obj}))
-    (gev/listen io-obj (.-ERROR goog.net.EventType)
-                #(put! chan {:success? false :io-obj io-obj}))
-    (.sendFromForm io-obj form url)))
+  "Use goog.net.XhrIo to upload file. Receives an HTML form object,
+  a core.async channel where result message will be put
+  and (optionally) an id to include in the result message. Returns the
+  XhrIo object that can be used to abort request. More XhrIo API
+  docs at:
+  https://closure-library.googlecode.com/git-history/docs/class_goog_net_XhrIo.html"
+  [form chan & [id]]
+  (let [io-obj   (XhrIo.)
+        data-out (merge {:io-obj io-obj} (when id {:id id}))
+        url      (.-action form)]
+    ;; event handlers
+    (gev/listen io-obj goog.net.EventType.SUCCESS
+                #(put! chan (assoc data-out :success? true)))
+    (gev/listen io-obj goog.net.EventType.ERROR
+                #(put! chan (assoc data-out :success? false)))
+    (gev/listen io-obj goog.net.EventType.PROGRESS
+                #(put! chan (assoc data-out :progress
+                                   {:length-computable (.-lengthComputable %)
+                                    :loaded            (.-loaded %)
+                                    :total             (.-total %)})))
+    ;; make the requests
+    (.send io-obj url "POST" form)
+    io-obj))
 
 (defn http-request
   "Wraps cljs-http.client/request and redirects if status is 401"
