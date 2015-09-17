@@ -18,7 +18,7 @@
     (parse-http :get url)))
 
 #?(:clj
-   (defn- maybe-request-file
+   (defn- send-file-or-params
      ""
      [method url params]
      (let [options (if-let [xls_file  (:xls_file params)]
@@ -35,7 +35,7 @@
       (let [url (apply make-url (if project-id
                                   ["projects" project-id "forms"]
                                   ["forms"]))]
-        (maybe-request-file :post url params)))))
+        (send-file-or-params :post url params)))))
 
 #?(:clj
    (defn patch
@@ -43,7 +43,7 @@
       required parameters are needed."
      [dataset-id params]
      (let [url (make-url "forms" dataset-id)]
-       (maybe-request-file :patch url params))))
+       (send-file-or-params :patch url params))))
 
 (defn clone
   "Clone the dataset given by ID into the account with the given username."
