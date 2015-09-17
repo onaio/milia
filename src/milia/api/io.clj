@@ -143,7 +143,7 @@
           (send-request))
         (catch #(nil? (:status %)) response
           (throw+ {:reason :no-status}))))
-     (catch #(= 401 (:status %)) response
-       ;; This deals with secondary 401 responses that do not match the
+     (catch #(<= 400 (:status %)) response
+       ;; This deals with secondary error responses that do not match the
        ;; expired-token? criteria
        response))))

@@ -177,4 +177,16 @@
                   (parse-response :body :status nil false)
                   => {:temp_token new-temp-token}
                   (call-client-method :method url refreshed-options)
-                  => :response)))))
+                  => :response))))
+
+       (fact "should return response on 50x error"
+             (binding [*credentials* (atom (assoc account
+                                                  :token api-token))]
+               (let [appended-options (options+auth
+                                       (str "Token " api-token))
+                     exception {:status 502
+                                :body "Server error"}]
+                 (http-request :method url nil) => exception
+                 (provided
+                  (call-client-method :method url appended-options)
+                  =throws=> (slingshot-exception exception))))))
