@@ -63,16 +63,20 @@
   docs at:
   https://closure-library.googlecode.com/git-history/docs/class_goog_net_XhrIo.html"
   [form chan & [id]]
-  (let [io-obj   (XhrIo.)
-        data-out (merge {:io-obj io-obj} (when id {:id id}))
-        url      (.-action form)]
+  (let [io-obj (XhrIo.)
+        data   (when id {:id id})
+        url    (.-action form)]
     ;; event handlers
     (gev/listen io-obj goog.net.EventType.SUCCESS
-                #(put! chan (assoc data-out :success? true)))
+                #(put! chan (assoc data
+                                   :data (.getResponseJson io-obj)
+                                   :success? true)))
     (gev/listen io-obj goog.net.EventType.ERROR
-                #(put! chan (assoc data-out :success? false)))
+                #(put! chan (assoc data
+                                   :data (.getResponseJson io-obj)
+                                   :success? false)))
     (gev/listen io-obj goog.net.EventType.PROGRESS
-                #(put! chan (assoc data-out :progress
+                #(put! chan (assoc data :progress
                                    {:length-computable (.-lengthComputable %)
                                     :loaded            (.-loaded %)
                                     :total             (.-total %)})))
