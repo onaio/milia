@@ -64,9 +64,9 @@
            {export-url :export_url
             job-id :job_uuid
             job-status :job_status} response]
-       (when export-url
+       (when (and export-url (fn? on-export-url))
          (on-export-url export-url))
-       (when job-id
+       (when (and job-id (fn? on-job-id))
          (on-job-id job-id)
          (->> {:on-export-url         on-export-url
                :on-error              on-error
