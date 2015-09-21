@@ -7,8 +7,9 @@
             [milia.utils.seq :refer [select-values]]))
 
 (defn- monitor-async-export!
-  [dataset-id job-id fmt on-export-url is-filtered-dataview?
-   & {:keys [:millis] :or {:millis 1000}}]
+  [dataset-id job-id
+   & {:keys [on-error on-export-url is-filtered-dataview? millis]
+      :or {:millis 1000}}]
   "Repeatedly polls the async export progress for the given job_uuid,
    When export_url is returned, fires callback on-export-url.
    `millis` is the number of milliseconds after which to poll again."
@@ -21,6 +22,9 @@
              response (:body (<! (parse-http :get job-url)))]
          (when-let [export-url (:export_url response)]
            (on-export-url export-url)
+           (reset! done-polling? true))
+         (when error
+           (on-error error)
            (reset! done-polling? true))
          (<! (timeout millis)))))))
 
