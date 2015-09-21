@@ -19,11 +19,12 @@
        (let [job-suffix (str "export_async.json?job_uuid=" job-id)
              job-url (make-url (if is-filtered-dataview? "dataviews" "forms")
                                dataset-id job-suffix)
-             response (:body (<! (parse-http :get job-url)))]
-         (when-let [export-url (:export_url response)]
+             response (:body (<! (parse-http :get job-url)))
+             {export-url :export_url :keys [error]} response]
+         (when (and export-url (fn? on-export-url))
            (on-export-url export-url)
            (reset! done-polling? true))
-         (when error
+         (when (and error (fn? on-error))
            (on-error error)
            (reset! done-polling? true))
          (<! (timeout millis)))))))
