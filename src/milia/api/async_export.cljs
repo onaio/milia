@@ -50,24 +50,28 @@
   "Triggers async export and watches it via polling.
    Fires on-job-id callback on receving :job_uuid from server, then monitors
    job via polling. On receiving :export_url from server, on-export-url fired."
-  ([dataset-id fmt on-job-id on-export-url]
-   (trigger-async-export! dataset-id fmt on-job-id on-export-url nil))
-  ([dataset-id fmt on-job-id on-export-url
-    {:keys [is-filtered-dataview?] :as options}]
+  ([dataset-id
+    & [{:keys [is-filtered-dataview? data-format
+               ;; callbacks
+               on-job-id on-export-url on-error]
+        :as options}]]
    (go
-     (let [export-suffix (build-export-suffix fmt options)
-           export-endpoint (if is-filtered-dataview? "dataviews" "forms")
+     (let [export-suffix (build-export-suffix data-format options)
+           export-endpoint (if is-filtered-dataview?
+                             "dataviews" "forms")
            export-url (make-url export-endpoint dataset-id export-suffix)
-           response (:body (<! (parse-http :get export-url)))]
-       (when-let [export-url (:export_url response)]
+           response (:body (<! (parse-http :get export-url)))
+           {export-url :export_url
+            job-id :job_uuid
+            job-status :job_status} response]
+       (when export-url
          (on-export-url export-url))
-       (when-let [job-id (:job_uuid response)]
+       (when job-id
          (on-job-id job-id)
-         (monitor-async-export! dataset-id
-                                job-id
-                                fmt
-                                on-export-url
-                                is-filtered-dataview?))))))
+         (->> {:on-export-url         on-export-url
+               :on-error              on-error
+               :is-filtered-dataview? is-filtered-dataview?}
+           (monitor-async-export! dataset-id job-id)))))))
 
 (defn get-async-export-url
   [dataset-id fmt]
