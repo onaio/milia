@@ -42,11 +42,11 @@
 
 (defn build-export-suffix
   "Build the export options string to pass to the Ona API."
-  [fmt options]
-  (apply str (concat ["export_async.json?format=" fmt]
+  [data-format export-options]
+  (apply str (concat ["export_async.json?format=" data-format]
                      (map add-param
                           export-option-keys
-                          (select-values options export-option-values)))))
+                          ((juxt export-option-values) export-options)))))
 
 (defn- trigger-async-export!
   "Triggers async export and watches it via polling.
