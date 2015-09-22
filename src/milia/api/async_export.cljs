@@ -9,7 +9,9 @@
 (defn- monitor-async-export!
   [dataset-id job-id
    & {:keys [on-error on-export-url is-filtered-dataview? millis]
-      :or {:millis 1000}}]
+      :or {:millis 1000
+           :on-export-url identity
+           :on-error identity}}]
   "Repeatedly polls the async export progress for the given job_uuid,
    When export_url is returned, fires callback on-export-url.
    `millis` is the number of milliseconds after which to poll again."
