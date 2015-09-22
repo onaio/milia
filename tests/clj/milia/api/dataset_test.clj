@@ -193,7 +193,7 @@
            (parse-http :post
                        url
                        :http-options options
-                       :suppress-4xx-exceptions? true) => :response)))
+                       :suppress-4xx-exceptions? false) => :response)))
 
   (fact "about move dataset to folder"
         (move-to-project 1 :project-id) => :form
