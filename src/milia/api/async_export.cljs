@@ -34,19 +34,21 @@
 (def export-option-keys
   ["meta" "data_id" "group_delimiter" "do_not_split_select_multiples"
    "remove_group_name" "_version"])
+
 (def export-option-values
-  [:meta-id :data-id :remove-group-name? :do-not-split-multi-selects?
-   :group-delimiter :version])
+  [:meta-id :data-id :group-delimiter :do-not-split-multi-selects?
+   :remove-group-name? :version])
 
 (defn- add-param [key value] (when value (str "&" key "=" value)))
 
 (defn build-export-suffix
   "Build the export options string to pass to the Ona API."
   [data-format export-options]
-  (apply str (concat ["export_async.json?format=" data-format]
-                     (map add-param
-                          export-option-keys
-                          ((juxt export-option-values) export-options)))))
+  (->> export-options
+    ((apply juxt export-option-values))
+    (map add-param export-option-keys)
+    (concat ["export_async.json?format=" data-format])
+    (apply str)))
 
 (defn- trigger-async-export!
   "Triggers async export and watches it via polling.
