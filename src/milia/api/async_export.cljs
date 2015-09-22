@@ -76,10 +76,11 @@
            (monitor-async-export! dataset-id job-id)))))))
 
 (defn get-async-export-url
-  [dataset-id fmt]
+  [dataset-id data-format]
   "Returns a channel, which will have the async export url when ready."
   (let [ch (chan 1)]
-    (trigger-async-export! dataset-id fmt identity #(put! ch %))
+    (trigger-async-export! dataset-id {:data-format   data-format
+                                       :on-export-url #(put! ch %)})
     ch))
 
 (defn get-async-export-data
