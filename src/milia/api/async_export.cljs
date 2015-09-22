@@ -23,11 +23,13 @@
                                dataset-id job-suffix)
              response (:body (<! (parse-http :get job-url)))
              {export-url :export_url :keys [error]} response]
-         (when (and export-url (fn? on-export-url))
-           (on-export-url export-url)
+         (when export-url
+           (when (fn? on-export-url)
+             (on-export-url export-url))
            (reset! done-polling? true))
-         (when (and error (fn? on-error))
-           (on-error error)
+         (when error
+           (when (fn? on-error)
+             (on-error error))
            (reset! done-polling? true))
          (<! (timeout millis)))))))
 
