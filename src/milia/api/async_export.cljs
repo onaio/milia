@@ -53,12 +53,11 @@
    Fires on-job-id callback on receving :job_uuid from server, then monitors
    job via polling. On receiving :export_url from server, on-export-url fired."
   ([dataset-id
-    & [{:keys [is-filtered-dataview? data-format
+    & [{:keys [is-filtered-dataview? data-format export-options
                ;; callbacks
-               on-job-id on-export-url on-error]
-        :as options}]]
+               on-job-id on-export-url on-error]}]]
    (go
-     (let [export-suffix (build-export-suffix data-format options)
+     (let [export-suffix (build-export-suffix data-format export-options)
            export-endpoint (if is-filtered-dataview?
                              "dataviews" "forms")
            export-url (make-url export-endpoint dataset-id export-suffix)
