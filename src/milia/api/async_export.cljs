@@ -64,7 +64,7 @@
            export-url (make-url export-endpoint dataset-id export-suffix)
            response (:body (<! (parse-http :get export-url)))
            {export-url :export_url
-            job-id :job_uuid
+            job-id     :job_uuid
             job-status :job_status} response]
        (when (and export-url (fn? on-export-url))
          (on-export-url export-url))
