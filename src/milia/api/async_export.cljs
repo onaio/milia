@@ -6,6 +6,38 @@
             [milia.utils.remote :refer [make-url]]
             [milia.utils.seq :refer [select-values]]))
 
+(defn- handle-response
+  "Handles API server's response and acts according to given
+  callbacks."
+  [{:as   response
+    :keys [status body]}
+   {:as   callbacks
+    :keys [on-error on-export-url on-job-id on-stop]
+    :or   {:on-stop       identity
+           :on-export-url identity
+           :on-error      identity
+           :on-job-id     identity}}]
+  (let [{export-url   :export_url
+         job-status   :job_status
+         job-id       :job_uuid} body
+         error-detail (or (:detail body) (:error body))]
+    ;; sometimes API server returns an export-url quickly
+    (when export-url
+      (when (fn? on-export-url)
+        (on-export-url export-url))
+      (on-stop))
+    ;; sometimes it doesn't. Instead, it may want us to wait and gives
+    ;; us a job-uuid for the heavy-lifting export task.
+    (when job-id
+      (when (fn? on-job-id)
+        (on-job-id job-id))
+      (on-stop))
+    ;; or it just gives an error
+    (when (>= status 400)
+      (when (fn? on-error)
+        (on-error error-detail))
+      (on-stop))))
+
 (defn- monitor-async-export!
   [dataset-id job-id
    & [{:keys [on-error on-export-url is-filtered-dataview? millis]
