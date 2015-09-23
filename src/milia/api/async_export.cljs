@@ -96,9 +96,12 @@
                              "dataviews" "forms")
            export-url      (make-url export-endpoint dataset-id export-suffix)
            response        (<! (parse-http :get export-url))
-
+           ;; rename on-job-id to "outer" and use it in the new on-job-id
+           outer-on-job-id on-job-id
+           ;; new on-job-id that will be used in handle-response
            on-job-id
            (fn [job-id]
+             (outer-on-job-id job-id)
              (->> {:on-export-url         on-export-url
                    :on-error              on-error
                    :is-filtered-dataview? is-filtered-dataview?}
