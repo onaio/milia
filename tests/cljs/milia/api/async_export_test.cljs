@@ -3,6 +3,20 @@
   (:require [cljs.test :as t]
             [milia.api.async-export :as async-export]))
 
+(deftest handle-response-test
+  (testing "handle export-url, on-export-url called, on-stop not called"
+    (let [sample-url "http://export.ed/file"
+          response {:status 200
+                    :body {:export_url sample-url}}
+          mutable-obj #js {:stopped false}]
+      (->> {:on-export-url #(aset mutable-obj "exportUrl" %)
+            :on-stop #(aset mutable-obj "stopped" true)}
+        (async-export/handle-response response))
+      (is (= (.-exportUrl url-report)
+             sample-url))
+      (is (= (.-stopped mutable-obj)
+             false)))))
+
 (deftest build-export-suffix
   (testing "params rendered correctly"
     (let [fmt "format"
