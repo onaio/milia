@@ -28,7 +28,20 @@
       (is (= (.-jobId mutable-obj)
              sample-job-id))
       (is (= (.-stopped mutable-obj)
-             false)))))
+             false))))
+
+  (testing "handle 400 error, on-error called, on-stop called"
+    (let [sample-msg "No Internet Explorer allowed :)"
+          response {:status 400
+                    :body {:detail sample-msg}}
+          mutable-obj #js {:stopped false}]
+      (->> {:on-error #(aset mutable-obj "error" %)
+            :on-stop  #(aset mutable-obj "stopped" true)}
+        (async-export/handle-response response))
+      (is (= (.-error mutable-obj)
+             sample-msg))
+      (is (= (.-stopped mutable-obj)
+             true)))))
 
 (deftest build-export-suffix
   (testing "params rendered correctly"
