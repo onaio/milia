@@ -20,11 +20,12 @@
 #?(:clj
    (defn- send-file-or-params
      "Send request with file or params"
-     [method url params]
+     [method url params suppress-4xx-exceptions?]
      (let [options (if-let [xls_file  (:xls_file params)]
                      (multipart-options xls_file "xls_file")
                      {:form-params params})]
-       (parse-http method url :http-options options))))
+       (parse-http method url :http-options options
+                   :suppress-4xx-exceptions? suppress-4xx-exceptions?))))
 #?(:clj
    (defn create
      "Create a new dataset from a file."
@@ -34,15 +35,16 @@
       (let [url (apply make-url (if project-id
                                   ["projects" project-id "forms"]
                                   ["forms"]))]
-        (send-file-or-params :post url params)))))
+        (send-file-or-params :post url params false)))))
 
 #?(:clj
    (defn patch
      "Set the metadata for a dataset using PATCH. Only a subset of the
       required parameters are needed."
-     [dataset-id params]
+     [dataset-id params & {:keys [suppress-4xx-exceptions?]
+                           :or {suppress-4xx-exceptions? true}}]
      (let [url (make-url "forms" dataset-id)]
-       (send-file-or-params :patch url params))))
+       (send-file-or-params :patch url params suppress-4xx-exceptions?))))
 
 (defn clone
   "Clone the dataset given by ID into the account with the given username."

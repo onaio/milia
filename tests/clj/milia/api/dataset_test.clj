@@ -192,7 +192,8 @@
            (make-url "forms") => url
            (parse-http :post
                        url
-                       :http-options options) => :response)))
+                       :http-options options
+                       :suppress-4xx-exceptions? false) => :response)))
 
   (fact "about move dataset to folder"
         (move-to-project 1 :project-id) => :form
@@ -243,7 +244,8 @@
                   (make-url "forms" :dataset-id) => url
                   (parse-http :patch
                               url
-                              :http-options options) => :response))
+                              :http-options options
+                              :suppress-4xx-exceptions? true) => :response))
 
            (fact "Should call parse-http with multipart options"
                  (patch :dataset-id file) => :response
@@ -253,7 +255,20 @@
                   => multipart-options-map
                   (parse-http :patch
                               url
-                              :http-options multipart-options-map) => :response))))
+                              :http-options multipart-options-map
+                              :suppress-4xx-exceptions? true) => :response))
+
+           (fact "Should respect suppress option"
+                 (patch :dataset-id file :suppress-4xx-exceptions? false)
+                 => :response
+                 (provided
+                  (make-url "forms" :dataset-id) => url
+                  (multipart-options :uploaded-file "xls_file")
+                  => multipart-options-map
+                  (parse-http :patch
+                              url
+                              :http-options multipart-options-map
+                              :suppress-4xx-exceptions? false) => :response))))
 
   (facts "about xls template reports"
          (let [media-file {:filename "filename"}

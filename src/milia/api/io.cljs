@@ -55,6 +55,13 @@
                 ["X-CSRFToken" crsf-token])
               ["Accept" (or accept-header "application/json")]])))
 
+(defn get-xhr-io-response
+  [io-obj]
+  (try
+    (.getResponseJson io-obj)
+    (catch js/Error _
+      {:error (.getResponseText io-obj)})))
+
 (defn upload-file
   "Use goog.net.XhrIo to upload file. Receives an HTML form object,
   a core.async channel where result message will be put
@@ -69,11 +76,11 @@
     ;; event handlers
     (gev/listen io-obj goog.net.EventType.SUCCESS
                 #(put! chan (assoc data
-                                   :data (.getResponseJson io-obj)
+                                   :data (get-xhr-io-response io-obj)
                                    :success? true)))
     (gev/listen io-obj goog.net.EventType.ERROR
                 #(put! chan (assoc data
-                                   :data (.getResponseJson io-obj)
+                                   :data (get-xhr-io-response io-obj)
                                    :success? false)))
     (gev/listen io-obj goog.net.EventType.PROGRESS
                 #(put! chan (assoc data :progress
