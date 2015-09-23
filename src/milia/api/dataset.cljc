@@ -206,7 +206,9 @@
                         :content datasetd-id}
                        {:name "data_file"
                         :content data-file}]]
-       (parse-http :post url :http-options {:multipart muiltipart}))))
+       (parse-http :post url
+                   :http-options {:multipart muiltipart}
+                   :suppress-4xx-exceptions? true))))
 
 (defn add-xls-report
   "Add xls report link to dataset"

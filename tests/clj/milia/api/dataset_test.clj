@@ -231,7 +231,8 @@
                                                 {:name "xform"
                                                  :content :dataset-id}
                                                 {:name "data_file"
-                                                 :content :media-file}]})
+                                                 :content :media-file}]}
+                     :suppress-4xx-exceptions? true)
          => :response))
 
   (facts "About patch"
