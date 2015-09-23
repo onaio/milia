@@ -91,22 +91,22 @@
                ;; callbacks
                on-job-id on-export-url on-error]}]]
    (go
-     (let [export-suffix (build-export-suffix data-format export-options)
+     (let [export-suffix   (build-export-suffix data-format export-options)
            export-endpoint (if is-filtered-dataview?
                              "dataviews" "forms")
-           export-url (make-url export-endpoint dataset-id export-suffix)
-           response (:body (<! (parse-http :get export-url)))
-           {export-url :export_url
-            job-id     :job_uuid
-            job-status :job_status} response]
-       (when (and export-url (fn? on-export-url))
-         (on-export-url export-url))
-       (when (and job-id (fn? on-job-id))
-         (on-job-id job-id)
-         (->> {:on-export-url         on-export-url
-               :on-error              on-error
-               :is-filtered-dataview? is-filtered-dataview?}
-           (monitor-async-export! dataset-id job-id)))))))
+           export-url      (make-url export-endpoint dataset-id export-suffix)
+           response        (<! (parse-http :get export-url))
+
+           on-job-id
+           (fn [job-id]
+             (->> {:on-export-url         on-export-url
+                   :on-error              on-error
+                   :is-filtered-dataview? is-filtered-dataview?}
+               (monitor-async-export! dataset-id job-id)))]
+       (handle-response response
+                        {:on-error      on-error
+                         :on-job-id     on-job-id
+                         :on-export-url on-export-url})))))
 
 (defn get-async-export-url
   [dataset-id data-format]
