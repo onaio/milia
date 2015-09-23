@@ -15,6 +15,19 @@
       (is (= (.-exportUrl mutable-obj)
              sample-url))
       (is (= (.-stopped mutable-obj)
+             true))))
+
+  (testing "handle job-id, on-job-id called, on-stop called"
+    (let [sample-job-id "012345"
+          response {:status 200
+                    :body {:export_url sample-job-id}}
+          mutable-obj #js {:stopped false}]
+      (->> {:on-job-id #(aset mutable-obj "jobId" %)
+            :on-stop #(aset mutable-obj "stopped" true)}
+        (async-export/handle-response response))
+      (is (= (.-jobId mutable-obj)
+             sample-job-id))
+      (is (= (.-stopped mutable-obj)
              true)))))
 
 (deftest build-export-suffix
