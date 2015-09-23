@@ -30,8 +30,7 @@
     ;; us a job-uuid for the heavy-lifting export task.
     (when job-id
       (when (fn? on-job-id)
-        (on-job-id job-id))
-      (on-stop))
+        (on-job-id job-id)))
     ;; or it just gives an error
     (when (>= status 400)
       (when (fn? on-error)

@@ -28,7 +28,7 @@
       (is (= (.-jobId mutable-obj)
              sample-job-id))
       (is (= (.-stopped mutable-obj)
-             true)))))
+             false)))))
 
 (deftest build-export-suffix
   (testing "params rendered correctly"
