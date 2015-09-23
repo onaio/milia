@@ -39,31 +39,29 @@
       (on-stop))))
 
 (defn- monitor-async-export!
-  [dataset-id job-id
-   & [{:keys [on-error on-export-url is-filtered-dataview? millis]
-        :or {:millis 1000
-             :on-export-url identity
-             :on-error identity}}]]
   "Repeatedly polls the async export progress for the given job_uuid,
    When export_url is returned, fires callback on-export-url.
    `millis` is the number of milliseconds after which to poll again."
+  [dataset-id job-id
+   & [{:keys [on-error on-export-url
+              is-filtered-dataview? millis]
+       :or {:millis 1000}}]]
   (let [done-polling? (atom false)]
     (go
-     (while (not @done-polling?)
-       (let [job-suffix (str "export_async.json?job_uuid=" job-id)
-             job-url (make-url (if is-filtered-dataview? "dataviews" "forms")
-                               dataset-id job-suffix)
-             response (:body (<! (parse-http :get job-url)))
-             {export-url :export_url :keys [error]} response]
-         (when export-url
-           (when (fn? on-export-url)
-             (on-export-url export-url))
-           (reset! done-polling? true))
-         (when error
-           (when (fn? on-error)
-             (on-error error))
-           (reset! done-polling? true))
-         (<! (timeout millis)))))))
+      (while (not @done-polling?)
+        (let [job-suffix (str "export_async.json?job_uuid=" job-id)
+              job-url    (-> (if is-filtered-dataview?
+                               "dataviews" "forms")
+                           (make-url dataset-id job-suffix))
+              response   (<! (parse-http :get job-url))]
+          ;; Never use `on-job-id` here b/c `on-job-id` should only be
+          ;; triggered once in `trigger-async-export!` where it starts
+          ;; `monitor-async-export!` itself
+          (->> {:on-stop       #(reset! done-polling? true)
+                :on-error      on-error
+                :on-export-url on-export-url}
+            (handle-response response))
+          (<! (timeout millis)))))))
 
 (def export-option-keys
   ["meta" "data_id" "group_delimiter" "do_not_split_select_multiples"
