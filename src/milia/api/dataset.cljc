@@ -41,9 +41,10 @@
    (defn patch
      "Set the metadata for a dataset using PATCH. Only a subset of the
       required parameters are needed."
-     [dataset-id params]
+     [dataset-id params & {:keys [suppress-4xx-exceptions?]
+                           :or {suppress-4xx-exceptions? true}}]
      (let [url (make-url "forms" dataset-id)]
-       (send-file-or-params :patch url params true))))
+       (send-file-or-params :patch url params suppress-4xx-exceptions?))))
 
 (defn clone
   "Clone the dataset given by ID into the account with the given username."

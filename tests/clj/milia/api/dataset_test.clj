@@ -256,7 +256,19 @@
                   (parse-http :patch
                               url
                               :http-options multipart-options-map
-                              :suppress-4xx-exceptions? true) => :response))))
+                              :suppress-4xx-exceptions? true) => :response))
+
+           (fact "Should respect suppress option"
+                 (patch :dataset-id file :suppress-4xx-exceptions? false)
+                 => :response
+                 (provided
+                  (make-url "forms" :dataset-id) => url
+                  (multipart-options :uploaded-file "xls_file")
+                  => multipart-options-map
+                  (parse-http :patch
+                              url
+                              :http-options multipart-options-map
+                              :suppress-4xx-exceptions? false) => :response))))
 
   (facts "about xls template reports"
          (let [media-file {:filename "filename"}
