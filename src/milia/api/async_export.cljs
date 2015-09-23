@@ -13,10 +13,10 @@
     :keys [status body]}
    {:as   callbacks
     :keys [on-error on-export-url on-job-id on-stop]
-    :or   {:on-stop       identity
-           :on-export-url identity
-           :on-error      identity
-           :on-job-id     identity}}]
+    :or   {on-stop       (constantly nil)
+           on-export-url identity
+           on-error      identity
+           on-job-id     identity}}]
   (let [{export-url   :export_url
          job-status   :job_status
          job-id       :job_uuid} body
