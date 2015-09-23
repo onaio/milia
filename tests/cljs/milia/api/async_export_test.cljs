@@ -12,7 +12,7 @@
       (->> {:on-export-url #(aset mutable-obj "exportUrl" %)
             :on-stop #(aset mutable-obj "stopped" true)}
         (async-export/handle-response response))
-      (is (= (.-exportUrl url-report)
+      (is (= (.-exportUrl mutable-obj)
              sample-url))
       (is (= (.-stopped mutable-obj)
              false)))))
