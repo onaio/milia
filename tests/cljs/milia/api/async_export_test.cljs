@@ -4,7 +4,7 @@
             [milia.api.async-export :as async-export]))
 
 (deftest handle-response-test
-  (testing "handle export-url, on-export-url called, on-stop not called"
+  (testing "handle export-url, on-export-url called, on-stop called"
     (let [sample-url "http://export.ed/file"
           response {:status 200
                     :body {:export_url sample-url}}
@@ -15,7 +15,7 @@
       (is (= (.-exportUrl mutable-obj)
              sample-url))
       (is (= (.-stopped mutable-obj)
-             false)))))
+             true)))))
 
 (deftest build-export-suffix
   (testing "params rendered correctly"
