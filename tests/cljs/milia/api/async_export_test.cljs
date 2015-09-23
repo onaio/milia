@@ -17,10 +17,10 @@
       (is (= (.-stopped mutable-obj)
              true))))
 
-  (testing "handle job-id, on-job-id called, on-stop called"
+  (testing "handle job-id, on-job-id called, on-stop not called"
     (let [sample-job-id "012345"
           response {:status 200
-                    :body {:export_url sample-job-id}}
+                    :body {:job_uuid sample-job-id}}
           mutable-obj #js {:stopped false}]
       (->> {:on-job-id #(aset mutable-obj "jobId" %)
             :on-stop #(aset mutable-obj "stopped" true)}
