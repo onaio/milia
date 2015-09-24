@@ -1,4 +1,5 @@
 (ns milia.api.project-test
+  (:refer-clojure :exclude [update])
   (:require [midje.sweet :refer :all]
             [milia.api.project :refer :all]
             [milia.api.http :refer [parse-http]]
@@ -86,7 +87,8 @@
                  (share :id username role true) => :204
                  (provided
                   (make-url "projects" :id "share") => url
-                  (parse-http :put url :http-options {:form-params data-remove}) => :204))))
+                  (parse-http :put url
+                              :http-options {:form-params data-remove}) => :204))))
 
   (facts "about update for project"
          (fact "Should return result of parse-http"
@@ -108,8 +110,9 @@
                (add-tags :id [:tag1 :tag2]) => :response
                (provided
                 (make-url "projects" :id "labels") => url
-                (parse-http :post url :http-options {:form-params {:tags ":tag1,:tag2"}
-                                                     :content-type :json})
+                (parse-http :post url
+                            :http-options {:form-params {:tags ":tag1,:tag2"}
+                                           :content-type :json})
                 => :response)))
 
   (facts "about starring"

@@ -1,4 +1,5 @@
 (ns milia.api.dataset
+  (:refer-clojure :exclude [clone update])
   (:require #?(:clj [milia.api.io :refer [multipart-options]])
             [milia.api.http :refer [parse-http]]
             #?(:clj [milia.utils.file :as file-utils])

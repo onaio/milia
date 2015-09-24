@@ -1,4 +1,5 @@
 (ns milia.api.dataset-test
+  (:refer-clojure :exclude [update])
   (:require [midje.sweet :refer :all]
             [milia.api.dataset :refer :all]
             [milia.utils.file :as f]
@@ -67,7 +68,8 @@
                      :accept-header nil) => :something))
 
   (fact "about dataset-getdata with :accept-header"
-        (data :dataset-id :accept-header "text/*" :must-revalidate? true) => :something
+        (data :dataset-id :accept-header "text/*"
+              :must-revalidate? true) => :something
         (provided
          (make-url "data" :dataset-id) => url
          (parse-http :get

@@ -1,4 +1,5 @@
 (ns milia.api.organization-test
+  (:refer-clojure :exclude [update])
   (:require [midje.sweet :refer :all]
             [milia.api.organization :refer :all]
             [milia.api.http :refer [parse-http]]

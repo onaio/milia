@@ -1,4 +1,5 @@
 (ns milia.api.dataview
+  (:refer-clojure :exclude [get update])
   (:require [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]))
 

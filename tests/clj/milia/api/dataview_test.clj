@@ -1,4 +1,5 @@
 (ns milia.api.dataview-test
+  (:refer-clojure :exclude [get update])
   (:require [midje.sweet :refer :all]
             [milia.api.dataview :refer :all]
             [milia.api.http :refer [parse-http]]
@@ -32,7 +33,8 @@
       (data dataview-id) => :response
       (provided
         (make-url "dataviews" dataview-id "data.json") => url
-        (parse-http :get url :suppress-4xx-exceptions? true :raw-response? true) => :response))
+        (parse-http :get url :suppress-4xx-exceptions?
+                    true :raw-response? true) => :response))
 
 (fact "about get dataview's form"
       (form dataview-id) => :response
@@ -45,7 +47,8 @@
         (count-data dataview-id) => :response
         (provided
           (make-url "dataviews" dataview-id "data") => url
-          (parse-http :get url :http-options options :suppress-4xx-exceptions? true) => :response)))
+          (parse-http :get url :http-options options
+                      :suppress-4xx-exceptions? true) => :response)))
 
 (fact "about all dataviews"
       (all) => :response
@@ -58,7 +61,8 @@
         (update dataview-id params) => :response
         (provided
           (make-url "dataviews" dataview-id) => url
-          (parse-http :put url :http-options options :suppress-4xx-exceptions? true) => :response)))
+          (parse-http :put url :http-options options
+                      :suppress-4xx-exceptions? true) => :response)))
 
 (fact "about delete dataview"
       (delete dataview-id) => :response
