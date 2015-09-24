@@ -1,4 +1,5 @@
 (ns milia.api.widgets
+  (:refer-clojure :exclude [list])
   (:require [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]))
 

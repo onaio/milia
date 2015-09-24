@@ -1,4 +1,5 @@
 (ns milia.api.widgets-test
+  (:refer-clojure :exclude [list])
   (:require [midje.sweet :refer :all]
             [milia.api.http :refer [parse-http]]
             [milia.api.widgets :refer :all]

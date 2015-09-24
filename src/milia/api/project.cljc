@@ -1,4 +1,5 @@
 (ns milia.api.project
+  (:refer-clojure :exclude [update])
   (:require [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]
