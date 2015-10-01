@@ -6,7 +6,7 @@
 
 (deftest build-request-headers
   (let [temp-token "z temp token"]
-    (binding [*credentials* (atom {:temp-token temp-token})]
+    (binding [*credentials* {:temp-token temp-token}]
       (is (= (io/token->headers :get-crsftoken? true
                                 :must-revalidate? true)
              {"Accept" "application/json"
@@ -17,12 +17,12 @@
               "Authorization" (str "TempToken "  temp-token)}))
 
       (testing "do not add authentication header when token is null"
-        (swap! *credentials* assoc :temp-token "null")
+        (set! *credentials* {:temp-token "null"})
         (is (= (io/token->headers :token "null")
              {"Accept" "application/json"})))
 
       (testing "do not add authentication header when token is empty string"
-        (swap! *credentials* assoc :temp-token "")
+        (set! *credentials* {:temp-token ""})
         (is (= (io/token->headers :token "")
              {"Accept" "application/json"}))))))
 
