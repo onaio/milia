@@ -2,13 +2,14 @@
   (:require [clojure.string :refer [join]]
             [milia.utils.url :refer [url]]))
 
+
 (def ^:dynamic *credentials*
   "Store credentials used to authenticate API requests.
    Based on existence in this atom credentials will be tried in top down order."
-  (atom {:temp-token nil
-         :token nil
-         :username nil
-         :password nil}))
+  {:temp-token nil
+   :token nil
+   :username nil
+   :password nil})
 
 ;; Token expiry API response messages
 (def invalid-token-msg "Invalid token")
