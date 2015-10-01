@@ -40,7 +40,7 @@
 (defn- req+auth
   "Add authorization to options"
   [req]
-  (let [{:keys [temp-token token username password]} @*credentials*]
+  (let [{:keys [temp-token token username password]} *credentials*]
     (if (or temp-token token)
       (assoc req
              :headers {"Authorization" (if temp-token
@@ -106,7 +106,7 @@
   "Bind credentials so only the token is set and then fetch the user."
   []
   (binding
-      [*credentials* (atom (select-keys @*credentials* [:token]))]
+      [*credentials* (select-keys *credentials* [:token])]
     (client/get (make-url "user") (build-req))))
 
 (defn- refresh-temp-token
@@ -115,13 +115,14 @@
   []
   (let [{:keys [body status]} (fetch-user-with-token)
         {:keys [temp_token]} (parse-response body status nil false)]
-    (swap! *credentials* merge {:temp-token temp_token})))
+    (set! *credentials* (assoc *credentials*
+                               :temp-token temp_token))))
 
 (defn- expired-token?
   "Assume any 401s that were requested with a temporary token are the result
    of an expired token."
   [{:keys [status]}]
-  (and (= 401 status) (:temp-token @*credentials*)))
+  (and (= 401 status) (:temp-token *credentials*)))
 
 (defn http-request
   "Send HTTP request and handle exceptions"

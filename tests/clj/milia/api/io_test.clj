@@ -95,14 +95,14 @@
        (fact "should add digest if account has password"
              (let [appended-options (assoc options
                                            :digest-auth [username password])]
-               (binding [*credentials* (atom account)]
+               (binding [*credentials* account]
                  (http-request :method url nil)) => :response
                  (provided
                   (call-client-method :method url appended-options)
                   => :response)))
 
        (fact "should add token if exists and temp-token does not exist"
-             (binding [*credentials* (atom (assoc account :token api-token))]
+             (binding [*credentials* (assoc account :token api-token)]
                (let [appended-options (assoc
                                        options
                                        :headers {"Authorization"
@@ -113,9 +113,9 @@
                   => :response))))
 
        (fact "should add temp token if exists and token exists"
-             (binding [*credentials* (atom (assoc account
-                                                  :token api-token
-                                                  :temp-token temp-token))]
+             (binding [*credentials* (assoc account
+                                            :token api-token
+                                            :temp-token temp-token)]
                (let [appended-options (assoc options :headers
                                              {"Authorization"
                                               (str "TempToken " temp-token)})]
@@ -126,8 +126,8 @@
                                       appended-options) => :response))))
 
        (fact "should not refresh on 401 and no temp-token"
-             (binding [*credentials* (atom (assoc account
-                                                  :token api-token))]
+             (binding [*credentials* (assoc account
+                                            :token api-token)]
                (let [appended-options (options+auth
                                        (str "Token " api-token))
                      exception {:status 401
@@ -139,9 +139,9 @@
                   =throws=> (slingshot-exception exception)))))
 
        (fact "should refresh temp token on 401 and rethrow if no change"
-             (binding [*credentials* (atom (assoc account
-                                                  :token api-token
-                                                  :temp-token temp-token))]
+             (binding [*credentials* (assoc account
+                                            :token api-token
+                                            :temp-token temp-token)]
                (let [appended-options (options+auth
                                        (str "TempToken " temp-token))
                      exception {:status 401
@@ -154,9 +154,9 @@
                   (#'milia.api.io/refresh-temp-token) => nil))))
 
        (fact "should refresh temp token on 401 and succeed on change"
-             (binding [*credentials* (atom (assoc account
-                                                  :token api-token
-                                                  :temp-token temp-token))]
+             (binding [*credentials* (assoc account
+                                            :token api-token
+                                            :temp-token temp-token)]
                (let [appended-options (options+auth
                                        (str "TempToken " temp-token))
                      new-temp-token "refreshed temp token"
@@ -180,8 +180,8 @@
                   => :response))))
 
        (fact "should return response on nil status"
-             (binding [*credentials* (atom (assoc account
-                                                  :token api-token))]
+             (binding [*credentials* (assoc account
+                                            :token api-token)]
                (let [appended-options (options+auth
                                        (str "Token " api-token))
                      exception {:status nil}]
@@ -191,8 +191,8 @@
                   =throws=> (slingshot-exception exception)))))
 
        (fact "should return response on 50x error"
-             (binding [*credentials* (atom (assoc account
-                                                  :token api-token))]
+             (binding [*credentials* (assoc account
+                                            :token api-token)]
                (let [appended-options (options+auth
                                        (str "Token " api-token))
                      exception {:status 502
