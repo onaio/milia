@@ -97,6 +97,14 @@
   (let [url (make-url "projects" id "star")]
     (parse-http :delete url)))
 
+(defn toggle-star
+  "Toggle between starred and unstarred for a user's project"
+  [id star? callback]
+  (let [url  (make-url "projects" id "star")]
+    (parse-http (if star? :post :delete)
+                url
+               :callback callback)))
+
 (defn get-starred
   "Get projects this user has starred."
   ([username]
