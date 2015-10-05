@@ -89,13 +89,13 @@
   "Add star to project for this user."
   [id & {:keys [callback]}]
   (let [url (make-url "projects" id "star")]
-    (parse-http :post url)))
+    (parse-http :post url callback)))
 
 (defn remove-star
   "Remove star from project for this user."
   [id & {:keys [callback]}]
   (let [url (make-url "projects" id "star")]
-    (parse-http :delete url)))
+    (parse-http :delete url callback)))
 
 (defn toggle-star
   "Toggle between starred and unstarred for a user's project"
