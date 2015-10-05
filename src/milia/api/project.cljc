@@ -27,13 +27,16 @@
 (defn all
   "Return all project for this account and owner or the user."
   ([]
-     (all nil))
-  ([owner & {:keys [no-cache?]}]
-     (let [url (make-url "projects")
-           options (if-not (nil? owner) {:query-params {:owner owner}})]
-       (parse-http :get url
-                   :http-options options
-                   :no-cache? no-cache?))))
+   (all nil))
+  ([owner & {:keys [no-cache? logged-in-username]}]
+   (let [url (make-url "projects")
+         options (->
+                   {:query-params nil}
+                   (#(if owner (assoc-in % [:query-params :owner] owner) %))
+                   (#(if logged-in-username (assoc-in % [:query-params :u] logged-in-username) %)))]
+     (parse-http :get url
+                 :http-options options
+                 :no-cache? no-cache?))))
 
 (defn create
   "Create a project for this account and owner or the user."

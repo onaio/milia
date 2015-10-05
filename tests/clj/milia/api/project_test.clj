@@ -7,6 +7,7 @@
 
 (let [url :fake-url
       username :fake-username
+      logged-in-username "johndoe"
       password :fake-password
       data {:url "a/b/c/id"}
       data-with-owner (merge data
@@ -18,7 +19,7 @@
                (all) => :response
                (provided
                 (make-url "projects") => url
-                (parse-http :get url :http-options nil
+                (parse-http :get url :http-options {:query-params nil}
                             :no-cache? nil) => :response))
 
          (fact "Should pass owner as a query parameter"
@@ -29,7 +30,18 @@
                             url
                             :http-options {:query-params
                                            {:owner username}}
-                            :no-cache? nil) => :response)))
+                            :no-cache? nil) => :response))
+
+         (fact "Should pass logged-in-user as a query parameter"
+               (all username :logged-in-username logged-in-username) => :response
+               (provided
+                 (make-url "projects") => url
+                 (parse-http :get
+                             url
+                             :http-options {:query-params
+                                            {:owner username
+                                             :u logged-in-username}}
+                             :no-cache? nil) => :response)))
 
   (facts "about project-create"
          (fact "Should associate data"
