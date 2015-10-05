@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [update])
   (:require [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
-            [milia.utils.remote :refer [*credentials* make-url]]
+            [milia.utils.remote :refer [make-url]]
             [milia.utils.url :refer [last-url-param]]
             #?(:clj [slingshot.slingshot :refer [throw+]])))
 
