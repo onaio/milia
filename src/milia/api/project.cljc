@@ -102,8 +102,8 @@
   [id star? callback]
   (let [url  (make-url "projects" id "star")]
     (if star?
-      (add-star id callback)
-      (remove-star id callback))))
+      (add-star id :callback callback)
+      (remove-star id :callback callback))))
 
 (defn get-starred
   "Get projects this user has starred."
