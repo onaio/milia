@@ -93,7 +93,7 @@
 
 (defn remove-star
   "Remove star from project for this user."
-  [id {:keys [callback]}]
+  [id & {:keys [callback]}]
   (let [url (make-url "projects" id "star")]
     (parse-http :delete url)))
 
