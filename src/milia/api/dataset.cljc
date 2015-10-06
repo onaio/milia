@@ -117,7 +117,7 @@
 (defn- options-for-format
   "Return options needed to handle format."
   [format]
-  (if (in? ["csvzip" "sav" "xls" "xlsx"] format) {:as :byte-array} {}))
+  (if (in? ["csvzip" "sav" "xls" "xlsx" "zip"] format) {:as :byte-array} {}))
 
 #?(:clj
    (defn download
