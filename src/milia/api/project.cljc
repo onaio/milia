@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [update])
   (:require [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
-            [milia.utils.remote :refer [make-url]]
+            [milia.utils.remote :refer [make-url make-json-url]]
             [milia.utils.url :refer [last-url-param]]
             #?(:clj [slingshot.slingshot :refer [throw+]])))
 
@@ -89,21 +89,20 @@
   "Add star to project for this user."
   [id & {:keys [callback]}]
   (let [url (make-url "projects" id "star")]
-    (parse-http :post url callback)))
+    (parse-http :post url :callback callback)))
 
 (defn remove-star
   "Remove star from project for this user."
   [id & {:keys [callback]}]
   (let [url (make-url "projects" id "star")]
-    (parse-http :delete url callback)))
+    (parse-http :delete url :callback callback)))
 
 (defn toggle-star
   "Toggle between starred and unstarred for a user's project"
   [id star? callback]
-  (let [url  (make-url "projects" id "star")]
     (if star?
       (add-star id :callback callback)
-      (remove-star id :callback callback))))
+      (remove-star id :callback callback)))
 
 (defn get-starred
   "Get projects this user has starred."
