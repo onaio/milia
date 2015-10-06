@@ -120,13 +120,13 @@
                (add-star :id) => :response
                (provided
                 (make-url "projects" :id "star") => url
-                (parse-http :post url nil) => :response))
+                (parse-http :post url :callback nil) => :response))
 
          (fact "remove-star should delete to star"
                (remove-star :id) => :response
                (provided
                 (make-url "projects" :id "star") => url
-                (parse-http :delete url nil) => :response))
+                (parse-http :delete url :callback nil) => :response))
 
          (fact "get-starred should get to star no id"
                (get-starred username) => :response
