@@ -6,6 +6,7 @@
             [milia.utils.remote :refer [make-url]]))
 
 (let [url :fake-url
+      callback :fake-callback
       username :fake-username
       password :fake-password
       data {:url "a/b/c/id"}
@@ -116,17 +117,29 @@
                 => :response)))
 
   (facts "about starring"
-         (fact "add-star should post to star"
+         (fact "add-star should post star"
                (add-star :id) => :response
                (provided
                 (make-url "projects" :id "star") => url
                 (parse-http :post url :callback nil) => :response))
+
+         (fact "add-star with callback should also post star"
+               (add-star :id :callback callback) => :response
+               (provided
+                (make-url "projects" :id "star") => url
+                (parse-http :post url :callback callback) => :response))
 
          (fact "remove-star should delete to star"
                (remove-star :id) => :response
                (provided
                 (make-url "projects" :id "star") => url
                 (parse-http :delete url :callback nil) => :response))
+
+         (fact "remove-star with callback should also delete star"
+               (remove-star :id :callback callback) => :response
+               (provided
+                (make-url "projects" :id "star") => url
+                (parse-http :delete url :callback callback) => :response))
 
          (fact "get-starred should get to star no id"
                (get-starred username) => :response
