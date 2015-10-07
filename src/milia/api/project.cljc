@@ -100,9 +100,7 @@
 (defn toggle-star
   "Toggle between starred and unstarred for a user's project"
   [id star? callback]
-    (if star?
-      (add-star id :callback callback)
-      (remove-star id :callback callback)))
+    ((if star? add-star remove-star) id :callback callback))
 
 (defn get-starred
   "Get projects this user has starred."
