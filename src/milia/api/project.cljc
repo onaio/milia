@@ -90,15 +90,20 @@
 
 (defn add-star
   "Add star to project for this user."
-  [id]
+  [id & {:keys [callback]}]
   (let [url (make-url "projects" id "star")]
-    (parse-http :post url)))
+    (parse-http :post url :callback callback)))
 
 (defn remove-star
   "Remove star from project for this user."
-  [id]
+  [id & {:keys [callback]}]
   (let [url (make-url "projects" id "star")]
-    (parse-http :delete url)))
+    (parse-http :delete url :callback callback)))
+
+(defn toggle-star
+  "Toggle between starred and unstarred for a user's project"
+  [id star? callback]
+    ((if star? add-star remove-star) id :callback callback))
 
 (defn get-starred
   "Get projects this user has starred."
