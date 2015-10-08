@@ -167,7 +167,7 @@
                               :filename filename) => :fake-file))))
 
   (fact "about online-data-entry-link"
-        (online-data-entry-link :dataset-id) => :enketo_url
+        (online-data-entry-link :dataset-id) => {:enketo_url :enketo_url}
         (provided
          (make-url "forms" :dataset-id "enketo") => url
          (#'milia.api.io/http-request :get url nil) =>

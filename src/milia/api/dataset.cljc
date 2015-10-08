@@ -158,8 +158,7 @@
   [dataset-id]
   (let [url (make-url "forms" dataset-id "enketo")]
     #?(:clj
-       (:enketo_url
-         (parse-http :get url :suppress-4xx-exceptions? true))
+       (parse-http :get url :suppress-4xx-exceptions? true)
        :cljs
        (parse-http :get url))))
 
