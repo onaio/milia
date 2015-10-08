@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/onaio/milia.svg?branch=master)](https://travis-ci.org/onaio/milia)
 
+[![Clojars Project](http://clojars.org/onaio/milia/latest-version.svg)](http://clojars.org/onaio/milia)
+
 # milia
 Ona API client library in Clojure and ClojureScript
 
@@ -19,7 +21,8 @@ This library exposes ONA endpoints for retrieving and submitting data through CL
 
 ## Setting credentials in milia
 
-Milia stores credentials in the `milia.utils.remote/*credentials*` atom map, which defaults to:
+Milia stores credentials in the `milia.utils.remote/*credentials*` dynamic var
+map, which defaults to:
 
 ```clojure
 {:temp-token nil
@@ -28,10 +31,16 @@ Milia stores credentials in the `milia.utils.remote/*credentials*` atom map, whi
  :password nil}
 ```
 
-Set the map with:
+Set the map by creating a `binding`:
 
 ```clojure
-(swap! milia.remote/*credentials* merge {:temp-token "SECRET TOKEN"})
+(binding [milia.remote/*credentials* merge {:temp-token "SECRET TOKEN"}]
+  ...)
+```
+
+And then within that binding change the value of the var using `set!`:
+```clojure
+(set! milia.remote/*credentials* {:temp-token "NEW SECRET TOKEN"})
 ```
 
 **WARNING** From CLJS you should ONLY set the `temp-token`, setting another
@@ -41,23 +50,12 @@ From CLJ you may also set the `token` and the `username` and `password`. If
 `temp-token` exists it will be used, if not `token` will be used, and if
 neither exist the `username` and `password` will be used for authentication.
 
-There are cases where you may want or need to override the default credentials
-atom. Do this using `binding`. For example, to force authenticate with the
-permanent token and retrieve a new temporary token:
-
-```clojure
-(binding [*credentials* (atom {:token "PERMANENT SECRET TOKEN"}]
-  ;; the credentials atom will now only contain the `token` key and use that
-  ;; for authentication.
-  (:temp_token (milia.api.user/user)))
-```
-
 ### Credential auto-renewal
 
-As explained above, if a `temp-token` is supplied in the credentials atom it
-will be used for authentication before any other methods. As the name would
-suggest temp-tokens are temporary and do expire. How an expiration is handled
-differs depending on the target platform.
+If a `temp-token` is supplied in the credentials var it will be used for
+authentication before any other methods. As the name would suggest temp-tokens
+are temporary and do expire. How an expiration is handled differs depending on
+the target platform.
 
 In CLJ, if a request fails with a 401 authorization error:
 
@@ -65,7 +63,7 @@ In CLJ, if a request fails with a 401 authorization error:
 which is a permanent key. If a token was not supplied, this request will fail
 and the failure is returned.
 2. If this request succeeds, we will receive a new `temp-token`. We then call
-`swap!` and insert the refreshed `temp-token` into the credentials atom.
+`set!` and add the refreshed `temp-token` into the credentials var.
 3. We retry our initial request. If it fails again, an exception is raised
 or returned depending on the value of the `supress-4xx-exceptions?` option
 in the originating call.
@@ -130,7 +128,7 @@ You can change the remote server URLs by importing and updating the hosts atom:
 
 Set the environment variable `DEBUG_API` to true to enable console debugging output on API requests.
 
-## [Todo] Proposed Client Architecture
+## [TODO] Proposed Client Architecture
 Convert remaining API endpoint files to cljc:
 
 * charts
