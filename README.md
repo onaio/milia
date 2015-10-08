@@ -1,12 +1,16 @@
 [![Build Status](https://travis-ci.org/onaio/milia.svg?branch=master)](https://travis-ci.org/onaio/milia)
 
-[![Clojars Project](http://clojars.org/onaio/milia/latest-version.svg)](http://clojars.org/onaio/milia)
-
 # milia
 Ona API client library in Clojure and ClojureScript
 
 ## Overview
 This library exposes ONA endpoints for retrieving and submitting data through CLJ and CLJS applications.
+
+## Installation
+
+Install via clojars with:
+
+[![Clojars Project](http://clojars.org/onaio/milia/latest-version.svg)](http://clojars.org/onaio/milia)
 
 ## Current API Endpoints
 * charts
