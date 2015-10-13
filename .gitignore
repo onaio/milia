@@ -18,3 +18,4 @@ examples/*/out/
 resources/public/js/lib
 .lein-failures
 .nrepl-port
+.#*

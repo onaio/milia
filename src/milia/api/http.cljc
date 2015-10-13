@@ -42,16 +42,17 @@
            parsed-response (parse-response body
                                            status
                                            filename
-                                           raw-response?)]
+                                           raw-response?)
+           error-fn #(throw-error % status parsed-response)]
        (debug-api method url http-options response)
        ;; Assume that a nil status indicates an exception
        (cond
-        (nil? response) (throw+ {:reason :no-http-response})
-        (nil? status) (throw+ {:reason :no-http-status})
-        (and status
-             (>= status 400) (< status 500) (not suppress-4xx-exceptions?))
-        (throw-error :http-client-error status parsed-response)
-        (>= status 500) (throw-error :http-server-error status body))
+         (nil? response) (error-fn :no-http-response)
+         (nil? status) (error-fn :no-http-status)
+         (and status
+              (>= status 400) (< status 500) (not suppress-4xx-exceptions?))
+         (error-fn :http-client-error)
+         (>= status 500) (error-fn :http-server-error))
        (if as-map?
          (assoc response :body parsed-response) parsed-response))
      ;; CLJS: asynchronous implementation, returns a channel.
