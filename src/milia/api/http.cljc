@@ -12,11 +12,10 @@
 
 #?(:clj
    (defn- throw-error
-     [reason status response body]
+     [reason status response]
      (throw+ {:reason reason
               :detail {:status-code status
-                       :response response
-                       :body body}})))
+                       :response response}})))
 
 (defn parse-http
   "Send and parse an HTTP response as JSON.
@@ -44,7 +43,7 @@
                                            status
                                            filename
                                            raw-response?)
-           error-fn #(throw-error % status parsed-response body)]
+           error-fn #(throw-error % status parsed-response)]
        (debug-api method url http-options response)
        ;; Assume that a nil status indicates an exception
        (cond
