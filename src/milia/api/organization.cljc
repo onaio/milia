@@ -138,7 +138,6 @@
     (parse-http :patch
                 url
                 :http-options {:form-params params :content-type :json}
-                :raw-response? true
                 :as-map? true)))
 
 (defn get-team

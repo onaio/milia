@@ -154,7 +154,6 @@
           (parse-http :patch
                       :url
                       :http-options data
-                      :raw-response? true
                       :as-map? true) => org-profile)))
 
 (fact "should return all members team for an organization."
