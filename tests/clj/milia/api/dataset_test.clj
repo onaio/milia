@@ -197,13 +197,23 @@
                        :http-options options
                        :suppress-4xx-exceptions? false) => :response)))
 
-  (fact "about move dataset to folder"
+  (fact "about move dataset to project"
         (move-to-project 1 :project-id) => :form
         (provided
          (make-url "projects" :project-id "forms") => url
          (parse-http :post
                      url
                      :http-options {:form-params {:formid 1}}) => :form))
+
+  (fact "should change form owner"
+         (new-form-owner :id :new_owner) => :response
+         (provided
+          (make-url "forms" :id) => url
+          (make-url "users" :new_owner) => :user-url
+          (parse-http :patch
+                      url
+                      :http-options {:form-params {:owner :user-url}})
+          => :response))
 
   (facts "about update-sharing for dataset"
          (let [username :fake-username
