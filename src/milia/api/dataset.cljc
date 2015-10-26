@@ -185,6 +185,13 @@
   (let [url (make-url "projects" project-id "forms")]
     (parse-http :post url :http-options {:form-params {:formid dataset-id}})))
 
+(defn new-form-owner
+  "Set a new form owner"
+  [dataset-id new-owner]
+  (let [url (make-url "forms" dataset-id)
+        new-owner (make-url "users" new-owner)]
+    (parse-http :patch url :http-options {:form-params {:owner new-owner}})))
+
 (defn update-sharing
   "Share dataset with specific user"
   [dataset-id username role]
