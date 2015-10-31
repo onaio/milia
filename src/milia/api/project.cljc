@@ -19,9 +19,9 @@
   (let [url (make-url "projects" id "forms")]
     (parse-http :get url)))
 
-(defn get-project [id]
+(defn get-project [id & {:keys [no-cache?]}]
   (let [url (make-url "projects" id)
-        data (parse-http :get url)]
+        data (parse-http :get url :no-cache? no-cache?)]
     #?(:clj (add-id data) :cljs data)))
 
 (defn all
