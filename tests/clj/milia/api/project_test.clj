@@ -72,13 +72,13 @@
                (get-project :id) => parsed-data
                (provided
                 (make-url "projects" :id) => url
-                (parse-http :get url) => data))
+                (parse-http :get url :no-cache? nil) => data))
 
          (fact "Should handle when parse-http returns a string"
                (get-project :id) => nil
                (provided
                 (make-url "projects" :id) => url
-                (parse-http :get url) => "a string")))
+                (parse-http :get url :no-cache? nil) => "a string")))
 
   (facts "about get-forms"
          (fact "Should find forms for id"
