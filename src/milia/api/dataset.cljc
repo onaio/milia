@@ -119,39 +119,30 @@
   [format]
   (if (in? ["csvzip" "sav" "xls" "xlsx" "zip"] format) {:as :byte-array} {}))
 
-#?(:clj
-   (defn download
-     "Download dataset in specified format."
-     ([dataset-id format]
-      (download dataset-id format false))
-     ([dataset-id format async]
-      (download dataset-id format async false))
-     ([dataset-id format async dataview]
-      (let [path (str dataset-id "." format)
-            options (options-for-format format)
-            url (if dataview
-                  (make-url "dataviews" dataset-id (str "data." format))
-                  (make-url (if async "forms" "data") path))
-            filename (filename-for-format dataset-id format)]
-        (parse-http :get url :http-options options :filename filename)))))
-
-(defn download-synchronously
-  "Download form data in specified format. The synchronicity here refers to the
-   server side. This will still return a channel, not data, in CLJS.
+(defn download
+  "Download form data in specified format.
    The options map (last parameter) has the following keys:
-   :accept-header Defaults to application/json
+   :accept-header Defaults to application/json.
    :submission-id The id of the submission whose data the client requires. The
     function returns data for all submissions if this is not provided.
    :dataview? Boolean flag indicating whether the data belongs to a filtered
-    dataview"
+    dataview.
+   :async Download the data asynchronously, default is false. The synchronicity
+    here refers to the server side. This will still return a channel, not
+    data, in CLJS. This only applies if dataview? and submission-id are
+    falsey."
   [dataset-id format
-   & {:keys [accept-header submission-id dataview?]}]
+   & {:keys [accept-header async submission-id dataview?]}]
   (let [url (cond
-             dataview? (make-url "dataviews" dataset-id (str "data." format))
-             submission-id (make-url "data" dataset-id (str submission-id "." format))
-             :default (make-url "data" (str dataset-id "." format)))]
+              dataview? (make-url "dataviews" dataset-id (str "data." format))
+              submission-id (make-url "data" dataset-id
+                                      (str submission-id "." format))
+              :default (make-url (if async "forms" "data")
+                                 (str dataset-id "." format)))
+        filename #?(:clj (filename-for-format dataset-id format) :cljs nil)]
     (parse-http :get url
                 :accept-header accept-header
+                :filename filename
                 :http-options (options-for-format format))))
 
 (defn form
