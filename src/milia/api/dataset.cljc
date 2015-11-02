@@ -135,6 +135,25 @@
             filename (filename-for-format dataset-id format)]
         (parse-http :get url :http-options options :filename filename)))))
 
+(defn download-synchronously
+  "Download form data in specified format. The synchronicity here refers to the
+   server side. This will still return a channel, not data, in CLJS.
+   The options map (last parameter) has the following keys:
+   :accept-header Defaults to application/json
+   :submission-id The id of the submission whose data the client requires. The
+    function returns data for all submissions if this is not provided.
+   :dataview? Boolean flag indicating whether the data belongs to a filtered
+    dataview"
+  [dataset-id format
+   & {:keys [accept-header submission-id dataview?]}]
+  (let [url (cond
+             dataview? (make-url "dataviews" dataset-id (str "data." format))
+             submission-id (make-url "data" dataset-id (str submission-id "." format))
+             :default (make-url "data" (str dataset-id "." format)))]
+    (parse-http :get url
+                :accept-header accept-header
+                :http-options (options-for-format format))))
+
 (defn form
   "Download form as JSON string or file in specified format if format passed."
   ([dataset-id]

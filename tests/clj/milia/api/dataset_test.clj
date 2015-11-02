@@ -149,6 +149,44 @@
                   (parse-http :get url :http-options {:as :byte-array}
                               :filename filename) => :fake-file))))
 
+  (facts "about download-synchronously"
+    (let [format "leet"
+          accept-header "text/leet"
+          dataset-id 1337
+          submission-id 42
+          form-data-url (make-url "data" (str dataset-id "." format))
+          form-data-url-with-submission-id
+          (make-url "data" dataset-id (str submission-id
+                                           "."
+                                           format))
+          dataview-data-url (make-url "dataviews" dataset-id (str "data." format))]
+      (fact "calls parse-http with the correct parameters for forms"
+        (download-synchronously dataset-id format
+                                :accept-header accept-header)
+        => :response
+        (provided
+         (parse-http :get form-data-url
+                     :accept-header accept-header
+                     :http-options {}) => :response))
+      (fact "calls parse-http with the correct parameters for forms given a submission-id"
+        (download-synchronously dataset-id format
+                                :accept-header accept-header
+                                :submission-id submission-id)
+        => :response
+        (provided
+         (parse-http :get form-data-url-with-submission-id
+                     :accept-header accept-header
+                     :http-options {}) => :response))
+      (fact "calls parse-http with the correct parameters for filtered dataview"
+        (download-synchronously dataset-id format
+                                :accept-header accept-header
+                                :dataview? true)
+        => :response
+        (provided
+         (parse-http :get dataview-data-url
+                     :accept-header accept-header
+                     :http-options {}) => :response))))
+
   (facts "about dataset form"
          (fact "Return JSON string"
                (form :dataset-id) => :json
