@@ -128,9 +128,10 @@
    :dataview? Boolean flag indicating whether the data belongs to a filtered
     dataview.
    :async Download the data asynchronously, default is false. The synchronicity
-    here refers to the server side. This will still return a channel, not
-    data, in CLJS. This only applies if dataview? and submission-id are
-    falsey."
+    here refers to the server side. This will still return a channel, not data,
+    in CLJS. This only applies if dataview? and submission-id are falsey.
+   :filename Unless nil, store the response in this filename. In CLJS the
+    default is nil, in CLJ the default is dataset-ID dot format."
   [dataset-id format
    & {:keys [accept-header async submission-id dataview?]}]
   (let [url (cond

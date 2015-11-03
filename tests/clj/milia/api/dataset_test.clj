@@ -116,17 +116,17 @@
                  (download :dataset-id format) => :fake-file
                  (provided
                   (make-url "data" filename) => url
-                  (parse-http :get url :http-options {}
-                              :filename filename) => :fake-file)))
+                  (parse-http :get url :accept-header nil :filename filename
+                              :http-options {}) => :fake-file)))
 
          (fact "Should change URL for async"
                (let [format "csv"
                      filename (str :dataset-id "." format)]
-                 (download :dataset-id format true) => :fake-file
+                 (download :dataset-id format :async true) => :fake-file
                  (provided
                   (make-url "forms" filename) => url
-                  (parse-http :get url :http-options {}
-                              :filename filename) => :fake-file)))
+                  (parse-http :get url :accept-header nil :filename filename
+                              :http-options {}) => :fake-file)))
 
          (fact "Should handle XLS as byte array"
                (let [format "xls"
@@ -134,10 +134,9 @@
                  (download :dataset-id format) => :fake-file
                  (provided
                   (make-url "data" filename) => url
-                  (parse-http :get
-                              url
-                              :http-options {:as :byte-array}
-                              :filename filename) => :fake-file)))
+                  (parse-http :get url :accept-header nil
+                              :filename filename
+                              :http-options {:as :byte-array}) => :fake-file)))
 
          (fact "Should handle csvzip zip extension"
                (let [format "csvzip"
@@ -146,15 +145,17 @@
                  (download :dataset-id format) => :fake-file
                  (provided
                   (make-url "data" path) => url
-                  (parse-http :get url :http-options {:as :byte-array}
-                              :filename filename) => :fake-file))))
+                  (parse-http :get url :accept-header nil :filename filename
+                              :http-options
+                              {:as :byte-array}) => :fake-file))))
 
-  (facts "about download options"
+  (facts "about download syncronously options"
     (let [format "leet"
           accept-header "text/leet"
           dataset-id 1337
+          filename (str dataset-id "." format)
           submission-id 42
-          form-data-url (make-url "data" (str dataset-id "." format))
+          form-data-url (make-url "data" filename)
           form-data-url-with-submission-id
           (make-url "data" dataset-id (str submission-id
                                            "."
@@ -168,6 +169,7 @@
             (provided
              (parse-http :get form-data-url
                          :accept-header accept-header
+                         :filename filename
                          :http-options {}) => :response))
       (fact "calls parse-http with the correct parameters for forms given a
              submission-id"
@@ -178,6 +180,7 @@
             (provided
              (parse-http :get form-data-url-with-submission-id
                          :accept-header accept-header
+                         :filename filename
                          :http-options {}) => :response))
       (fact "calls parse-http with the correct parameters for filtered
              dataview"
@@ -188,6 +191,7 @@
             (provided
              (parse-http :get dataview-data-url
                          :accept-header accept-header
+                         :filename filename
                          :http-options {}) => :response))))
 
   (facts "about dataset form"
