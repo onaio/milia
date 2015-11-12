@@ -76,14 +76,12 @@
 
 (defn build-export-suffix
   "Build the export options string to pass to the Ona API."
-  ([url export-options]
-   (build-export-suffix url nil export-options))
-  ([url data-format export-options]
-   (->> export-options
-        ((apply juxt export-option-values))
-        (map add-param export-option-keys)
-        (concat [url data-format])
-        (apply str))))
+  [url export-options & [data-format]]
+  (->> export-options
+       ((apply juxt export-option-values))
+       (map add-param export-option-keys)
+       (concat [url data-format])
+       (apply str)))
 
 (defn- trigger-async-export!
   "Triggers async export and watches it via polling.
