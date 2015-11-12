@@ -147,7 +147,19 @@
                  (provided
                   (make-url "data" path) => url
                   (parse-http :get url :http-options {:as :byte-array}
-                              :filename filename) => :fake-file))))
+                              :filename filename) => :fake-file)))
+         (fact "Should add extra download options to request"
+               (let [format "csv"
+                     filename (str :dataset-id "." format)
+                     uri (str :dataset-id "." format
+                                   "?remove-group-names=true&group-delimiter=/")
+                     export-options {:remove-group-names true
+                                     :group-delimiter "/"}]
+                 (download :dataset-id format true false export-options) => :fake-file
+                 (provided
+                   (make-url "forms" uri) => url
+                   (parse-http :get url :http-options {}
+                               :filename filename) => :fake-file))))
 
   (facts "about download-synchronously"
     (let [format "leet"

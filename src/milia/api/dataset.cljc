@@ -133,8 +133,11 @@
             url (if dataview
                   (make-url "dataviews" dataset-id (str "data." format))
                   (make-url (if async "forms" "data")
-                            (str path "?" (join "&" (for [[option val] export-options]
-                                                      (str (name option) "=" val))))))
+                            (str path
+                                 (when export-options
+                                   (str "?"
+                                        (join "&" (for [[option val] export-options]
+                                                    (str (name option) "=" val))))))))
             filename (filename-for-format dataset-id format)]
         (parse-http :get url :http-options options :filename filename)))))
 
