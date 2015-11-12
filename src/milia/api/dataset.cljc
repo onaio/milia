@@ -1,6 +1,7 @@
 (ns milia.api.dataset
   (:refer-clojure :exclude [clone update])
-  (:require #?(:clj [milia.api.io :refer [multipart-options]])
+  (:require [clojure.string :refer [join]]
+            #?(:clj [milia.api.io :refer [multipart-options]])
             [milia.api.http :refer [parse-http]]
             #?(:clj [milia.utils.file :as file-utils])
             [milia.utils.seq :refer [has-keys? in?]]
@@ -125,13 +126,15 @@
      ([dataset-id format]
       (download dataset-id format false))
      ([dataset-id format async]
-      (download dataset-id format async false))
-     ([dataset-id format async dataview]
+      (download dataset-id format async false nil))
+     ([dataset-id format async dataview export-options]
       (let [path (str dataset-id "." format)
             options (options-for-format format)
             url (if dataview
                   (make-url "dataviews" dataset-id (str "data." format))
-                  (make-url (if async "forms" "data") path))
+                  (make-url (if async "forms" "data")
+                            (str path "?" (join "&" (for [[option val] export-options]
+                                                      (str (name option) "=" val))))))
             filename (filename-for-format dataset-id format)]
         (parse-http :get url :http-options options :filename filename)))))
 
