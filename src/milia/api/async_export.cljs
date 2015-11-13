@@ -6,6 +6,8 @@
             [milia.utils.remote :refer [make-url]]
             [milia.utils.seq :refer [select-values]]))
 
+(def export-async-url "export_async.json?format=")
+
 (defn- handle-response
   "Handles API server's response and acts according to given
   callbacks."
@@ -74,12 +76,12 @@
 
 (defn build-export-suffix
   "Build the export options string to pass to the Ona API."
-  [data-format export-options]
+  [url export-options & [data-format]]
   (->> export-options
-    ((apply juxt export-option-values))
-    (map add-param export-option-keys)
-    (concat ["export_async.json?format=" data-format])
-    (apply str)))
+       ((apply juxt export-option-values))
+       (map add-param export-option-keys)
+       (concat [url data-format])
+       (apply str)))
 
 (defn- trigger-async-export!
   "Triggers async export and watches it via polling.
@@ -90,7 +92,7 @@
                ;; callbacks
                on-job-id on-export-url on-error]}]]
    (go
-     (let [export-suffix   (build-export-suffix data-format export-options)
+     (let [export-suffix   (build-export-suffix export-async-url data-format export-options)
            export-endpoint (if is-filtered-dataview?
                              "dataviews" "forms")
            export-url      (make-url export-endpoint dataset-id export-suffix)

@@ -65,8 +65,8 @@
           data-id "data-id"
           options {:meta-id meta-id
                    :data-id data-id}]
-      (is (= (async-export/build-export-suffix fmt options)
-             (str "export_async.json?format="
+      (is (= (async-export/build-export-suffix async-export/export-async-url options fmt)
+             (str async-export/export-async-url
                   fmt
                   "&meta="
                   meta-id
