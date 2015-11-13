@@ -76,7 +76,7 @@
 
 (defn build-export-suffix
   "Build the export options string to pass to the Ona API."
-  [url export-options & [data-format]]
+  [url data-format & [export-options]]
   (->> export-options
        ((apply juxt export-option-values))
        (map add-param export-option-keys)
