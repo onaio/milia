@@ -19,7 +19,8 @@
   [reason status-code body]
   (str
    "throw+: {:reason " reason ", :detail {:status-code "
-   status-code ", :response nil}}"))
+   status-code ", :response nil, :method :method, :url :url, "
+   ":http-options nil}}"))
 
 (facts "about parse-http"
        (fact "throws an exception when the API server is not reachable"
