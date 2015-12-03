@@ -66,11 +66,11 @@
 
 (def export-option-keys
   ["meta" "data_id" "group_delimiter" "do_not_split_select_multiples"
-   "remove_group_name" "_version"])
+   "remove_group_name" "_version" "query"])
 
 (def export-option-values
   [:meta-id :data-id :group-delimiter :do-not-split-multi-selects?
-   :remove-group-name? :version])
+   :remove-group-name? :version :query])
 
 (defn- add-param [key value] (when value (str "&" key "=" value)))
 
