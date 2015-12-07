@@ -40,7 +40,8 @@
     (testing "for get request with no-cache? true should add {:xhr true}
               and {:t (timestamp)} to :query-params"
 
-      (is (contains? (-> (io/build-http-options {:query-params params} :get true)
+      (is (contains? (-> (io/build-http-options
+                          {:query-params params} :get true)
                          :query-params keys set) :t)))
 
     (testing "for post/patch/put request with no-cache? nil should add
@@ -59,4 +60,4 @@
               add xhr or no-cache?"
       (doseq [method [:post :patch :put]]
         (is (= (io/build-http-options {:json-params params} method true)
-              {:json-params params}))))))
+               {:json-params params}))))))

@@ -34,9 +34,9 @@
                (update :dataset-id params) => :something
                (provided
                 (make-url "forms" :dataset-id) => url
-                (parse-http :put
-                            url
-                            :http-options {:form-params params}) => :something)))
+                (parse-http
+                 :put url
+                 :http-options {:form-params params}) => :something)))
 
   (facts "about dataset metadata"
          (fact "should get dataset metadata"
@@ -107,7 +107,8 @@
         (add-tags :dataset-id :tags) => :something
         (provided
          (make-url "forms" :dataset-id "labels") => url
-         (parse-http :post url :http-options {:form-params :tags}) => :something))
+         (parse-http :post url
+                     :http-options {:form-params :tags}) => :something))
 
   (facts "About dataset download"
          (fact "Should make data URL and parse response"
@@ -155,7 +156,8 @@
                                    "?remove-group-names=true&group-delimiter=/")
                      export-options {:remove-group-names true
                                      :group-delimiter "/"}]
-                 (download :dataset-id format true false export-options) => :fake-file
+                 (download :dataset-id
+                           format true false export-options) => :fake-file
                  (provided
                    (make-url "forms" uri) => url
                    (parse-http :get url :http-options {}
@@ -171,7 +173,8 @@
           (make-url "data" dataset-id (str submission-id
                                            "."
                                            format))
-          dataview-data-url (make-url "dataviews" dataset-id (str "data." format))]
+          dataview-data-url (make-url "dataviews"
+                                      dataset-id (str "data." format))]
       (fact "calls parse-http with the correct parameters for forms"
         (download-synchronously dataset-id format
                                 :accept-header accept-header)
@@ -180,7 +183,8 @@
          (parse-http :get form-data-url
                      :accept-header accept-header
                      :http-options {}) => :response))
-      (fact "calls parse-http with the correct parameters for forms given a submission-id"
+      (fact "calls parse-http with the correct parameters for forms given a
+             submission-id"
         (download-synchronously dataset-id format
                                 :accept-header accept-header
                                 :submission-id submission-id)
@@ -372,14 +376,15 @@
         (let [form-xls-url (str :dataset-id ".xls?meta=" :meta-id)]
           (download-xls-report :dataset-id
                                :meta-id
-                               :filename) => :byte-array
-                               (provided
-                                (make-url "forms"  form-xls-url) => :url
-                                (parse-http :get
-                                            :url
-                                            :http-options {:as :byte-array}
-                                            :as-map? true
-                                            :filename :filename) => :byte-array))))
+                               :filename)
+          => :byte-array
+          (provided
+           (make-url "forms"  form-xls-url) => :url
+           (parse-http :get
+                       :url
+                       :http-options {:as :byte-array}
+                       :as-map? true
+                       :filename :filename) => :byte-array))))
 
 (fact "Should download xls report"
       (let [form-xls-url (str :dataset-id ".xls?meta=" :meta-id)]
@@ -395,7 +400,8 @@
                       :filename :filename) => :byte-array)))
 
 (fact "Should download xls report for single submission"
-      (let [form-xls-url (str :dataset-id ".xls?meta=" :meta-id"&data_id=":data-id)]
+      (let [form-xls-url (str :dataset-id ".xls?meta=" :meta-id
+                              "&data_id=" :data-id)]
         (download-xls-report :dataset-id
                              :meta-id
                              :filename

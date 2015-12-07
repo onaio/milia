@@ -21,7 +21,10 @@
                  [cljs-http "0.1.35"]]
   :license "Apache 2"
   :url "https://github.com/onaio/milia"
-  :plugins [[lein-cljsbuild "1.0.5"]
+  :plugins [[jonase/eastwood "0.2.1"]
+            [lein-bikeshed-ona "0.2.1"]
+            [lein-cljsbuild "1.0.5"]
+            [lein-kibit "0.1.2"]
             [lein-midje "3.1.3"]
             [lein-environ "1.0.0"]]
   :profiles {:dev {:dependencies [[midje "1.7.0"]]
@@ -31,6 +34,10 @@
              :uberjar {:env {:debug-api? false
                              :jetty-min-threads 10
                              :jetty-max-threads 80}}}
+  :eastwood {:exclude-linters [:constant-test]
+             :add-linters [:unused-fn-args :unused-locals :unused-namespaces
+                           :unused-private-vars]
+             :namespaces [:source-paths]}
   :test-paths ["tests/clj" "target/generated/tests/clj"]
   :cljsbuild {
               :builds {:dev

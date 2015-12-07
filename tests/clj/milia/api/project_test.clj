@@ -34,7 +34,8 @@
                             :no-cache? nil) => :response))
 
          (fact "Should pass logged-in-user as a query parameter"
-               (all username :logged-in-username logged-in-username) => :response
+               (all username :logged-in-username logged-in-username)
+               => :response
                (provided
                  (make-url "projects") => url
                  (parse-http :get
@@ -95,13 +96,15 @@
                  (share :id username role) => :204
                  (provided
                   (make-url "projects" :id "share") => url
-                  (parse-http :put url :http-options {:form-params data}) => :204)
+                  (parse-http :put url :http-options {:form-params data})
+                  => :204)
 
                  (share :id username role true) => :204
                  (provided
                   (make-url "projects" :id "share") => url
                   (parse-http :put url
-                              :http-options {:form-params data-remove}) => :204))))
+                              :http-options {:form-params data-remove})
+                  => :204))))
 
   (facts "about update for project"
          (fact "Should return result of parse-http"
