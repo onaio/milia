@@ -31,9 +31,10 @@
   ([owner & {:keys [no-cache? logged-in-username]}]
    (let [url (make-url "projects")
          options (->
-                   {:query-params nil}
-                   (#(if owner (assoc-in % [:query-params :owner] owner) %))
-                   (#(if logged-in-username (assoc-in % [:query-params :u] logged-in-username) %)))]
+                  {:query-params nil}
+                  (#(if owner (assoc-in % [:query-params :owner] owner) %))
+                  (#(if logged-in-username (assoc-in % [:query-params :u]
+                                                      logged-in-username) %)))]
      (parse-http :get url
                  :http-options options
                  :no-cache? no-cache?))))
@@ -86,7 +87,8 @@
   "Get projects with given tags."
   [tags]
   (let [url (make-url "projects")]
-    (parse-http :get url :http-options {:query-params {:tags (join "," tags)}})))
+    (parse-http :get url :http-options {:query-params
+                                        {:tags (join "," tags)}})))
 
 (defn add-star
   "Add star to project for this user."

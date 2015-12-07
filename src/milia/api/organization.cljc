@@ -45,8 +45,8 @@
 
 (defn get-organizations-where-user-can-create-projects
   [username-to-check]
-  (->> (all)
-       (filter #(can-user-create-project-under-organization? username-to-check %))))
+  (filter #(can-user-create-project-under-organization? username-to-check %)
+          all))
 
 (defn teams-all
   "Return all the teams for an organization."
@@ -97,12 +97,11 @@
     (add-member org-name member nil))
   ([org-name member role]
     (let [url (make-url "orgs" org-name "members")
-          assigned-role (if role
-                          role
-                          editor-role)]
+          assigned-role (or role editor-role)]
       (parse-http :post
                   url
-                  :http-options {:form-params {:username member :role assigned-role}}
+                  :http-options {:form-params {:username member
+                                               :role assigned-role}}
                   :suppress-4xx-exceptions? true
                   :as-map? true))))
 
@@ -114,7 +113,8 @@
      (let [url (if team-id
                  (make-url "teams" org-name team-id "members")
                  (make-url "orgs" org-name "members"))]
-       (parse-http :delete url :http-options {:query-params {:username member}}))))
+       (parse-http :delete url
+                   :http-options {:query-params {:username member}}))))
 
 (defn single-owner?
   "Is the user the only member of the Owners team."

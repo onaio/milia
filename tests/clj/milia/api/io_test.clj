@@ -4,7 +4,8 @@
             [milia.api.http :refer [parse-http]]
             [milia.api.io :refer :all]
             [milia.helpers :refer [slingshot-exception]]
-            [milia.utils.remote :refer [*credentials* make-url token-expired-msg]]
+            [milia.utils.remote :refer
+             [*credentials* make-url token-expired-msg]]
             [environ.core :refer [env]]))
 
 (def body [1,2])

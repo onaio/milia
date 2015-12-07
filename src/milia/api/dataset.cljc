@@ -1,11 +1,12 @@
 (ns milia.api.dataset
   (:refer-clojure :exclude [clone update])
   (:require [clojure.string :refer [join]]
-            #?(:clj [milia.api.io :refer [multipart-options]])
             [milia.api.http :refer [parse-http]]
-            #?(:clj [milia.utils.file :as file-utils])
+            #?@(:clj [[milia.api.io :refer [multipart-options]]
+                      [milia.utils.file :as file-utils]])
             [milia.utils.seq :refer [has-keys? in?]]
-            [milia.utils.remote :refer [make-j2x-url make-client-url make-url]]))
+            [milia.utils.remote :refer
+             [make-j2x-url make-client-url make-url]]))
 
 (defn all
   "Return all the datasets for an account."
@@ -81,9 +82,10 @@
 
 (defn data
   "Return the data associated with a dataset."
-  [dataset-id & {:keys [:format :raw? :must-revalidate? :accept-header :query-params]
-                         #?@(:cljs [:or {:format "json"}])}]
-  (let [dataset-suffix (if format (str dataset-id "." format) dataset-id)
+  [dataset-id & {:keys [:format :raw? :must-revalidate? :accept-header
+                        :query-params]}]
+  (let [format (or format #?(:cljs "json"))
+        dataset-suffix (if format (str dataset-id "." format) dataset-id)
         url (make-url "data" dataset-suffix)
         options {:query-params query-params}]
     (parse-http :get url
@@ -120,26 +122,27 @@
   [format]
   (if (in? ["csvzip" "sav" "xls" "xlsx" "zip"] format) {:as :byte-array} {}))
 
+(defn- map->query-str
+  [query-map]
+  (str "?"
+       (join "&" (for [[option val] query-map] (str (name option) "=" val)))))
+
 #?(:clj
    (defn download
      "Download dataset in specified format."
-     ([dataset-id format]
-      (download dataset-id format false))
-     ([dataset-id format async]
-      (download dataset-id format async false nil))
-     ([dataset-id format async dataview export-options]
-      (let [path (str dataset-id "." format)
-            options (options-for-format format)
-            url (if dataview
-                  (make-url "dataviews" dataset-id (str "data." format))
-                  (make-url (if async "forms" "data")
-                            (str path
-                                 (when export-options
-                                   (str "?"
-                                        (join "&" (for [[option val] export-options]
-                                                    (str (name option) "=" val))))))))
-            filename (filename-for-format dataset-id format)]
-        (parse-http :get url :http-options options :filename filename)))))
+     [dataset-id format & [async dataview export-options]]
+     (let [path (str dataset-id "." format)
+           options (options-for-format format)
+           url (apply
+                make-url
+                (if dataview
+                  ["dataviews" dataset-id (str "data." format)]
+                  [(if async "forms" "data")
+                   (str path
+                        (when export-options
+                          (map->query-str export-options)))]))
+           filename (filename-for-format dataset-id format)]
+       (parse-http :get url :http-options options :filename filename))))
 
 (defn download-synchronously
   "Download form data in specified format. The synchronicity here refers to the
@@ -154,7 +157,8 @@
    & {:keys [accept-header submission-id dataview?]}]
   (let [url (cond
              dataview? (make-url "dataviews" dataset-id (str "data." format))
-             submission-id (make-url "data" dataset-id (str submission-id "." format))
+             submission-id (make-url "data" dataset-id
+                                     (str submission-id "." format))
              :default (make-url "data" (str dataset-id "." format)))]
     (parse-http :get url
                 :accept-header accept-header

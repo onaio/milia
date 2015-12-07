@@ -24,7 +24,7 @@
       (let [param-key (if stateful-method? :form-params :query-params)
             options+xhr (assoc-in http-options [param-key :xhr] true)]
         (if (and no-cache? (not stateful-method?))
-          (assoc-in options+xhr [param-key :t] (md5 (.toString (.now js/Date))))
+          (assoc-in options+xhr [param-key :t] (-> js/Date .now str md5))
           options+xhr)))))
 
 (def raw-request
@@ -67,8 +67,7 @@
   a core.async channel where result message will be put
   and (optionally) an id to include in the result message. Returns the
   XhrIo object that can be used to abort request. More XhrIo API
-  docs at:
-  https://closure-library.googlecode.com/git-history/docs/class_goog_net_XhrIo.html"
+  docs at: https://goo.gl/B0fm2a"
   [form chan & [id]]
   (let [io-obj (XhrIo.)
         data   (when id {:id id})
