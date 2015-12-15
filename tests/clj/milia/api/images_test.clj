@@ -8,7 +8,7 @@
 (def image-map {:filename :filename :size 1})
 (def multipart-options-map {:multipart []})
 (def merged-options (assoc multipart-options-map
-                      :headers {"Slug" :filename}))
+                           :headers {"Slug" :filename}))
 (def location-leading-slash "/location")
 (def location-url (str thumbor-server location-leading-slash))
 

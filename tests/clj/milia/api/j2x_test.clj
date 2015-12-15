@@ -25,9 +25,9 @@
        (j2x/download-xls-report-template :filename
                                          :template-token) => :byte-array
        (provided
-         (r/make-j2x-url "templates" :template-token) => :url
-         (parse-http :get
-                     :url
-                     :http-options {:as :byte-array}
-                     :as-map? true
-                     :filename :filename) => :byte-array))
+        (r/make-j2x-url "templates" :template-token) => :url
+        (parse-http :get
+                    :url
+                    :http-options {:as :byte-array}
+                    :as-map? true
+                    :filename :filename) => :byte-array))

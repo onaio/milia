@@ -46,14 +46,16 @@
                (profile username) => :something
                (provided
                 (make-url "profiles" username) => url
-                (parse-http :get url :suppress-4xx-exceptions? true) => :something)))
+                (parse-http :get url
+                            :suppress-4xx-exceptions? true) => :something)))
 
   (facts "About user"
          (fact "Should get correct url"
                (user false) => :something
                (provided
                 (make-url "user") => url
-                (parse-http :get url :suppress-4xx-exceptions? false) => :something)))
+                (parse-http :get url
+                            :suppress-4xx-exceptions? false) => :something)))
 
   (facts "About create"
          (fact "Should register a new user"
@@ -81,7 +83,8 @@
 
   (facts "About user change-password"
          (fact "Should post to profiles with passwords"
-               (change-password username :current_password :new_password) => :updated
+               (change-password username
+                                :current_password :new_password) => :updated
                (provided
                 (make-url "profiles" username "change_password") => url
                 (parse-http :post
@@ -102,16 +105,16 @@
          (fact "should update metadata"
                (update-user-metadata username {:first-login false}) => :metadata
                (provided
-                 (make-url "profiles" username) => url
-                 (retrieve-metadata username) => {:random "test"}
-                 (parse-http :patch
-                             url
-                             :http-options
-                             {:form-params {:metadata {:first-login false
-                                                       :random "test"}}
-                              :content-type :json}
-                             :as-map? true
-                             :suppress-4xx-exceptions? nil) => :metadata)))
+                (make-url "profiles" username) => url
+                (retrieve-metadata username) => {:random "test"}
+                (parse-http :patch
+                            url
+                            :http-options
+                            {:form-params {:metadata {:first-login false
+                                                      :random "test"}}
+                             :content-type :json}
+                            :as-map? true
+                            :suppress-4xx-exceptions? nil) => :metadata)))
 
   (facts "About get-by-email"
          (fact "Should get users for email address"

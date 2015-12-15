@@ -54,9 +54,7 @@
       (is (= (.-error mutable-obj)
              sample-msg))
       (is (= (.-stopped mutable-obj)
-             true))))
-
-  )
+             true)))))
 
 (deftest build-export-suffix
   (testing "params rendered correctly"
@@ -65,10 +63,8 @@
           data-id "data-id"
           options {:meta-id meta-id
                    :data-id data-id}]
-      (is (= (async-export/build-export-suffix async-export/export-async-url fmt options)
-             (str async-export/export-async-url
-                  fmt
-                  "&meta="
-                  meta-id
-                  "&data_id="
-                  data-id))))))
+      (is (= (async-export/build-export-suffix async-export/export-async-url
+                                               fmt options)
+             (str async-export/export-async-url fmt
+                  "&meta=" meta-id
+                  "&data_id=" data-id))))))

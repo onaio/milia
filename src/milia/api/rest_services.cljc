@@ -11,7 +11,8 @@
                     4. `f2dhis2`
                     5. `bamboo`
    `service-url` is the URL of the webhook receiving endpoint
-   `options` is a map for additional configuration, containing the following keys in the case of textit:
+   `options` is a map for additional configuration, containing the following
+      keys in the case of textit:
     1. `:service` - Service being configured
     2. `:auth_token` - Authentication token
     3. `:flow_uuid` - UUID of the flow in textit

@@ -8,7 +8,8 @@
   [params]
   (let [url (make-url "dataviews")
         options {:form-params params}]
-    (parse-http :post url :http-options options :suppress-4xx-exceptions? true)))
+    (parse-http :post url
+                :http-options options :suppress-4xx-exceptions? true)))
 
 (defn get
   "Retrieves dataview object using dataview id"

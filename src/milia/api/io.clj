@@ -52,11 +52,11 @@
   ([] (build-req nil))
   ([req]
    (assoc (req+auth (or req {}))
-     :conn-timeout connection-timeout
-     :socket-timeout socket-timeout
-     :save-request? (env :debug-api)
-     :debug (env :debug-api)
-     :debug-body (env :debug-api))))
+          :conn-timeout connection-timeout
+          :socket-timeout socket-timeout
+          :save-request? (env :debug-api)
+          :debug (env :debug-api)
+          :debug-body (env :debug-api))))
 
 (defn debug-api
   "Print out debug information."
@@ -81,7 +81,7 @@
    (catch ClassCastException _
      (parse-json-response (String. body)))
    (catch JsonParseException _
-       "Improperly formatted API response: " body)))
+     "Improperly formatted API response: " body)))
 
 (defn parse-binary-response
   "Parse binary response by writing into a temp file and returning the path."
@@ -106,7 +106,7 @@
   "Bind credentials so only the token is set and then fetch the user."
   []
   (binding
-      [*credentials* (select-keys *credentials* [:token])]
+   [*credentials* (select-keys *credentials* [:token])]
     (client/get (make-url "user") (build-req))))
 
 (defn- refresh-temp-token
@@ -135,11 +135,12 @@
         :threads (env :jetty-min-threads)}
        (try+
         (send-request)
-        (catch #(expired-token? %) response
+        (catch expired-token? response
           (refresh-temp-token)
           (send-request))
         (catch NoHttpResponseException _
-          ;; Because Core doesn't respond with a 401 on unauthorized PATCH requests
+          ;; Because Core doesn't respond with a 401 on unauthorized PATCH
+          ;; requests
           (refresh-temp-token)
           (send-request))))
      (catch #(or (nil? (:status %))

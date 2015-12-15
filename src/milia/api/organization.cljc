@@ -13,13 +13,11 @@
   "List all the organizations belonging to the account making the request.
    When a username is provided, return only those organizations shared by both
    the account making the request and the user associated with the username."
-  ([]
-   (all nil))
-  ([username]
-   (let [url (make-url (if username
-                         (str "orgs?shared_with=" username)
-                         "orgs"))]
-     (parse-http :get url))))
+  [& [username]]
+  (let [url (make-url (if username
+                        (str "orgs?shared_with=" username)
+                        "orgs"))]
+    (parse-http :get url)))
 
 (defn create [data]
   (let [url (make-url "orgs")]
@@ -46,7 +44,8 @@
 (defn get-organizations-where-user-can-create-projects
   [username-to-check]
   (->> (all)
-       (filter #(can-user-create-project-under-organization? username-to-check %))))
+       (filter #(can-user-create-project-under-organization?
+                 username-to-check %))))
 
 (defn teams-all
   "Return all the teams for an organization."
@@ -94,27 +93,27 @@
 (defn add-member
   "Add a user to an organization"
   ([org-name member]
-    (add-member org-name member nil))
+   (add-member org-name member nil))
   ([org-name member role]
-    (let [url (make-url "orgs" org-name "members")
-          assigned-role (if role
-                          role
-                          editor-role)]
-      (parse-http :post
-                  url
-                  :http-options {:form-params {:username member :role assigned-role}}
-                  :suppress-4xx-exceptions? true
-                  :as-map? true))))
+   (let [url (make-url "orgs" org-name "members")
+         assigned-role (or role editor-role)]
+     (parse-http :post
+                 url
+                 :http-options {:form-params {:username member
+                                              :role assigned-role}}
+                 :suppress-4xx-exceptions? true
+                 :as-map? true))))
 
 (defn remove-member
   "Remove a user from an organization or organization team"
   ([org-name member]
-     (remove-member org-name member nil))
+   (remove-member org-name member nil))
   ([org-name member team-id]
-     (let [url (if team-id
-                 (make-url "teams" org-name team-id "members")
-                 (make-url "orgs" org-name "members"))]
-       (parse-http :delete url :http-options {:query-params {:username member}}))))
+   (let [url (if team-id
+               (make-url "teams" org-name team-id "members")
+               (make-url "orgs" org-name "members"))]
+     (parse-http :delete url
+                 :http-options {:query-params {:username member}}))))
 
 (defn single-owner?
   "Is the user the only member of the Owners team."
