@@ -51,17 +51,16 @@
     (go
       (while (not @done-polling?)
         (let [job-suffix (str "export_async.json?job_uuid=" job-id)
-              job-url    (-> (if is-filtered-dataview?
-                               "dataviews" "forms")
-                             (make-url dataset-id job-suffix))
-              response   (<! (parse-http :get job-url))]
+              job-url (make-url dataset-id
+                                (if is-filtered-dataview? "dataviews" "forms")
+                                job-suffix)
+              response (<! (parse-http :get job-url))]
           ;; Never use `on-job-id` here b/c `on-job-id` should only be
           ;; triggered once in `trigger-async-export!` where it starts
           ;; `monitor-async-export!` itself
-          (->> {:on-stop       #(reset! done-polling? true)
-                :on-error      on-error
-                :on-export-url on-export-url}
-               (handle-response response))
+          (handle-response response {:on-stop #(reset! done-polling? true)
+                                     :on-error on-error
+                                     :on-export-url on-export-url})
           (<! (timeout millis)))))))
 
 (def export-option-keys
@@ -102,13 +101,14 @@
            inner-on-job-id
            (fn [job-id]
              (on-job-id job-id)
-             (->> {:on-export-url         on-export-url
-                   :on-error              on-error
-                   :is-filtered-dataview? is-filtered-dataview?}
-                  (monitor-async-export! dataset-id job-id)))]
+             (monitor-async-export!
+              dataset-id job-id
+              {:on-export-url on-export-url
+               :on-error on-error
+               :is-filtered-dataview? is-filtered-dataview?}))]
        (handle-response response
-                        {:on-error      on-error
-                         :on-job-id     inner-on-job-id
+                        {:on-error on-error
+                         :on-job-id inner-on-job-id
                          :on-export-url on-export-url})))))
 
 (defn get-async-export-url

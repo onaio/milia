@@ -43,9 +43,8 @@
 
 (defn get-organizations-where-user-can-create-projects
   [username-to-check]
-  (->> (all)
-       (filter #(can-user-create-project-under-organization?
-                 username-to-check %))))
+  (filter #(can-user-create-project-under-organization?
+            username-to-check %) (all)))
 
 (defn teams-all
   "Return all the teams for an organization."
