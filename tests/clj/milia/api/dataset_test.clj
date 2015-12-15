@@ -70,14 +70,14 @@
   (fact "about dataset-getdata with :accept-header"
         (data :dataset-id :accept-header "text/*"
               :must-revalidate? true) => :something
-              (provided
-               (make-url "data" :dataset-id) => url
-               (parse-http :get
-                           url
-                           :http-options {:query-params nil}
-                           :raw-response? nil
-                           :must-revalidate? true
-                           :accept-header "text/*") => :something))
+        (provided
+         (make-url "data" :dataset-id) => url
+         (parse-http :get
+                     url
+                     :http-options {:query-params nil}
+                     :raw-response? nil
+                     :must-revalidate? true
+                     :accept-header "text/*") => :something))
 
   (fact "about dataset-getdata with :query"
         (let [query (str "{\"_submitted_by\":\"" username "\"}")]
@@ -278,11 +278,11 @@
                  (update-sharing :dataset-id
                                  username
                                  role) => :sharing-updated
-                                 (provided
-                                  (make-url "forms" :dataset-id "share") => url
-                                  (parse-http :post url :http-options
-                                              {:form-params data})
-                                  => :sharing-updated))))
+                 (provided
+                  (make-url "forms" :dataset-id "share") => url
+                  (parse-http :post url :http-options
+                              {:form-params data})
+                  => :sharing-updated))))
 
   (fact "about upload media"
         (upload-media :dataset-id {:filename "image.png"}) => :response
