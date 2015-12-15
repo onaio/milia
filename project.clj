@@ -28,6 +28,11 @@
             [lein-environ "1.0.1"]
             [lein-kibit "0.1.2"]
             [lein-midje "3.1.3"]]
+  :cljfmt {:file-pattern #"[^\.#]*\.clj[s]?$"}
+  :eastwood {:exclude-linters [:constant-test]
+             :add-linters [:unused-fn-args :unused-locals :unused-namespaces
+                           :unused-private-vars]
+             :namespaces [:source-paths]}
   :profiles {:dev {:dependencies [[midje "1.8.2"]]
                    :env {:debug-api? false
                          :jetty-min-threads 10

@@ -10,7 +10,6 @@
             [milia.helpers.io :refer [error-status?]]
             [milia.utils.file :as file-utils]
             [milia.utils.remote :refer [*credentials* bad-token-msgs make-url]]
-            [milia.utils.seq :refer [in?]]
             [slingshot.slingshot :refer [throw+ try+]]))
 
 (def ^:private client-methods
@@ -81,7 +80,7 @@
    (catch ClassCastException _
      (parse-json-response (String. body)))
    (catch JsonParseException _
-     "Improperly formatted API response: " body)))
+     (str "Improperly formatted API response: " body))))
 
 (defn parse-binary-response
   "Parse binary response by writing into a temp file and returning the path."
@@ -135,7 +134,7 @@
         :threads (env :jetty-min-threads)}
        (try+
         (send-request)
-        (catch expired-token? response
+        (catch expired-token? _
           (refresh-temp-token)
           (send-request))
         (catch NoHttpResponseException _
