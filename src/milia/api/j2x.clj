@@ -1,8 +1,7 @@
 (ns milia.api.j2x
   (:require [milia.api.http :refer [parse-http]]
             [milia.utils.file :as file-utils]
-            [milia.utils.remote :refer [make-j2x-url]]
-            [milia.utils.seq :refer [has-keys?]]))
+            [milia.utils.remote :refer [make-j2x-url]]))
 
 (defn upload-xls-template
   "Upload xls template to j2x"
@@ -20,4 +19,6 @@
   "Download xls report template from the j2x service"
   [filename template-token]
   (let [url (make-j2x-url "templates" template-token)]
-    (parse-http :get url :http-options {:as :byte-array} :as-map? true :filename filename)))
+    (parse-http :get url
+                :http-options {:as :byte-array}
+                :as-map? true :filename filename)))

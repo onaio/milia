@@ -8,23 +8,32 @@
   :dependencies [;; CORE MILIA REQUIREMENTS
                  [cheshire "5.5.0"]
                  [clj-http "2.0.0" :exclusions [org.clojure/tools.reader]]
-                 [environ "1.0.0"]
+                 [environ "1.0.1"]
                  [org.clojure/clojure "1.7.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  ;;cljs
                  [cljs-hash "0.0.2"]
-                 [org.clojure/clojurescript "1.7.28"
+                 [org.clojure/clojurescript "1.7.189"
                   :exclusions [org.clojure/clojure]]
-                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                 [org.clojure/core.async "0.2.374"]
                  [slingshot "0.12.2"]
                  ;; CLIENT REQUIREMENTS
-                 [cljs-http "0.1.35"]]
+                 [cljs-http "0.1.38"]]
   :license "Apache 2"
   :url "https://github.com/onaio/milia"
-  :plugins [[lein-cljsbuild "1.0.5"]
-            [lein-midje "3.1.3"]
-            [lein-environ "1.0.0"]]
-  :profiles {:dev {:dependencies [[midje "1.7.0"]]
+  :plugins [[jonase/eastwood "0.2.1"]
+            [lein-bikeshed-ona "0.2.1"]
+            [lein-cljfmt "0.3.0"]
+            [lein-cljsbuild "1.1.1"]
+            [lein-environ "1.0.1"]
+            [lein-kibit "0.1.2"]
+            [lein-midje "3.1.3"]]
+  :cljfmt {:file-pattern #"[^\.#]*\.clj[s]?$"}
+  :eastwood {:exclude-linters [:constant-test]
+             :add-linters [:unused-fn-args :unused-locals :unused-namespaces
+                           :unused-private-vars]
+             :namespaces [:source-paths]}
+  :profiles {:dev {:dependencies [[midje "1.8.2"]]
                    :env {:debug-api? false
                          :jetty-min-threads 10
                          :jetty-max-threads 80}}

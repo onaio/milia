@@ -15,17 +15,17 @@
       widgets-url "https://stage.ona.io/api/v1/widgets"]
 
   (fact "widgets/generate-content-object-url"
-    (let [{:keys [content_type content_id]} widget-definition]
-      (generate-content-object-url content_type content_id)
-      => content-object-url))
+        (let [{:keys [content_type content_id]} widget-definition]
+          (generate-content-object-url content_type content_id)
+          => content-object-url))
 
   (fact "widgets/create returns the API response"
-    (create widget-definition) => :some-widget
-    (provided
-     (parse-http :post
-                 widgets-url
-                 :http-options {:content-type :json
-                                :form-params (assoc widget-definition
-                                               :content_object
-                                               content-object-url)})
-     => :some-widget)))
+        (create widget-definition) => :some-widget
+        (provided
+         (parse-http :post
+                     widgets-url
+                     :http-options {:content-type :json
+                                    :form-params (assoc widget-definition
+                                                        :content_object
+                                                        content-object-url)})
+         => :some-widget)))

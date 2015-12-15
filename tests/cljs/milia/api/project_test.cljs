@@ -13,4 +13,6 @@
   ;; https://github.com/hugoduncan/atticus
   (with-redefs [parse-http (fn [url] {:body "Created project"})]
     (is (= {:body "Created project"}
-           (project/create {:name name :public "False" :metadata {:category "name"}} "username")))))
+           (project/create {:name name
+                            :public "False"
+                            :metadata {:category "name"}} "username")))))

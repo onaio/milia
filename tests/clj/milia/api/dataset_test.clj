@@ -34,9 +34,9 @@
                (update :dataset-id params) => :something
                (provided
                 (make-url "forms" :dataset-id) => url
-                (parse-http :put
-                            url
-                            :http-options {:form-params params}) => :something)))
+                (parse-http :put url
+                            :http-options {:form-params params})
+                => :something)))
 
   (facts "about dataset metadata"
          (fact "should get dataset metadata"
@@ -80,7 +80,7 @@
                      :accept-header "text/*") => :something))
 
   (fact "about dataset-getdata with :query"
-        (let [query (str "{\"_submitted_by\":\""username"\"}")]
+        (let [query (str "{\"_submitted_by\":\"" username "\"}")]
           (data :dataset-id :query-params {:query query}) => :something
           (provided
            (make-url "data" :dataset-id) => url
@@ -107,7 +107,8 @@
         (add-tags :dataset-id :tags) => :something
         (provided
          (make-url "forms" :dataset-id "labels") => url
-         (parse-http :post url :http-options {:form-params :tags}) => :something))
+         (parse-http :post url
+                     :http-options {:form-params :tags}) => :something))
 
   (facts "About dataset download"
          (fact "Should make data URL and parse response"
@@ -152,52 +153,56 @@
                (let [format "csv"
                      filename (str :dataset-id "." format)
                      uri (str :dataset-id "." format
-                                   "?remove-group-names=true&group-delimiter=/")
+                              "?remove-group-names=true&group-delimiter=/")
                      export-options {:remove-group-names true
                                      :group-delimiter "/"}]
-                 (download :dataset-id format true false export-options) => :fake-file
+                 (download :dataset-id format true false export-options)
+                 => :fake-file
                  (provided
-                   (make-url "forms" uri) => url
-                   (parse-http :get url :http-options {}
-                               :filename filename) => :fake-file))))
+                  (make-url "forms" uri) => url
+                  (parse-http :get url :http-options {}
+                              :filename filename) => :fake-file))))
 
   (facts "about download-synchronously"
-    (let [format "leet"
-          accept-header "text/leet"
-          dataset-id 1337
-          submission-id 42
-          form-data-url (make-url "data" (str dataset-id "." format))
-          form-data-url-with-submission-id
-          (make-url "data" dataset-id (str submission-id
-                                           "."
-                                           format))
-          dataview-data-url (make-url "dataviews" dataset-id (str "data." format))]
-      (fact "calls parse-http with the correct parameters for forms"
-        (download-synchronously dataset-id format
-                                :accept-header accept-header)
-        => :response
-        (provided
-         (parse-http :get form-data-url
-                     :accept-header accept-header
-                     :http-options {}) => :response))
-      (fact "calls parse-http with the correct parameters for forms given a submission-id"
-        (download-synchronously dataset-id format
-                                :accept-header accept-header
-                                :submission-id submission-id)
-        => :response
-        (provided
-         (parse-http :get form-data-url-with-submission-id
-                     :accept-header accept-header
-                     :http-options {}) => :response))
-      (fact "calls parse-http with the correct parameters for filtered dataview"
-        (download-synchronously dataset-id format
-                                :accept-header accept-header
-                                :dataview? true)
-        => :response
-        (provided
-         (parse-http :get dataview-data-url
-                     :accept-header accept-header
-                     :http-options {}) => :response))))
+         (let [format "leet"
+               accept-header "text/leet"
+               dataset-id 1337
+               submission-id 42
+               form-data-url (make-url "data" (str dataset-id "." format))
+               form-data-url-with-submission-id
+               (make-url "data" dataset-id (str submission-id
+                                                "."
+                                                format))
+               dataview-data-url (make-url "dataviews"
+                                           dataset-id (str "data." format))]
+           (fact "calls parse-http with the correct parameters for forms"
+                 (download-synchronously dataset-id format
+                                         :accept-header accept-header)
+                 => :response
+                 (provided
+                  (parse-http :get form-data-url
+                              :accept-header accept-header
+                              :http-options {}) => :response))
+           (fact "calls parse-http with the correct parameters for forms given a
+                  submission-id"
+                 (download-synchronously dataset-id format
+                                         :accept-header accept-header
+                                         :submission-id submission-id)
+                 => :response
+                 (provided
+                  (parse-http :get form-data-url-with-submission-id
+                              :accept-header accept-header
+                              :http-options {}) => :response))
+           (fact "calls parse-http with the correct parameters for filtered
+                  dataview"
+                 (download-synchronously dataset-id format
+                                         :accept-header accept-header
+                                         :dataview? true)
+                 => :response
+                 (provided
+                  (parse-http :get dataview-data-url
+                              :accept-header accept-header
+                              :http-options {}) => :response))))
 
   (facts "about dataset form"
          (fact "Return JSON string"
@@ -256,14 +261,14 @@
                      :http-options {:form-params {:formid 1}}) => :form))
 
   (fact "should change form owner"
-         (new-form-owner :id :new_owner) => :response
-         (provided
-          (make-url "forms" :id) => url
-          (make-url "users" :new_owner) => :user-url
-          (parse-http :patch
-                      url
-                      :http-options {:form-params {:owner :user-url}})
-          => :response))
+        (new-form-owner :id :new_owner) => :response
+        (provided
+         (make-url "forms" :id) => url
+         (make-url "users" :new_owner) => :user-url
+         (parse-http :patch
+                     url
+                     :http-options {:form-params {:owner :user-url}})
+         => :response))
 
   (facts "about update-sharing for dataset"
          (let [username :fake-username
@@ -273,11 +278,11 @@
                  (update-sharing :dataset-id
                                  username
                                  role) => :sharing-updated
-                                 (provided
-                                  (make-url "forms" :dataset-id "share") => url
-                                  (parse-http :post url :http-options
-                                              {:form-params data})
-                                  => :sharing-updated))))
+                 (provided
+                  (make-url "forms" :dataset-id "share") => url
+                  (parse-http :post url :http-options
+                              {:form-params data})
+                  => :sharing-updated))))
 
   (fact "about upload media"
         (upload-media :dataset-id {:filename "image.png"}) => :response
@@ -343,43 +348,44 @@
            (fact "Should add xls report to Ona"
                  (add-xls-report :dataset-id
                                  :uuid
-                                 :filename) => (contains add-xls-response)
-                  (provided
-                   (make-url "metadata") => url
-                   (parse-http :post
-                               url
-                               :http-options {:form-params
-                                              {:xform :dataset-id
-                                               :data_type "external_export"
-                                               :data_value data-value}})
-                   => add-xls-response)))
+                                 :filename)
+                 => (contains add-xls-response)
+                 (provided
+                  (make-url "metadata") => url
+                  (parse-http :post url
+                              :http-options {:form-params
+                                             {:xform :dataset-id
+                                              :data_type "external_export"
+                                              :data_value data-value}})
+                  => add-xls-response))))
 
-         (facts "About CSV Imports"
-                (fact "should import csv file to dataset endpoint"
-                      (let [multipart-options-map {:multi :part}]
-                        (csv-import :dataset-id :file) => :response
-                        (provided
-                         (make-url "forms" :dataset-id "csv_import") => url
-                         (multipart-options :file "csv_file")
-                         => multipart-options-map
-                         (parse-http :post :fake-url
-                                     :http-options multipart-options-map
-                                     :suppress-4xx-exceptions? true
-                                     :as-map? true)
-                         => :response)))))
+  (facts "About CSV Imports"
+         (fact "should import csv file to dataset endpoint"
+               (let [multipart-options-map {:multi :part}]
+                 (csv-import :dataset-id :file) => :response
+                 (provided
+                  (make-url "forms" :dataset-id "csv_import") => url
+                  (multipart-options :file "csv_file")
+                  => multipart-options-map
+                  (parse-http :post :fake-url
+                              :http-options multipart-options-map
+                              :suppress-4xx-exceptions? true
+                              :as-map? true)
+                  => :response))))
 
   (fact "Should download xls report"
         (let [form-xls-url (str :dataset-id ".xls?meta=" :meta-id)]
           (download-xls-report :dataset-id
                                :meta-id
-                               :filename) => :byte-array
-                               (provided
-                                (make-url "forms"  form-xls-url) => :url
-                                (parse-http :get
-                                            :url
-                                            :http-options {:as :byte-array}
-                                            :as-map? true
-                                            :filename :filename) => :byte-array))))
+                               :filename)
+          => :byte-array
+          (provided
+           (make-url "forms"  form-xls-url) => :url
+           (parse-http :get
+                       :url
+                       :http-options {:as :byte-array}
+                       :as-map? true
+                       :filename :filename) => :byte-array))))
 
 (fact "Should download xls report"
       (let [form-xls-url (str :dataset-id ".xls?meta=" :meta-id)]
@@ -387,26 +393,28 @@
                              :meta-id
                              :filename) => :byte-array
         (provided
-          (make-url "forms"  form-xls-url) => :url
-          (parse-http :get
-                      :url
-                      :http-options {:as :byte-array}
-                      :as-map? true
-                      :filename :filename) => :byte-array)))
+         (make-url "forms"  form-xls-url) => :url
+         (parse-http :get
+                     :url
+                     :http-options {:as :byte-array}
+                     :as-map? true
+                     :filename :filename) => :byte-array)))
 
 (fact "Should download xls report for single submission"
-      (let [form-xls-url (str :dataset-id ".xls?meta=" :meta-id"&data_id=":data-id)]
+      (let [form-xls-url (str :dataset-id
+                              ".xls?meta=" :meta-id "&data_id=" :data-id)]
         (download-xls-report :dataset-id
                              :meta-id
                              :filename
-                             :data-id) => :byte-array
+                             :data-id)
+        => :byte-array
         (provided
-          (make-url "forms"  form-xls-url) => :url
-          (parse-http :get
-                      :url
-                      :http-options {:as :byte-array}
-                      :as-map? true
-                      :filename :filename) => :byte-array)))
+         (make-url "forms"  form-xls-url) => :url
+         (parse-http :get
+                     :url
+                     :http-options {:as :byte-array}
+                     :as-map? true
+                     :filename :filename) => :byte-array)))
 
 (facts "about clone"
        (fact "Should clone a dataset"
@@ -438,8 +446,8 @@
           :project-id
           :dataset-id
           "submission-editing-complete") => :zebra-url
-          (make-url "data"
-                    :dataset-id
-                    :instance-id
-                    "enketo?return_url=:zebra-url") => :url
-                    (parse-http :get :url) => {:url :response})))
+         (make-url "data"
+                   :dataset-id
+                   :instance-id
+                   "enketo?return_url=:zebra-url") => :url
+         (parse-http :get :url) => {:url :response})))

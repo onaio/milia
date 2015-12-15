@@ -11,27 +11,27 @@
 (def service-url "http://example.org/webhook")
 
 (fact "create calls parse-http with the correct parameters"
-  (create xform-id "generic_json" service-url) => :api-response
-  (provided
-   (parse-http :post
-               base-url
-               :http-options
-               {:form-params {:xform xform-id
-                              :name "generic_json"
-                              :service_url service-url}
-                :content-type :json}) => :api-response))
+      (create xform-id "generic_json" service-url) => :api-response
+      (provided
+       (parse-http :post
+                   base-url
+                   :http-options
+                   {:form-params {:xform xform-id
+                                  :name "generic_json"
+                                  :service_url service-url}
+                    :content-type :json}) => :api-response))
 
 (fact "delete calls parse-http with the correct parameters"
-  (delete rest-service-id) => :api-response
-  (provided
-   (parse-http :delete single-rest-service-url) => :api-response))
+      (delete rest-service-id) => :api-response
+      (provided
+       (parse-http :delete single-rest-service-url) => :api-response))
 
 (fact "get-all calls parse-http with the correct parameters"
-  (get-all) => :api-response
-  (provided
-   (parse-http :get base-url) => :api-response))
+      (get-all) => :api-response
+      (provided
+       (parse-http :get base-url) => :api-response))
 
 (fact "get-by-id calls parse-http with the correct parameters"
-  (get-by-id rest-service-id) => :api-response
-  (provided
-   (parse-http :get single-rest-service-url) => :api-response))
+      (get-by-id rest-service-id) => :api-response
+      (provided
+       (parse-http :get single-rest-service-url) => :api-response))

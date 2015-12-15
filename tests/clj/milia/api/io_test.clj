@@ -4,7 +4,8 @@
             [milia.api.http :refer [parse-http]]
             [milia.api.io :refer :all]
             [milia.helpers :refer [slingshot-exception]]
-            [milia.utils.remote :refer [*credentials* make-url token-expired-msg]]
+            [milia.utils.remote
+             :refer [*credentials* make-url token-expired-msg]]
             [environ.core :refer [env]]))
 
 (def body [1,2])
@@ -35,7 +36,6 @@
 (def as-raw {:raw-response? true})
 (def as-map {:as-map? true})
 
-
 (defn options+auth
   [auth]
   (assoc options :headers {"Authorization" auth}))
@@ -47,10 +47,10 @@
                          url
                          :raw-response? true
                          :filename :filename) => (contains file)
-                         (provided
-                          (http-request :method url nil)
-                          => response
-                          (parse-binary-response body :filename) => file))
+             (provided
+              (http-request :method url nil)
+              => response
+              (parse-binary-response body :filename) => file))
 
        (fact "should handle return map if status code >= 400 and exceptions
               are suppressed"
@@ -84,12 +84,12 @@
                            :http-options http-options
                            :filename :filename
                            :raw-response? true) => (contains file)
-                           (provided
-                            (http-request :method
-                                          url
-                                          http-options)
-                            => response
-                            (parse-binary-response body :filename) => file))))
+               (provided
+                (http-request :method
+                              url
+                              http-options)
+                => response
+                (parse-binary-response body :filename) => file))))
 
 (facts "about http-request"
        (fact "should add digest if account has password"
@@ -97,9 +97,9 @@
                                            :digest-auth [username password])]
                (binding [*credentials* account]
                  (http-request :method url nil)) => :response
-                 (provided
-                  (call-client-method :method url appended-options)
-                  => :response)))
+               (provided
+                (call-client-method :method url appended-options)
+                => :response)))
 
        (fact "should add token if exists and temp-token does not exist"
              (binding [*credentials* (assoc account :token api-token)]
