@@ -27,7 +27,8 @@
       (get dataview-id) => :response
       (provided
         (make-url "dataviews" dataview-id) => url
-        (parse-http :get url :suppress-4xx-exceptions? true) => :response))
+        (parse-http :get url :no-cache? nil
+                    :suppress-4xx-exceptions? true) => :response))
 
 (fact "about get dataview data"
       (data dataview-id) => :response

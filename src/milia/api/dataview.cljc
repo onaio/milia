@@ -12,9 +12,9 @@
 
 (defn get
   "Retrieves dataview object using dataview id"
-  [dataview-id]
+  [dataview-id & {:keys [no-cache?]}]
   (let [url (make-url "dataviews" dataview-id)]
-    (parse-http :get url :suppress-4xx-exceptions? true)))
+    (parse-http :get url :no-cache? no-cache? :suppress-4xx-exceptions? true)))
 
 (defn data
   "Retrieves dataview data using dataview id"
