@@ -23,9 +23,9 @@
   (let [{export-url   :export_url
          job-status   :job_status
          job-id       :job_uuid} body
-         is-failed-status? #(= job-status export-failure-status-msg)
-         error-detail (or (:detail body) (:error body)
-                          (when (is-failed-status?) job-status))]
+        is-failed-status? #(= job-status export-failure-status-msg)
+        error-detail (or (:detail body) (:error body)
+                         (when (is-failed-status?) job-status))]
     ;; sometimes API server returns an export-url quickly
     (when export-url
       (when (fn? on-export-url)
