@@ -7,6 +7,7 @@
             [milia.utils.seq :refer [select-values]]))
 
 (def export-async-url "export_async.json?format=")
+(def export-failure-status-msg "FAILURE")
 
 (defn- handle-response
   "Handles API server's response and acts according to given
@@ -22,7 +23,9 @@
   (let [{export-url   :export_url
          job-status   :job_status
          job-id       :job_uuid} body
-        error-detail (or (:detail body) (:error body))]
+        is-failed-status? #(= job-status export-failure-status-msg)
+        error-detail (or (:detail body) (:error body)
+                         (when (is-failed-status?) job-status))]
     ;; sometimes API server returns an export-url quickly
     (when export-url
       (when (fn? on-export-url)
@@ -34,7 +37,8 @@
       (when (fn? on-job-id)
         (on-job-id job-id)))
     ;; or it just gives an error
-    (when (>= status 400)
+    (when (or (>= status 400)
+              (is-failed-status?))
       (when (fn? on-error)
         (on-error error-detail))
       (on-stop))))
