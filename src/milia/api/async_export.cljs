@@ -55,8 +55,8 @@
     (go
       (while (not @done-polling?)
         (let [job-suffix (str "export_async.json?job_uuid=" job-id)
-              job-url (make-url dataset-id
-                                (if is-filtered-dataview? "dataviews" "forms")
+              job-url (make-url (if is-filtered-dataview? "dataviews" "forms")
+                                dataset-id
                                 job-suffix)
               response (<! (parse-http :get job-url))]
           ;; Never use `on-job-id` here b/c `on-job-id` should only be
