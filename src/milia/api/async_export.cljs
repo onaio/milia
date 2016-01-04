@@ -8,6 +8,7 @@
 
 (def export-async-url "export_async.json?format=")
 (def export-failure-status-msg "FAILURE")
+(def polling-interval 5000) ;; Async export polling interval in ms
 
 (defn- handle-response
   "Handles API server's response and acts according to given
@@ -45,12 +46,10 @@
 
 (defn- monitor-async-export!
   "Repeatedly polls the async export progress for the given job_uuid,
-   When export_url is returned, fires callback on-export-url.
-   `millis` is the number of milliseconds after which to poll again."
+   When export_url is returned, fires callback on-export-url."
   [dataset-id job-id
-   & [{:keys [on-error on-export-url
-              is-filtered-dataview? millis]
-       :or {:millis 1000}}]]
+   & {:keys [on-error on-export-url
+             is-filtered-dataview?]}]
   (let [done-polling? (atom false)]
     (go
       (while (not @done-polling?)
@@ -65,7 +64,7 @@
           (handle-response response {:on-stop #(reset! done-polling? true)
                                      :on-error on-error
                                      :on-export-url on-export-url})
-          (<! (timeout millis)))))))
+          (<! (timeout polling-interval)))))))
 
 (def export-option-keys
   ["meta" "data_id" "group_delimiter" "do_not_split_select_multiples"
@@ -107,9 +106,9 @@
              (on-job-id job-id)
              (monitor-async-export!
               dataset-id job-id
-              {:on-export-url on-export-url
-               :on-error on-error
-               :is-filtered-dataview? is-filtered-dataview?}))]
+              :on-export-url on-export-url
+              :on-error on-error
+              :is-filtered-dataview? is-filtered-dataview?))]
        (handle-response response
                         {:on-error on-error
                          :on-job-id inner-on-job-id
