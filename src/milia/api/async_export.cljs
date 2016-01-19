@@ -68,13 +68,15 @@
 
 (def export-option-keys
   ["meta" "data_id" "group_delimiter" "do_not_split_select_multiples"
-   "remove_group_name" "_version" "query" "export_id"])
+   "include_images" "remove_group_name" "_version" "query" "export_id"])
 
 (def export-option-values
   [:meta-id :data-id :group-delimiter :do-not-split-multi-selects?
-   :remove-group-name? :version :query :export_id])
+   :include-images? :remove-group-name? :version :query :export_id])
 
-(defn- add-param [key value] (when value (str "&" key "=" value)))
+(defn- add-param [key value]
+  (when (or value (= value false))
+    (str "&" key "=" value)))
 
 (defn build-export-suffix
   "Build the export options string to pass to the Ona API."
