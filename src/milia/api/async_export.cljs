@@ -68,11 +68,13 @@
 
 (def export-option-keys
   ["meta" "data_id" "group_delimiter" "do_not_split_select_multiples"
-   "include_images" "remove_group_name" "_version" "query" "export_id"])
+   "include_images" "remove_group_name" "_version" "query" "export_id"
+   "include_labels" "include_labels_only"])
 
 (def export-option-values
   [:meta-id :data-id :group-delimiter :do-not-split-multi-selects?
-   :include-images? :remove-group-name? :version :query :export_id])
+   :include-images? :remove-group-name? :version :query :export_id
+   :include-labels? :include-labels-only?])
 
 (defn- add-param [key value]
   (when (or value (= value false))
