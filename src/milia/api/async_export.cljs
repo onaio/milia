@@ -74,7 +74,7 @@
 (def export-option-values
   [:meta-id :data-id :group-delimiter :do-not-split-multi-selects?
    :include-images? :remove-group-name? :version :query :export_id
-   :include-labels? :include-labels-only?])
+   :include-labels? :labels-only?])
 
 (defn- add-param [key value]
   (when (or value (= value false))
