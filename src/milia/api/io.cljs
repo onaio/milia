@@ -1,6 +1,7 @@
 (ns milia.api.io
-  (:import [goog.net XhrIo]
-           [goog.net.EventType])
+  (:import [goog.net.EventType]
+           [goog.net XhrIo]
+           [goog.net.IframeIo])
   (:require [cljs.core.async :refer [<! put! chan]]
             [cljs-hash.md5  :refer [md5]]
             [cljs-http.client :as http]
@@ -62,6 +63,16 @@
     (catch js/Error _
       {:error (.getResponseText io-obj)})))
 
+(defn upload-via-iframe [io-obj form form-api event-chan]
+  (gev/listen io-obj
+              (.-SUCCESS goog.net.EventType)
+              #(put! event-chan {:data (.getResponseText io-obj)}))
+  (gev/listen io-obj
+              (.-ERROR goog.net.EventType)
+              #(put! event-chan {:data (.getResponseText io-obj)}))
+  (.sendFromForm io-obj form
+                 (str form-api "?legacy=true")))
+
 (defn upload-file
   "Use goog.net.XhrIo to upload file. Receives an HTML form object,
   a core.async channel where result message will be put
@@ -72,6 +83,7 @@
   (let [io-obj (XhrIo.)
         data   (when id {:id id})
         url    (.-action form)]
+    (.setProgressEventsEnabled io-obj true)
     ;; event handlers
     (gev/listen io-obj goog.net.EventType.SUCCESS
                 #(put! chan (assoc data
