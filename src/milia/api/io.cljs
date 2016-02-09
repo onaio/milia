@@ -63,15 +63,16 @@
     (catch js/Error _
       {:error (.getResponseText io-obj)})))
 
-(defn upload-via-iframe [io-obj form form-api event-chan]
-  (gev/listen io-obj
-              (.-SUCCESS goog.net.EventType)
-              #(put! event-chan {:data (.getResponseText io-obj)}))
-  (gev/listen io-obj
-              (.-ERROR goog.net.EventType)
-              #(put! event-chan {:data (.getResponseText io-obj)}))
-  (.sendFromForm io-obj form
-                 (str form-api "?legacy=true")))
+(defn upload-via-iframe [form form-api event-chan]
+  (let [io-obj (IframeIo.)]
+    (gev/listen io-obj
+                (.-SUCCESS goog.net.EventType)
+                #(put! event-chan {:data (.getResponseText io-obj)}))
+    (gev/listen io-obj
+                (.-ERROR goog.net.EventType)
+                #(put! event-chan {:data (.getResponseText io-obj)}))
+    (.sendFromForm io-obj form
+                   (str form-api "?legacy=true"))))
 
 (defn upload-file
   "Use goog.net.XhrIo to upload file. Receives an HTML form object,
