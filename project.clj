@@ -7,18 +7,18 @@
   :description "The milia.io Clojure Web API"
   :dependencies [;; CORE MILIA REQUIREMENTS
                  [cheshire "5.5.0"]
-                 [clj-http "2.0.0" :exclusions [org.clojure/tools.reader]]
+                 [clj-http "2.0.1" :exclusions [org.clojure/tools.reader]]
                  [environ "1.0.1"]
-                 [org.clojure/clojure "1.7.0"]
+                 [org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  ;;cljs
                  [cljs-hash "0.0.2"]
-                 [org.clojure/clojurescript "1.7.189"
+                 [org.clojure/clojurescript "1.7.228"
                   :exclusions [org.clojure/clojure]]
                  [org.clojure/core.async "0.2.374"]
                  [slingshot "0.12.2"]
                  ;; CLIENT REQUIREMENTS
-                 [cljs-http "0.1.38"]]
+                 [cljs-http "0.1.39"]]
   :license "Apache 2"
   :url "https://github.com/onaio/milia"
   :plugins [[jonase/eastwood "0.2.1"]
