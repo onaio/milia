@@ -45,14 +45,15 @@
                                :content-type :json})))
 
 (defn list
-  []
+  "List widgets belonging to a particular user
+   Can optionally be filtered by supplying either a dataview ID or an XForm ID
+   Note that the filters are mutually exclusive"
+  [& {:keys [dataview-id xform-id]}]
   (parse-http :get
-              (make-url "widgets")
+              (make-url (cond
+                          dataview-id (str "widgets?dataviewid="
+                                           dataview-id)
+                          xform-id (str "widgets?xform="
+                                        xform-id)
+                          :else "widgets"))
               :http-options {:content-type :json}))
-
-(defn list-by-xform-id
-  [xform-id]
-  (let [url (make-url (str "widgets?xform=" xform-id))]
-    (parse-http :get
-                url
-                :http-options {:content-type :json})))
