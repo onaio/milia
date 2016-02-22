@@ -1,7 +1,7 @@
 (ns milia.api.io
   (:import [goog.net.EventType]
            [goog.net XhrIo]
-           [goog.net.IframeIo])
+           [goog.net IframeIo])
   (:require [cljs.core.async :refer [<! put! chan]]
             [cljs-hash.md5  :refer [md5]]
             [cljs-http.client :as http]
@@ -63,7 +63,8 @@
     (catch js/Error _
       {:error (.getResponseText io-obj)})))
 
-(defn upload-via-iframe [form form-api event-chan]
+(defn upload-via-iframe
+  [form form-api event-chan]
   (let [io-obj (IframeIo.)]
     (gev/listen io-obj
                 (.-SUCCESS goog.net.EventType)
