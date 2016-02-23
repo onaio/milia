@@ -1,5 +1,5 @@
 (ns milia.api.widgets-test
-  (:refer-clojure :exclude [list])
+  (:refer-clojure :exclude [list update])
   (:require [midje.sweet :refer :all]
             [milia.api.http :refer [parse-http]]
             [milia.api.widgets :refer :all]
@@ -16,20 +16,20 @@
       content-object-url "https://stage.ona.io/api/v1/forms/12345"]
 
   (fact "widgets/generate-content-object-url"
-        (let [{:keys [content_type content_id]} widget-definition]
-          (generate-content-object-url content_type content_id)
-          => content-object-url))
+    (let [{:keys [content_type content_id]} widget-definition]
+      (generate-content-object-url content_type content_id)
+      => content-object-url))
 
   (fact "widgets/create returns the API response"
-        (create widget-definition) => :some-widget
-        (provided
-         (parse-http :post
-                     widgets-url
-                     :http-options {:content-type :json
-                                    :form-params (assoc widget-definition
-                                                        :content_object
-                                                        content-object-url)})
-         => :some-widget)))
+    (create widget-definition) => :some-widget
+    (provided
+     (parse-http :post
+                 widgets-url
+                 :http-options {:content-type :json
+                                :form-params (assoc widget-definition
+                                                    :content_object
+                                                    content-object-url)})
+     => :some-widget)))
 
 (def dataview-id 1)
 (def dataview-filter-url (str widgets-url "?dataviewid=" dataview-id))
@@ -52,3 +52,16 @@
     (provided
      (parse-http :get xform-filter-url :http-options {:content-type :json})
      => :response)))
+
+(facts "about widgets/update"
+  (let [widget-id 1
+        single-widget-url (make-url "widgets" widget-id)
+        patch-map {:order 2
+                   :aggregation "mode"}]
+    (fact "widgets/update returns the API response"
+      (update widget-id patch-map) => :response
+      (provided
+       (parse-http :patch single-widget-url
+                   :http-options {:content-type :json
+                                  :form-params patch-map})
+       => :response))))

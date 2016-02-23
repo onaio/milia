@@ -1,5 +1,5 @@
 (ns milia.api.widgets
-  (:refer-clojure :exclude [list])
+  (:refer-clojure :exclude [list update])
   (:require [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]))
 
@@ -42,6 +42,15 @@
                 url
                 :http-options {:form-params processed-widget-definition
                                :content-type :json})))
+
+(defn update
+  "Updates a widget, given the widget ID, and a map of properties to replace
+   existing values for the associated keys"
+  [widget-id patch-map]
+  (parse-http :patch
+              (make-url "widgets" widget-id)
+              :http-options {:form-params patch-map
+                             :content-type :json}))
 
 (defn list
   "List widgets belonging to a particular user
