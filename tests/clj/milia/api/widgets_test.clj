@@ -42,15 +42,17 @@
              (provided
               (parse-http :get widgets-url :http-options {:content-type :json})
               => :response))
-       (fact "widgets/list returns the API response when filtered by dataview ID"
+       (fact "widgets/list returns API response when filtered by dataview ID"
              (list :dataview-id dataview-id) => :response
              (provided
-              (parse-http :get dataview-filter-url :http-options {:content-type :json})
+              (parse-http :get dataview-filter-url
+                          :http-options {:content-type :json})
               => :response))
-       (fact "widgets/list returns the API response when filtered by xform ID"
+       (fact "widgets/list returns API response when filtered by xform ID"
              (list :xform-id xform-id) => :response
              (provided
-              (parse-http :get xform-filter-url :http-options {:content-type :json})
+              (parse-http :get xform-filter-url
+                          :http-options {:content-type :json})
               => :response)))
 
 (facts "about widgets/update"
