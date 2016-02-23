@@ -1,5 +1,5 @@
 (ns milia.api.widgets
-  (:refer-clojure :exclude [list])
+  (:refer-clojure :exclude [list update])
   (:require [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]))
 
@@ -19,7 +19,6 @@
 
 (defn create
   "Create a new widget.
-   `account` is a map representing the authenticating user's credentials
    `widget-definition` is a map containing the following keys:
     `:title` is a string
     `:content_type` is one of either :form of :dataview
@@ -28,7 +27,10 @@
     `:widget_type` is a string, determined by the client e.g. chart
     `:view_type` is a string, determined by the client e.g. bar-chart
     `:column` is the  data column to be stored based on the form field.
-    `:group_by` the data column for the data to be grouped by. Optional"
+    `:order` this is the position of the widget in relation to others
+             within the set associated with a form or dataview. Optional.
+    `:group_by` the data column for the data to be grouped by. Optional
+    `:aggregation` is the aggregation used while grouping data. Optional."
   [{:keys [content_type
            content_id]
     :as widget-definition}]
@@ -44,15 +46,25 @@
                 :http-options {:form-params processed-widget-definition
                                :content-type :json})))
 
-(defn list
-  []
-  (parse-http :get
-              (make-url "widgets")
-              :http-options {:content-type :json}))
+(defn update
+  "Updates a widget, given the widget ID, and a map of properties to replace
+   existing values for the associated keys"
+  [widget-id patch-map]
+  (parse-http :patch
+              (make-url "widgets" widget-id)
+              :http-options {:form-params patch-map
+                             :content-type :json}))
 
-(defn list-by-xform-id
-  [xform-id]
-  (let [url (make-url (str "widgets?xform=" xform-id))]
-    (parse-http :get
-                url
-                :http-options {:content-type :json})))
+(defn list
+  "List widgets belonging to a particular user
+   Can optionally be filtered by supplying either a dataview ID or an XForm ID
+   Note that the filters are mutually exclusive"
+  [& {:keys [dataview-id xform-id]}]
+  (parse-http :get
+              (make-url (cond
+                          dataview-id (str "widgets?dataviewid="
+                                           dataview-id)
+                          xform-id (str "widgets?xform="
+                                        xform-id)
+                          :else "widgets"))
+              :http-options {:content-type :json}))
