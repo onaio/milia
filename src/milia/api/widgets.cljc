@@ -27,7 +27,10 @@
     `:widget_type` is a string, determined by the client e.g. chart
     `:view_type` is a string, determined by the client e.g. bar-chart
     `:column` is the  data column to be stored based on the form field.
-    `:group_by` the data column for the data to be grouped by. Optional"
+    `:order` this is the position of the widget in relation to others
+             within the set associated with a form or dataview.
+    `:group_by` the data column for the data to be grouped by. Optional
+    `:aggregation` is the aggregation used while grouping data. Optional."
   [{:keys [content_type
            content_id]
     :as widget-definition}]
