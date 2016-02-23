@@ -19,7 +19,6 @@
 
 (defn create
   "Create a new widget.
-   `account` is a map representing the authenticating user's credentials
    `widget-definition` is a map containing the following keys:
     `:title` is a string
     `:content_type` is one of either :form of :dataview
