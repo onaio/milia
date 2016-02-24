@@ -59,12 +59,18 @@
   "List widgets belonging to a particular user
    Can optionally be filtered by supplying either a dataview ID or an XForm ID
    Note that the filters are mutually exclusive"
-  [& {:keys [dataview-id xform-id]}]
+  [& {:keys [dataview-id xform-id with-data?]}]
   (parse-http :get
               (make-url (cond
                           dataview-id (str "widgets?dataviewid="
-                                           dataview-id)
+                                           dataview-id
+                                           (when with-data?
+                                             "&data=true"))
                           xform-id (str "widgets?xform="
-                                        xform-id)
-                          :else "widgets"))
+                                        xform-id
+                                        (when with-data?
+                                          "&data=true"))
+                          :else (str "widgets"
+                                     (when with-data?
+                                       "?data=true"))))
               :http-options {:content-type :json}))
