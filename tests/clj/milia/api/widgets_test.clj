@@ -35,6 +35,8 @@
 (def dataview-filter-url (str widgets-url "?dataviewid=" dataview-id))
 (def xform-id 1)
 (def xform-filter-url (str widgets-url "?xform=" xform-id))
+(def widget-id 1)
+(def single-widget-url (make-url "widgets" widget-id))
 
 (facts "about widgets/list"
        (fact "widgets/list returns the API response without filters"
@@ -56,9 +58,7 @@
               => :response)))
 
 (facts "about widgets/update"
-       (let [widget-id 1
-             single-widget-url (make-url "widgets" widget-id)
-             patch-map {:order 2
+       (let [patch-map {:order 2
                         :aggregation "mode"}]
          (fact "widgets/update returns the API response"
                (update widget-id patch-map) => :response
@@ -67,3 +67,9 @@
                             :http-options {:content-type :json
                                            :form-params patch-map})
                 => :response))))
+
+(facts "about widget/delete"
+       (fact "widget/delete returns the API response"
+             (delete widget-id) => :response
+             (provided
+              (parse-http :delete single-widget-url) => :response)))

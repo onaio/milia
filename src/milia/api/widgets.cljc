@@ -72,3 +72,9 @@
                                      (when with-data?
                                        "?data=true"))))
               :http-options {:content-type :json}))
+
+(defn delete
+  "Deletes a widget, given a widget id."
+  [widget-id]
+  (parse-http :delete
+              (make-url "widgets" widget-id)))
