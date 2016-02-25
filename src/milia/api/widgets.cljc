@@ -43,8 +43,7 @@
            content_id))]
     (parse-http :post
                 url
-                :http-options {:form-params processed-widget-definition
-                               :content-type :json})))
+                :http-options {:json-params processed-widget-definition})))
 
 (defn update
   "Updates a widget, given the widget ID, and a map of properties to replace
@@ -52,8 +51,7 @@
   [widget-id patch-map]
   (parse-http :patch
               (make-url "widgets" widget-id)
-              :http-options {:form-params patch-map
-                             :content-type :json}))
+              :http-options {:json-params patch-map}))
 
 (defn list
   "List widgets belonging to a particular user
