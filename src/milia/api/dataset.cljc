@@ -179,9 +179,9 @@
 
 (defn metadata
   "Show dataset metadata."
-  [dataset-id]
+  [dataset-id & {:keys [no-cache?]}]
   (let [url (make-url "forms" (str dataset-id ".json"))]
-    (parse-http :get url)))
+    (parse-http :get url :no-cache? no-cache?)))
 
 (defn online-data-entry-link
   "Return link to online data entry."
