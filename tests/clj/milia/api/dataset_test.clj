@@ -43,7 +43,14 @@
                (metadata :dataset-id) => :fake-metadata
                (provided
                 (make-url "forms" ":dataset-id.json") => url
-                (parse-http :get url) => :fake-metadata)))
+                (parse-http :get url :no-cache? nil) => :fake-metadata)))
+
+  (facts "about dataset metadata with cache"
+         (fact "should get dataset metadata and show caching was true"
+               (metadata :dataset-id :no-cache? true) => :fake-metadata-cache
+               (provided
+                (make-url "forms" ":dataset-id.json") => url
+                (parse-http :get url :no-cache? true) => :fake-metadata-cache)))
 
   (fact "about dataset-getdata"
         (data :dataset-id) => :something
