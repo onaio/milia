@@ -1,5 +1,5 @@
 (ns milia.api.widgets-test
-  (:refer-clojure :exclude [list update])
+  (:refer-clojure :exclude [get list update])
   (:require [midje.sweet :refer :all]
             [milia.api.http :refer [parse-http]]
             [milia.api.widgets :refer :all]
@@ -26,8 +26,7 @@
         (provided
          (parse-http :post
                      widgets-url
-                     :http-options {:content-type :json
-                                    :form-params (assoc widget-definition
+                     :http-options {:json-params (assoc widget-definition
                                                         :content_object
                                                         content-object-url)})
          => :some-widget))
@@ -37,8 +36,7 @@
         (provided
           (parse-http :post
                       widgets-url-with-data
-                      :http-options {:content-type :json
-                                     :form-params (assoc widget-definition
+                      :http-options {:json-params (assoc widget-definition
                                                     :content_object
                                                     content-object-url)})
           => :some-widget)))
@@ -76,8 +74,7 @@
                (update widget-id patch-map) => :response
                (provided
                 (parse-http :patch single-widget-url
-                            :http-options {:content-type :json
-                                           :form-params patch-map})
+                            :http-options {:json-params patch-map})
                 => :response))))
 
 (facts "about widget/delete"
@@ -85,3 +82,14 @@
              (delete widget-id) => :response
              (provided
               (parse-http :delete single-widget-url) => :response)))
+
+(facts "about widget/get"
+  (fact "widget/get returns the API response"
+    (get widget-id) => :response
+    (provided
+     (parse-http :get single-widget-url) => :response))
+
+  (fact "widget/get returns the API response when :with-data? is true"
+    (get widget-id) => :response
+    (provided
+     (parse-http :get single-widget-url) => :response)))
