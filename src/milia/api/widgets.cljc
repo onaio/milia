@@ -1,5 +1,5 @@
 (ns milia.api.widgets
-  (:refer-clojure :exclude [list update])
+  (:refer-clojure :exclude [list update get])
   (:require [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]))
 
@@ -78,3 +78,13 @@
   [widget-id]
   (parse-http :delete
               (make-url "widgets" widget-id)))
+
+(defn get
+  "Returns specific widget, given the ID"
+  [widget-id & {:keys [with-data?]}]
+  (parse-http :get
+              (make-url "widgets"
+                        (str
+                         widget-id
+                         (when with-data?
+                           "?data=true")))))
