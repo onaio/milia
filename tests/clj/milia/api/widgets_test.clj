@@ -1,5 +1,5 @@
 (ns milia.api.widgets-test
-  (:refer-clojure :exclude [list update])
+  (:refer-clojure :exclude [get list update])
   (:require [midje.sweet :refer :all]
             [milia.api.http :refer [parse-http]]
             [milia.api.widgets :refer :all]
@@ -13,7 +13,8 @@
                          :content_id 12345
                          :widget_type "charts"
                          :view_type "horizontal-bar-chart"}
-      content-object-url "https://stage.ona.io/api/v1/forms/12345"]
+      content-object-url "https://stage.ona.io/api/v1/forms/12345"
+      widgets-url-with-data (str widgets-url "?data=true")]
 
   (fact "widgets/generate-content-object-url"
         (let [{:keys [content_type content_id]} widget-definition]
@@ -25,8 +26,17 @@
         (provided
          (parse-http :post
                      widgets-url
-                     :http-options {:content-type :json
-                                    :form-params (assoc widget-definition
+                     :http-options {:json-params (assoc widget-definition
+                                                        :content_object
+                                                        content-object-url)})
+         => :some-widget))
+
+  (fact "widgets/create with-data returns the API response with data"
+        (create widget-definition :with-data? true) => :some-widget
+        (provided
+         (parse-http :post
+                     widgets-url-with-data
+                     :http-options {:json-params (assoc widget-definition
                                                         :content_object
                                                         content-object-url)})
          => :some-widget)))
@@ -35,6 +45,8 @@
 (def dataview-filter-url (str widgets-url "?dataviewid=" dataview-id))
 (def xform-id 1)
 (def xform-filter-url (str widgets-url "?xform=" xform-id))
+(def widget-id 1)
+(def single-widget-url (make-url "widgets" widget-id))
 
 (facts "about widgets/list"
        (fact "widgets/list returns the API response without filters"
@@ -56,14 +68,28 @@
               => :response)))
 
 (facts "about widgets/update"
-       (let [widget-id 1
-             single-widget-url (make-url "widgets" widget-id)
-             patch-map {:order 2
+       (let [patch-map {:order 2
                         :aggregation "mode"}]
          (fact "widgets/update returns the API response"
                (update widget-id patch-map) => :response
                (provided
                 (parse-http :patch single-widget-url
-                            :http-options {:content-type :json
-                                           :form-params patch-map})
+                            :http-options {:json-params patch-map})
                 => :response))))
+
+(facts "about widget/delete"
+       (fact "widget/delete returns the API response"
+             (delete widget-id) => :response
+             (provided
+              (parse-http :delete single-widget-url) => :response)))
+
+(facts "about widget/get"
+       (fact "widget/get returns the API response"
+             (get widget-id) => :response
+             (provided
+              (parse-http :get single-widget-url) => :response))
+
+       (fact "widget/get returns the API response when :with-data? is true"
+             (get widget-id) => :response
+             (provided
+              (parse-http :get single-widget-url) => :response)))

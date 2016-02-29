@@ -1,5 +1,5 @@
 (ns milia.api.widgets
-  (:refer-clojure :exclude [list update])
+  (:refer-clojure :exclude [list update get])
   (:require [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]))
 
@@ -33,8 +33,10 @@
     `:aggregation` is the aggregation used while grouping data. Optional."
   [{:keys [content_type
            content_id]
-    :as widget-definition}]
-  (let [url (make-url "widgets")
+    :as widget-definition}
+   & {:keys [with-data?]}]
+  (let [url (make-url (str "widgets" (when with-data?
+                                       "?data=true")))
         processed-widget-definition
         (assoc widget-definition
           :content_object
@@ -43,8 +45,7 @@
            content_id))]
     (parse-http :post
                 url
-                :http-options {:form-params processed-widget-definition
-                               :content-type :json})))
+                :http-options {:json-params processed-widget-definition})))
 
 (defn update
   "Updates a widget, given the widget ID, and a map of properties to replace
@@ -52,19 +53,40 @@
   [widget-id patch-map]
   (parse-http :patch
               (make-url "widgets" widget-id)
-              :http-options {:form-params patch-map
-                             :content-type :json}))
+              :http-options {:json-params patch-map}))
 
 (defn list
   "List widgets belonging to a particular user
    Can optionally be filtered by supplying either a dataview ID or an XForm ID
    Note that the filters are mutually exclusive"
-  [& {:keys [dataview-id xform-id]}]
+  [& {:keys [dataview-id xform-id with-data?]}]
   (parse-http :get
               (make-url (cond
                           dataview-id (str "widgets?dataviewid="
-                                           dataview-id)
+                                           dataview-id
+                                           (when with-data?
+                                             "&data=true"))
                           xform-id (str "widgets?xform="
-                                        xform-id)
-                          :else "widgets"))
+                                        xform-id
+                                        (when with-data?
+                                          "&data=true"))
+                          :else (str "widgets"
+                                     (when with-data?
+                                       "?data=true"))))
               :http-options {:content-type :json}))
+
+(defn delete
+  "Deletes a widget, given a widget id."
+  [widget-id]
+  (parse-http :delete
+              (make-url "widgets" widget-id)))
+
+(defn get
+  "Returns specific widget, given the ID"
+  [widget-id & {:keys [with-data?]}]
+  (parse-http :get
+              (make-url "widgets"
+                        (str
+                         widget-id
+                         (when with-data?
+                           "?data=true")))))
