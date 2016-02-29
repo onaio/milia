@@ -34,12 +34,12 @@
   (fact "widgets/create with-data returns the API response with data"
         (create widget-definition :with-data? true) => :some-widget
         (provided
-          (parse-http :post
-                      widgets-url-with-data
-                      :http-options {:json-params (assoc widget-definition
-                                                    :content_object
-                                                    content-object-url)})
-          => :some-widget)))
+         (parse-http :post
+                     widgets-url-with-data
+                     :http-options {:json-params (assoc widget-definition
+                                                        :content_object
+                                                        content-object-url)})
+         => :some-widget)))
 
 (def dataview-id 1)
 (def dataview-filter-url (str widgets-url "?dataviewid=" dataview-id))
@@ -84,12 +84,12 @@
               (parse-http :delete single-widget-url) => :response)))
 
 (facts "about widget/get"
-  (fact "widget/get returns the API response"
-    (get widget-id) => :response
-    (provided
-     (parse-http :get single-widget-url) => :response))
+       (fact "widget/get returns the API response"
+             (get widget-id) => :response
+             (provided
+              (parse-http :get single-widget-url) => :response))
 
-  (fact "widget/get returns the API response when :with-data? is true"
-    (get widget-id) => :response
-    (provided
-     (parse-http :get single-widget-url) => :response)))
+       (fact "widget/get returns the API response when :with-data? is true"
+             (get widget-id) => :response
+             (provided
+              (parse-http :get single-widget-url) => :response)))
