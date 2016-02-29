@@ -13,7 +13,8 @@
                          :content_id 12345
                          :widget_type "charts"
                          :view_type "horizontal-bar-chart"}
-      content-object-url "https://stage.ona.io/api/v1/forms/12345"]
+      content-object-url "https://stage.ona.io/api/v1/forms/12345"
+      widgets-url-with-data (str widgets-url "?data=true")]
 
   (fact "widgets/generate-content-object-url"
         (let [{:keys [content_type content_id]} widget-definition]
@@ -29,7 +30,18 @@
                                     :form-params (assoc widget-definition
                                                         :content_object
                                                         content-object-url)})
-         => :some-widget)))
+         => :some-widget))
+
+  (fact "widgets/create with-data returns the API response with data"
+        (create widget-definition :with-data? true) => :some-widget
+        (provided
+          (parse-http :post
+                      widgets-url-with-data
+                      :http-options {:content-type :json
+                                     :form-params (assoc widget-definition
+                                                    :content_object
+                                                    content-object-url)})
+          => :some-widget)))
 
 (def dataview-id 1)
 (def dataview-filter-url (str widgets-url "?dataviewid=" dataview-id))

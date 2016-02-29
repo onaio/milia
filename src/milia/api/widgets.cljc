@@ -33,8 +33,10 @@
     `:aggregation` is the aggregation used while grouping data. Optional."
   [{:keys [content_type
            content_id]
-    :as widget-definition}]
-  (let [url (make-url "widgets")
+    :as widget-definition}
+   & {:keys [with-data?]}]
+  (let [url (make-url (str "widgets" (when with-data?
+                                       "?data=true")))
         processed-widget-definition
         (assoc widget-definition
           :content_object
