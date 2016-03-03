@@ -3,7 +3,8 @@
   (:require [midje.sweet :refer :all]
             [milia.api.project :refer :all]
             [milia.api.http :refer [parse-http]]
-            [milia.utils.remote :refer [make-url]]))
+            [milia.utils.remote :refer [make-url]]
+            [milia.utils.file :as f]))
 
 (let [url :fake-url
       callback :fake-callback
@@ -185,4 +186,21 @@
                             url
                             :http-options {:form-params {:owner :user-url}
                                            :content-type :json})
-                => :response))))
+                => :response)))
+  (fact "about upload project files"
+        (upload-file :project-id {:filename "image.png"}) => :response
+        (provided
+          (f/uploaded->file {:filename "image.png"}) => :file
+          (make-url "metadata") => url
+          (parse-http :post
+                      url
+                      :http-options {:multipart [{:name "data_value"
+                                                  :content "image.png"}
+                                                 {:name "data_type"
+                                                  :content "media"}
+                                                 {:name "project"
+                                                  :content :project-id}
+                                                 {:name "data_file"
+                                                  :content :file}]}
+                      :suppress-4xx-exceptions? true)
+          => :response)))
