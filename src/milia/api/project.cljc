@@ -149,7 +149,7 @@
            muiltipart [{:name "data_value"
                         :content (:filename file)}
                        {:name "data_type"
-                        :content "media"}
+                        :content "supporting_doc"}
                        {:name "project"
                         :content project-id}
                        {:name "data_file"
@@ -164,5 +164,5 @@
         form-params {:project project-id}]
     (parse-http :get url
                 :no-cache? no-cache?
-                :http-options {:form-params form-params
+                :http-options {:query-params form-params
                                :content-type :json})))
