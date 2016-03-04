@@ -4,9 +4,8 @@
             [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]
             [milia.utils.url :refer [last-url-param]]
-    #?(:clj
-            [slingshot.slingshot :refer [throw+]])
-            [milia.utils.file :as file-utils]))
+    #?(:clj [slingshot.slingshot :refer [throw+]]
+            [milia.utils.file :as file-utils])))
 
 (defn- add-id
   "Parse and add the projects ID."
