@@ -197,7 +197,7 @@
                       :http-options {:multipart [{:name "data_value"
                                                   :content "image.png"}
                                                  {:name "data_type"
-                                                  :content "media"}
+                                                  :content "supporting_doc"}
                                                  {:name "project"
                                                   :content :project-id}
                                                  {:name "data_file"
