@@ -81,7 +81,7 @@
   and (optionally) an id to include in the result message. Returns the
   XhrIo object that can be used to abort request. More XhrIo API
   docs at: https://goo.gl/B0fm2a"
-  [form chan & [id]]
+  [form chan & {:keys [headers id]}]
   (let [io-obj (XhrIo.)
         data   (when id {:id id})
         url    (.-action form)]
@@ -101,7 +101,7 @@
                                     :loaded            (.-loaded %)
                                     :total             (.-total %)})))
     ;; make the requests
-    (.send io-obj url "POST" form)
+    (.send io-obj url "POST" form headers)
     io-obj))
 
 (defn http-request
