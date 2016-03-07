@@ -190,17 +190,17 @@
   (fact "about upload project files"
         (upload-file :project-id {:filename "image.png"}) => :response
         (provided
-          (f/uploaded->file {:filename "image.png"}) => :file
-          (make-url "metadata") => url
-          (parse-http :post
-                      url
-                      :http-options {:multipart [{:name "data_value"
-                                                  :content "image.png"}
-                                                 {:name "data_type"
-                                                  :content "supporting_doc"}
-                                                 {:name "project"
-                                                  :content :project-id}
-                                                 {:name "data_file"
-                                                  :content :file}]}
-                      :suppress-4xx-exceptions? true)
-          => :response)))
+         (f/uploaded->file {:filename "image.png"}) => :file
+         (make-url "metadata") => url
+         (parse-http :post
+                     url
+                     :http-options {:multipart [{:name "data_value"
+                                                 :content "image.png"}
+                                                {:name "data_type"
+                                                 :content "supporting_doc"}
+                                                {:name "project"
+                                                 :content :project-id}
+                                                {:name "data_file"
+                                                 :content :file}]}
+                     :suppress-4xx-exceptions? true)
+         => :response)))
