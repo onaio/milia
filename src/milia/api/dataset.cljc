@@ -281,3 +281,8 @@
        (parse-http :post url :http-options multipart
                              :suppress-4xx-exceptions? true
                              :as-map? true))))
+
+(defn edit-history
+  "Returns a submission's edit history"
+  [dataset-id instance-id]
+  (parse-http :get (make-url "data" dataset-id instance-id "history")))
