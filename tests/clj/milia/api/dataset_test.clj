@@ -458,3 +458,9 @@
                    :instance-id
                    "enketo?return_url=:zebra-url") => :url
          (parse-http :get :url) => {:url :response})))
+
+(fact "about edit-history"
+      (edit-history :dataset-id :instance-id) => :response
+      (provided
+        (make-url "data" :dataset-id :instance-id "history") => :url
+        (parse-http :get :url) => :response))
