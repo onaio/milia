@@ -30,7 +30,8 @@
     `:order` this is the position of the widget in relation to others
              within the set associated with a form or dataview. Optional.
     `:group_by` the data column for the data to be grouped by. Optional
-    `:aggregation` is the aggregation used while grouping data. Optional."
+    `:aggregation` is the aggregation used while grouping data. Optional.
+    `:metadata` is a map containing arbitrary key-value pairs."
   [{:keys [content_type
            content_id]
     :as widget-definition}
