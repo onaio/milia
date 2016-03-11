@@ -18,12 +18,12 @@
   (let [url (make-url "notes")
         params {:note note
                 :instance instance-id}
-        json-params (if instance-field
+        form-params (if instance-field
                       (assoc params :instance_field instance-field)
                       params)]
     (parse-http :post
                 url
-                :http-options {:json-params json-params})))
+                :http-options {:form-params  form-params})))
 
 (defn get
   "Returns a note object given a note ID."

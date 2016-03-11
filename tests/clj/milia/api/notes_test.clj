@@ -32,13 +32,13 @@
              (create note instance-id) => :response
              (provided
               (parse-http :post notes-url
-                          :http-options {:json-params instance-note})
+                          :http-options {:form-params instance-note})
               => :response))
        (fact "notes/create for instance field returns response"
              (create note instance-id instance-field) => :response
              (provided
               (parse-http :post notes-url
-                          :http-options {:json-params instance-field-note})
+                          :http-options {:form-params instance-field-note})
               => :response)))
 
 (facts "about notes/get"
