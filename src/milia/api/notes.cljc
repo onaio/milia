@@ -4,9 +4,12 @@
             [milia.utils.remote :refer [make-url]]))
 
 (defn list
-  "Returns all notes accessible by authenticated user."
-  []
-  (parse-http :get (make-url "notes")))
+  "Returns all notes. Returns notes for a specific submission if
+  optional instance ID is proviced"
+  [& [instance-id]]
+  (parse-http :get (make-url (if instance-id
+                               (str "notes?instance=" instance-id)
+                               "notes"))))
 
 (defn create
   "Creates a note for a submission instance given the note and instance-id.

@@ -10,6 +10,7 @@
 (def note-id :note-id)
 (def notes-url (make-url "notes"))
 (def single-notes-url (make-url "notes" note-id))
+(def instance-notes-url (make-url (str "notes?instance=" instance-id)))
 (def instance-note {:note note
                     :instance instance-id})
 (def instance-field :instance-field)
@@ -19,7 +20,12 @@
        (fact "notes/list returns response"
              (list) => :response
              (provided
-              (parse-http :get notes-url) => :response)))
+              (parse-http :get notes-url) => :response))
+
+       (fact "notes/list with instance-id returns response"
+             (list instance-id) => :response
+             (provided
+              (parse-http :get  instance-notes-url) => :response)))
 
 (facts "about notes/create"
        (fact "notes/create for instance returns response"
