@@ -7,9 +7,9 @@
   "Returns all notes. Returns notes for a specific submission if
   optional instance ID is proviced"
   [& [instance-id]]
-  (parse-http :get (make-url (if instance-id
-                               (str "notes?instance=" instance-id)
-                               "notes"))))
+  (parse-http :get (make-url
+                    (str "notes"
+                         (when instance-id (str "?instance=" instance-id))))))
 
 (defn create
   "Creates a note for a submission instance given the note and instance-id.
