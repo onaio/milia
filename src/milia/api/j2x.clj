@@ -13,6 +13,7 @@
                 url
                 :http-options {:body data-file-bytes}
                 :raw-response? true
+                :suppress-4xx-exceptions? true
                 :as-map? true)))
 
 (defn download-xls-report-template

@@ -19,6 +19,7 @@
                       url
                       :http-options {:body :fake-bytearray}
                       :raw-response? true
+                      :suppress-4xx-exceptions? true
                       :as-map? true) => upload-response)))
 (facts "about downloading xls-report-templates"
        "Should download xls report template"
