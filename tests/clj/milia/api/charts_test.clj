@@ -1,4 +1,5 @@
 (ns milia.api.charts-test
+  (:refer-clojure :exclude [get])
   (:require [midje.sweet :refer :all]
             [milia.api.charts :refer :all]
             [milia.api.http :refer [parse-http]]
