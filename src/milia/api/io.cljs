@@ -8,7 +8,7 @@
             [cljs-http.core :as http-core]
             [clojure.set :refer [rename-keys]]
             [clojure.string :refer [join split blank?]]
-            [goog.net.cookies :as cks]
+            [goog.net.cookies :as cookies]
             [goog.events :as gev]
             [milia.utils.remote :refer [*credentials* hosts bad-token-msgs]]
             [milia.utils.seq :refer [in?]]
@@ -52,8 +52,10 @@
                 ["Authorization" (str "TempToken " temp-token)])
               (when must-revalidate?
                 ["Cache-control" "must-revalidate"])
-              (when-let [crsf-token (and get-crsftoken? (cks/get "csrftoken"))]
-                ["X-CSRFToken" crsf-token])
+              (when-let [crsf-token (and get-crsftoken?
+                                         (cookies/get "csrftoken"))]
+                ["X-CSRFToken" crsf-token]
+                ["X-CSRF-Token" crsf-token])
               ["Accept" (or accept-header "application/json")]])))
 
 (defn get-xhr-io-response
