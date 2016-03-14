@@ -62,7 +62,7 @@
      (if filename
        (throw (js/Error. "File downloads auth not supported via JS"))
        (let [request-fn (if raw-response? raw-request http/request)
-             headers (token->headers :get-crsftoken? (= method :delete)
+             headers (token->headers :get-crsftoken? (not= method :get)
                                      :must-revalidate? must-revalidate?
                                      :accept-header accept-header)
              ch (http-request
