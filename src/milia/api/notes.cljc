@@ -6,10 +6,11 @@
 (defn list
   "Returns all notes. Returns notes for a specific submission if
   optional instance ID is proviced"
-  [& [instance-id]]
+  [& {:keys [instance-id no-cache?]}]
   (parse-http :get (make-url
                     (str "notes"
-                         (when instance-id (str "?instance=" instance-id))))))
+                         (when instance-id (str "?instance=" instance-id))))
+              :no-cache? no-cache?))
 
 (defn create
   "Creates a note for a submission instance given the note and instance-id.

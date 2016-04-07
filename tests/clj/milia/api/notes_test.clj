@@ -20,12 +20,19 @@
        (fact "notes/list returns response"
              (list) => :response
              (provided
-              (parse-http :get notes-url) => :response))
+              (parse-http :get notes-url :no-cache? nil) => :response))
 
        (fact "notes/list with instance-id returns response"
-             (list instance-id) => :response
+             (list :instance-id instance-id) => :response
              (provided
-              (parse-http :get  instance-notes-url) => :response)))
+              (parse-http :get  instance-notes-url :no-cache? nil) =>
+              :response))
+
+       (fact "notes/list with instance-id and no-cache? returns response"
+             (list :instance-id instance-id :no-cache? true) => :response
+             (provided
+              (parse-http :get  instance-notes-url
+                          :no-cache? true) => :response)))
 
 (facts "about notes/create"
        (fact "notes/create for instance returns response"
