@@ -10,4 +10,4 @@
 (defn url
   "Append string args with slashes and prefix with a slash."
   [& args]
-  (str "/" (join "/" args)))
+  (str "/" (join "/" (remove nil? args))))
