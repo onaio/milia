@@ -1,5 +1,5 @@
 (ns milia.api.user
-  (:refer-clojure :exclude [update])
+  (:refer-clojure :exclude [get update])
   (:require [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]
             [milia.utils.seq :refer [has-keys?]]))
@@ -89,6 +89,12 @@
   (let [current-metadata (retrieve-metadata username)
         updated-metadata (merge current-metadata metadata)]
     (patch username {:metadata updated-metadata})))
+
+(defn get
+  "Return the user for this username"
+  [username]
+  (let [url (make-url "users" username)]
+    (parse-http :get url)))
 
 (defn get-by-email
   "Return the users that match this email address"

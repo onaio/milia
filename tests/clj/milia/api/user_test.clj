@@ -1,5 +1,5 @@
 (ns milia.api.user_test
-  (:refer-clojure :exclude [update])
+  (:refer-clojure :exclude [get update])
   (:require [midje.sweet :refer :all]
             [milia.api.user :refer :all]
             [milia.api.http :refer [parse-http]]
@@ -115,6 +115,14 @@
                              :content-type :json}
                             :as-map? true
                             :suppress-4xx-exceptions? nil) => :metadata)))
+
+  (facts "About get-email"
+         (fact "Should get users for username"
+               (get :username) => :user
+               (provided
+                (make-url "users" :username) => url
+                (parse-http :get url)
+                => :user)))
 
   (facts "About get-by-email"
          (fact "Should get users for email address"
