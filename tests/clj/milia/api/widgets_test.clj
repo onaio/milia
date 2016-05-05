@@ -42,7 +42,7 @@
          => :some-widget)))
 
 (def dataview-id 1)
-(def dataview-filter-url (str widgets-url "?dataviewid=" dataview-id))
+(def dataview-filter-url (str widgets-url "?dataview=" dataview-id))
 (def xform-id 1)
 (def xform-filter-url (str widgets-url "?xform=" xform-id))
 (def widget-id 1)

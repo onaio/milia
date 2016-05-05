@@ -63,7 +63,7 @@
   [& {:keys [dataview-id xform-id with-data?]}]
   (parse-http :get
               (make-url (cond
-                          dataview-id (str "widgets?dataviewid="
+                          dataview-id (str "widgets?dataview="
                                            dataview-id
                                            (when with-data?
                                              "&data=true"))
