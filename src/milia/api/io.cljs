@@ -46,10 +46,13 @@
 (defn token->headers
   "Builds request headers for the HTTP request by adding
   Authorization, X-CSRFToken and Cache-control headers where necessary"
-  [& {:keys [get-crsftoken? must-revalidate? accept-header]}]
+  [& {:keys [get-crsftoken? must-revalidate? accept-header token]}]
   (let [temp-token (:temp-token *credentials*)]
-    (into {} [(when (and (not-empty temp-token) (is-not-null? temp-token))
-                ["Authorization" (str "TempToken " temp-token)])
+    (into {} [(if token
+                ["Authorization" (str "Token " token)]
+                (when (and (not-empty temp-token) (is-not-null?
+                                                    temp-token))
+                  ["Authorization" (str "TempToken " temp-token)]))
               (when must-revalidate?
                 ["Cache-control" "must-revalidate"])
               (when-let [crsf-token (and get-crsftoken?
