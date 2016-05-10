@@ -1,12 +1,14 @@
 (ns milia.api.dataset
   (:refer-clojure :exclude [clone update])
   (:require [clojure.string :refer [join]]
-            #?(:clj [milia.api.io :refer [multipart-options]])
             [milia.api.http :refer [parse-http]]
-            #?(:clj [milia.utils.file :as file-utils])
+            [milia.utils.metadata :refer [metadata-files]]
             [milia.utils.seq :refer [has-keys? in?]]
             [milia.utils.remote
-             :refer [make-j2x-url make-client-url make-url]]))
+             :refer [make-j2x-url make-client-url make-url]]
+            #?@(:clj [[milia.api.io :refer [multipart-options]]
+                      [milia.utils.file :as file-utils]
+                      [milia.utils.metadata :refer [upload-metadata-file]]])))
 
 (defn all
   "Return all the datasets for an account."
@@ -291,25 +293,8 @@
    (defn upload-file
      "Upload metadata file for a submission"
      [submission-id file]
-     (let [url (make-url "metadata")
-           data-file (file-utils/uploaded->file file)
-           muiltipart [{:name "data_value"
-                        :content (:filename file)}
-                       {:name "data_type"
-                        :content "supporting_doc"}
-                       {:name "instance"
-                        :content submission-id}
-                       {:name "data_file"
-                        :content data-file}]]
-       (parse-http :post url
-                   :http-options {:multipart muiltipart}
-                   :suppress-4xx-exceptions? true))))
+     (upload-metadata-file "instance" submission-id file)))
 
 (defn files
   [dataset-id & {:keys [no-cache?]}]
-  (let [url (make-url "metadata")
-        form-params {:instance dataset-id}]
-    (parse-http :get url
-                :no-cache? no-cache?
-                :http-options {:query-params form-params
-                               :content-type :json})))
+  (metadata-files :instance dataset-id no-cache?))
