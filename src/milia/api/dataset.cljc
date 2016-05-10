@@ -286,3 +286,30 @@
   "Returns a submission's edit history"
   [dataset-id instance-id]
   (parse-http :get (make-url "data" dataset-id instance-id "history")))
+
+#?(:clj
+   (defn upload-file
+     "Upload metadata file for a submission"
+     [submission-id file]
+     (let [url (make-url "metadata")
+           data-file (file-utils/uploaded->file file)
+           muiltipart [{:name "data_value"
+                        :content (:filename file)}
+                       {:name "data_type"
+                        :content "supporting_doc"}
+                       {:name "instance"
+                        :content submission-id}
+                       {:name "data_file"
+                        :content data-file}]]
+       (parse-http :post url
+                   :http-options {:multipart muiltipart}
+                   :suppress-4xx-exceptions? true))))
+
+(defn files
+  [dataset-id & {:keys [no-cache?]}]
+  (let [url (make-url "metadata")
+        form-params {:instance dataset-id}]
+    (parse-http :get url
+                :no-cache? no-cache?
+                :http-options {:query-params form-params
+                               :content-type :json})))
