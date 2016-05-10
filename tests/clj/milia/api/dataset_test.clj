@@ -464,3 +464,30 @@
       (provided
        (make-url "data" :dataset-id :instance-id "history") => :url
        (parse-http :get :url) => :response))
+
+(fact "about listing submission files"
+      (files :dataset-id) => :response
+      (provided
+       (make-url "metadata") => :url
+       (parse-http :get :url :no-cache? nil
+                   :http-options {:query-params {:instance :dataset-id}
+                                  :content-type :json})
+       => :response))
+
+(fact "about upload project files"
+      (upload-file :submission-id {:filename "image.png"}) => :response
+      (provided
+       (f/uploaded->file {:filename "image.png"}) => :file
+       (make-url "metadata") => :url
+       (parse-http :post
+                   :url
+                   :http-options {:multipart [{:name "data_value"
+                                               :content "image.png"}
+                                              {:name "data_type"
+                                               :content "supporting_doc"}
+                                              {:name "instance"
+                                               :content :submission-id}
+                                              {:name "data_file"
+                                               :content :file}]}
+                   :suppress-4xx-exceptions? true)
+       => :response))

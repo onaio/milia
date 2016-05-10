@@ -2,10 +2,11 @@
   (:refer-clojure :exclude [update])
   (:require [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
+            [milia.utils.metadata :refer [metadata-files]]
             [milia.utils.remote :refer [make-url]]
             [milia.utils.url :refer [last-url-param]]
-    #?@(:clj [[slingshot.slingshot :refer [throw+]]
-             [milia.utils.file :as file-utils]])))
+            #?@(:clj [[slingshot.slingshot :refer [throw+]]
+                      [milia.utils.metadata :refer [upload-metadata-file]]])))
 
 (defn- add-id
   "Parse and add the projects ID."
@@ -144,25 +145,8 @@
    (defn upload-file
      "Upload file for a project"
      [project-id file]
-     (let [url (make-url "metadata")
-           data-file (file-utils/uploaded->file file)
-           muiltipart [{:name "data_value"
-                        :content (:filename file)}
-                       {:name "data_type"
-                        :content "supporting_doc"}
-                       {:name "project"
-                        :content project-id}
-                       {:name "data_file"
-                        :content data-file}]]
-       (parse-http :post url
-                   :http-options {:multipart muiltipart}
-                   :suppress-4xx-exceptions? true))))
+     (upload-metadata-file "project" project-id file)))
 
 (defn files
   [project-id & {:keys [no-cache?]}]
-  (let [url (make-url "metadata")
-        form-params {:project project-id}]
-    (parse-http :get url
-                :no-cache? no-cache?
-                :http-options {:query-params form-params
-                               :content-type :json})))
+  (metadata-files :project project-id no-cache?))

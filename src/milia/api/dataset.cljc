@@ -1,12 +1,14 @@
 (ns milia.api.dataset
   (:refer-clojure :exclude [clone update])
   (:require [clojure.string :refer [join]]
-            #?(:clj [milia.api.io :refer [multipart-options]])
             [milia.api.http :refer [parse-http]]
-            #?(:clj [milia.utils.file :as file-utils])
+            [milia.utils.metadata :refer [metadata-files]]
             [milia.utils.seq :refer [has-keys? in?]]
             [milia.utils.remote
-             :refer [make-j2x-url make-client-url make-url]]))
+             :refer [make-j2x-url make-client-url make-url]]
+            #?@(:clj [[milia.api.io :refer [multipart-options]]
+                      [milia.utils.file :as file-utils]
+                      [milia.utils.metadata :refer [upload-metadata-file]]])))
 
 (defn all
   "Return all the datasets for an account."
@@ -286,3 +288,13 @@
   "Returns a submission's edit history"
   [dataset-id instance-id]
   (parse-http :get (make-url "data" dataset-id instance-id "history")))
+
+#?(:clj
+   (defn upload-file
+     "Upload metadata file for a submission"
+     [submission-id file]
+     (upload-metadata-file "instance" submission-id file)))
+
+(defn files
+  [dataset-id & {:keys [no-cache?]}]
+  (metadata-files :instance dataset-id no-cache?))
