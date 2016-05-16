@@ -51,7 +51,7 @@
     (into {} [(if token
                 ["Authorization" (str "Token " token)]
                 (when (and (not-empty temp-token) (is-not-null?
-                                                    temp-token))
+                                                   temp-token))
                   ["Authorization" (str "TempToken " temp-token)]))
               (when must-revalidate?
                 ["Cache-control" "must-revalidate"])

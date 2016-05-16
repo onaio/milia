@@ -57,3 +57,8 @@
   "Get information for a specific rest service"
   [id]
   (parse-http :get (make-url "restservices" id)))
+
+(defn get-by-form-id
+  "Get rest services for a form"
+  [formid]
+  (parse-http :get (make-url (str "restservices?xform="formid))))
