@@ -25,8 +25,6 @@
          :data "stage.ona.io"
          ;; XLSReport server URL
          :j2x "j2x.ona.io"
-         ;; RapidPro server URL
-         :rapidpro-ona "rapidpro.ona.io"
          ;; protocol to use in all requests
          :request-protocol "https"}))
 
@@ -37,7 +35,7 @@
 
 (def thumbor-server "https://images.ona.io")
 
-(defn- url-join
+(defn url-join
   [host args]
   (join
    (conj [host] (apply url args))))
@@ -64,9 +62,3 @@
   "Build an API url."
   [& postfix]
   (url-join (protocol-prefixed (:j2x @hosts)) postfix))
-
-(defn make-rapidpro-url
-  "Build a RapidPro API url."
-  [& postfix]
-  (url-join
-    (str (protocol-prefixed (:rapidpro-ona @hosts)) "/api/v1") postfix))
