@@ -39,12 +39,15 @@
 (defn- req+auth
   "Add authorization to options"
   [req]
-  (let [{:keys [temp-token token username password]} *credentials*]
+  (let [{:keys [temp-token token username password]} *credentials*
+        {:keys [auth-token]} req]
     (if (or temp-token token)
       (assoc req
-             :headers {"Authorization" (if temp-token
-                                         (str "TempToken " temp-token)
-                                         (str "Token " token))})
+             :headers {"Authorization" (if auth-token
+                                         (str "Token " auth-token)
+                                         (if temp-token
+                                           (str "TempToken " temp-token)
+                                           (str "Token " token)))})
       (merge req (when password {:digest-auth [username password]})))))
 
 (defn build-req
