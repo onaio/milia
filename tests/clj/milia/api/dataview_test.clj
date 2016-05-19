@@ -80,14 +80,12 @@
 (fact "about dataview xls report export"
       (let [dataset-id "1"
             meta-id "2"
-            url-suffix (str dataset-id "/xls_export?"
-                            "meta=" meta-id
-                            "&data_id=" dataview-id)
+            url-suffix (str dataview-id "/xls_export?"
+                            "meta=" meta-id)
             filename "filename"]
-        (download-xls-report dataset-id
+        (download-xls-report dataview-id
                              meta-id
-                             filename
-                             dataview-id) => :response
+                             filename) => :response
         (provided
          (make-url "dataviews" url-suffix) => url
          (parse-http :get url

@@ -63,10 +63,8 @@
 
 (defn download-xls-report
   "Download xls report from the j2x service"
-  ([dataset-id meta-id filename data-id]
-   (let [suffix (str dataset-id "/xls_export?"
-                     "meta=" meta-id
-                     "&data_id="data-id)
+  ([dataview-id meta-id filename]
+   (let [suffix (str dataview-id "/xls_export?" "meta=" meta-id)
          url (make-url "dataviews" suffix)]
      (parse-http :get
                  url
