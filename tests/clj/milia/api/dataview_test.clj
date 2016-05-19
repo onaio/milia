@@ -76,3 +76,21 @@
       (provided
        (make-url "dataviews" dataview-id) => url
        (parse-http :delete url) => :response))
+
+(fact "about dataview xls report export"
+      (let [dataset-id "1"
+            meta-id "2"
+            url-suffix (str dataset-id "/xls_export?"
+                            "meta=" meta-id
+                            "&data_id=" dataview-id)
+            filename "filename"]
+        (download-xls-report dataset-id
+                             meta-id
+                             filename
+                             dataview-id) => :response
+        (provided
+         (make-url "dataviews" url-suffix) => url
+         (parse-http :get url
+                     :http-options {:as :byte-array}
+                     :as-map? true
+                     :filename filename) => :response)))

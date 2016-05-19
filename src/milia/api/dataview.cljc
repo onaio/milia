@@ -60,3 +60,16 @@
   [dataview-id]
   (let [url (make-url "dataviews" dataview-id)]
     (parse-http :delete url)))
+
+(defn download-xls-report
+  "Download xls report from the j2x service"
+  ([dataset-id meta-id filename data-id]
+   (let [suffix (str dataset-id "/xls_export?"
+                     "meta=" meta-id
+                     "&data_id="data-id)
+         url (make-url "dataviews" suffix)]
+     (parse-http :get
+                 url
+                 :http-options {:as :byte-array}
+                 :as-map? true
+                 :filename filename))))
