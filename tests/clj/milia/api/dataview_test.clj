@@ -43,6 +43,12 @@
        (make-url "dataviews" dataview-id "form.json") => url
        (parse-http :get url :suppress-4xx-exceptions? true) => :response))
 
+(fact "about get dataview's form details"
+      (form-details dataview-id) => :response
+      (provided
+       (make-url "dataviews" dataview-id "form_details") => url
+       (parse-http :get url :suppress-4xx-exceptions? true) => :response))
+
 (fact "about count data returned by dataview"
       (let [options {:query-params {:count true}}]
         (count-data dataview-id) => :response
