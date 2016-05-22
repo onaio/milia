@@ -1,10 +1,10 @@
 (ns milia.api.async-export
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [cljs.core.async :as async :refer [<! chan put! timeout]]
+  (:require [chimera.seq :refer [select-values]]
+            [cljs.core.async :as async :refer [<! chan put! timeout]]
             [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
-            [milia.utils.remote :refer [make-url]]
-            [milia.utils.seq :refer [select-values]]))
+            [milia.utils.remote :refer [make-url]]))
 
 (def export-async-url "export_async.json?format=")
 (def export-failure-status-msg "FAILURE")

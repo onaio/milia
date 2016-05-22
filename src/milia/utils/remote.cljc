@@ -1,6 +1,6 @@
 (ns milia.utils.remote
   (:require [clojure.string :refer [join]]
-            [milia.utils.url :refer [url]]))
+            [chimera.urls :refer [url]]))
 
 
 (def ^:dynamic *credentials*

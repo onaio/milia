@@ -1,10 +1,10 @@
 (ns milia.api.project
   (:refer-clojure :exclude [update])
-  (:require [clojure.string :refer [join]]
+  (:require [chimera.urls :refer [last-url-param]]
+            [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
             [milia.utils.metadata :refer [metadata-files]]
             [milia.utils.remote :refer [make-url]]
-            [milia.utils.url :refer [last-url-param]]
             #?@(:clj [[slingshot.slingshot :refer [throw+]]
                       [milia.utils.metadata :refer [upload-metadata-file]]])))
 

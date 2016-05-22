@@ -9,6 +9,7 @@
                  [cheshire "5.5.0"]
                  [clj-http "2.0.1" :exclusions [org.clojure/tools.reader]]
                  [environ "1.0.1"]
+                 [onaio/chimera "0.0.1-SNAPSHOT"]
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  ;;cljs

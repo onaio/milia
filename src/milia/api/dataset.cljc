@@ -1,9 +1,9 @@
 (ns milia.api.dataset
   (:refer-clojure :exclude [clone update])
-  (:require [clojure.string :refer [join]]
+  (:require [chimera.seq :refer [has-keys? in?]]
+            [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
             [milia.utils.metadata :refer [metadata-files]]
-            [milia.utils.seq :refer [has-keys? in?]]
             [milia.utils.remote
              :refer [make-j2x-url make-client-url make-url]]
             #?@(:clj [[milia.api.io :refer [multipart-options]]
