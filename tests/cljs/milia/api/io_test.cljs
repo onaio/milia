@@ -27,7 +27,7 @@
         (set! *credentials* {:temp-token ""})
         (is (= (io/token->headers :token "")
              {"Accept" "application/json"})))
-      
+
       (testing "add auth-token to Authorization header when auth-token
       exists"
         (is (= (io/token->headers :auth-token auth-token)
