@@ -8,6 +8,7 @@
 (def rest-service-id 1)
 (def base-url (make-url "restservices"))
 (def single-rest-service-url (make-url "restservices" rest-service-id))
+(def form-rest-service-url (make-url (str "restservices?xform=" xform-id)))
 (def service-url "http://example.org/webhook")
 
 (fact "create calls parse-http with the correct parameters"
@@ -35,3 +36,21 @@
       (get-by-id rest-service-id) => :api-response
       (provided
        (parse-http :get single-rest-service-url) => :api-response))
+
+(fact "get-by-form-id calls parse-http with the correct parameters"
+      (get-by-form-id xform-id) => :api-response
+      (provided
+       (parse-http :get form-rest-service-url) => :api-response))
+
+(fact "update calls parse-http with the correct parameters"
+      (update-restservice rest-service-id xform-id "generic_json"
+                          service-url) =>
+      :api-response
+      (provided
+       (parse-http :put
+                   single-rest-service-url
+                   :http-options
+                   {:form-params {:xform xform-id
+                                  :name "generic_json"
+                                  :service_url service-url}
+                    :content-type :json}) => :api-response))

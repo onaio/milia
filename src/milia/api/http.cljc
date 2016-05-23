@@ -34,7 +34,7 @@
                                :status-code <status-code>}"
   [method url & {:keys [accept-header callback filename http-options
                         suppress-4xx-exceptions? raw-response? as-map?
-                        no-cache? must-revalidate?]}]
+                        no-cache? must-revalidate? auth-token]}]
   ;; CLJ: synchronous implementation, checks status before returning.
   #?(:clj
      (let [{:keys [body status] :as response} (http-request
@@ -64,7 +64,8 @@
        (let [request-fn (if raw-response? raw-request http/request)
              headers (token->headers :get-crsftoken? (not= method :get)
                                      :must-revalidate? must-revalidate?
-                                     :accept-header accept-header)
+                                     :accept-header accept-header
+                                     :auth-token auth-token)
              ch (http-request
                  request-fn
                  (merge (build-http-options http-options method no-cache?)

@@ -29,6 +29,20 @@
                 options)
                :content-type :json}))
 
+(defn update-restservice
+  "Updates a rest service."
+  [id xform-id name service-url & [options]]
+  (parse-http :put
+              (make-url "restservices" id)
+              :http-options
+              {:form-params
+                             (merge
+                               {:xform xform-id
+                                :name name
+                                :service_url service-url}
+                               options)
+               :content-type :json}))
+
 (defn delete
   "Delete a rest service"
   [id]
@@ -43,3 +57,8 @@
   "Get information for a specific rest service"
   [id]
   (parse-http :get (make-url "restservices" id)))
+
+(defn get-by-form-id
+  "Get rest services for a form"
+  [formid]
+  (parse-http :get (make-url (str "restservices?xform="formid))))

@@ -35,7 +35,7 @@
 
 (def thumbor-server "https://images.ona.io")
 
-(defn- url-join
+(defn url-join
   [host args]
   (join
    (conj [host] (apply url args))))

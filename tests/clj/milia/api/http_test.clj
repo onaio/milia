@@ -22,6 +22,8 @@
    status-code ", :response nil, :method :method, :url :url, "
    ":http-options nil}}"))
 
+(def auth-token "auth-token")
+
 (facts "about parse-http"
        (fact "throws an exception when the API server is not reachable"
              (parse-http :method :url)
@@ -63,4 +65,13 @@
           (provided
            (http-request :method :url nil) => {:body :something-nasty
                                                :status status-code}
-           (parse-response :something-nasty status-code nil nil) => nil))))
+           (parse-response :something-nasty status-code nil nil) => nil)))
+
+       (fact "http-request request includes auth-token"
+             (parse-http :method :url :http-options
+                         {:auth-token auth-token})
+             => :response
+             (provided
+              (http-request :method :url {:auth-token auth-token}) =>
+              {:body :body :status 200}
+              (parse-response :body 200 nil nil) => :response)))

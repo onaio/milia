@@ -25,6 +25,7 @@
                     :username username})
 (def api-token "api token")
 (def temp-token "temp token")
+(def auth-token "auth token for external api")
 (def options
   {:socket-timeout socket-timeout
    :conn-timeout connection-timeout
@@ -120,6 +121,37 @@
                                              {"Authorization"
                                               (str "TempToken " temp-token)})]
                  (http-request :method url nil) => :response
+                 (provided
+                  (call-client-method :method
+                                      url
+                                      appended-options) => :response))))
+
+       (fact "should add auth-token if auth-token exists."
+             (binding [*credentials* (assoc account
+                                            :token api-token
+                                            :temp-token temp-token)]
+               (let [appended-options (assoc options :headers
+                                             {"Authorization"
+                                              (str "Token "
+                                                   auth-token)}
+                                             :auth-token auth-token)]
+                 (http-request :method url {:auth-token auth-token})
+                 => :response
+                 (provided
+                  (call-client-method :method
+                                      url
+                                      appended-options) => :response))))
+
+       (fact "should add auth-token if auth-token exists while token and
+       temp-token do not exist. "
+             (binding [*credentials* account]
+               (let [appended-options (assoc options :headers
+                                             {"Authorization"
+                                              (str "Token "
+                                                   auth-token)}
+                                             :auth-token auth-token)]
+                 (http-request :method url {:auth-token auth-token})
+                 => :response
                  (provided
                   (call-client-method :method
                                       url
