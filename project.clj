@@ -3,29 +3,28 @@
       [path]
       (str "resources/public/js/" path))
 
-(defproject onaio/milia "0.3.9-apps-SNAPSHOT"
+(defproject onaio/milia "0.3.10-SNAPSHOT"
   :description "The milia.io Clojure Web API"
   :dependencies [;; CORE MILIA REQUIREMENTS
-                 [cheshire "5.5.0"]
-                 [clj-http "2.0.1" :exclusions [org.clojure/tools.reader]]
+                 [cheshire "5.6.1"]
+                 [clj-http "2.2.0" :exclusions [org.clojure/tools.reader]]
                  [environ "1.0.1"]
-                 [onaio/chimera "0.0.1-SNAPSHOT"]
+                 [onaio/chimera "0.0.1"]
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  ;;cljs
                  [cljs-hash "0.0.2"]
-                 [org.clojure/clojurescript "1.7.228"
-                  :exclusions [org.clojure/clojure]]
+                 [org.clojure/clojurescript "1.8.51"]
                  [org.clojure/core.async "0.2.374"]
                  [slingshot "0.12.2"]
                  ;; CLIENT REQUIREMENTS
-                 [cljs-http "0.1.39"]]
+                 [cljs-http "0.1.40"]]
   :license "Apache 2"
   :url "https://github.com/onaio/milia"
   :plugins [[jonase/eastwood "0.2.1"]
             [lein-bikeshed-ona "0.2.1"]
             [lein-cljfmt "0.3.0"]
-            [lein-cljsbuild "1.1.1"]
+            [lein-cljsbuild "1.1.2"]
             [lein-environ "1.0.1"]
             [lein-kibit "0.1.2"]
             [lein-midje "3.1.3"]]
@@ -34,7 +33,7 @@
              :add-linters [:unused-fn-args :unused-locals :unused-namespaces
                            :unused-private-vars]
              :namespaces [:source-paths]}
-  :profiles {:dev {:dependencies [[midje "1.8.2"]]
+  :profiles {:dev {:dependencies [[midje "1.8.3"]]
                    :env {:debug-api? false
                          :jetty-min-threads 10
                          :jetty-max-threads 80}}
