@@ -1,8 +1,8 @@
 (ns milia.api.user
   (:refer-clojure :exclude [get update])
-  (:require [milia.api.http :refer [parse-http]]
-            [milia.utils.remote :refer [make-url]]
-            [milia.utils.seq :refer [has-keys?]]))
+  (:require [chimera.seq :refer [has-keys?]]
+            [milia.api.http :refer [parse-http]]
+            [milia.utils.remote :refer [make-url]]))
 
 (defn patch
   [username params & {:keys [suppress-4xx-exceptions?]}]

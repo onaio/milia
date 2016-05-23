@@ -2,7 +2,9 @@
   (:import [goog.net.EventType]
            [goog.net XhrIo]
            [goog.net IframeIo])
-  (:require [cljs.core.async :refer [<! put! chan]]
+  (:require [chimera.seq :refer [in?]]
+            [chimera.string :refer [is-not-null?]]
+            [cljs.core.async :refer [<! put! chan]]
             [cljs-hash.md5  :refer [md5]]
             [cljs-http.client :as http]
             [cljs-http.core :as http-core]
@@ -10,9 +12,7 @@
             [clojure.string :refer [join split blank?]]
             [goog.net.cookies :as cookies]
             [goog.events :as gev]
-            [milia.utils.remote :refer [*credentials* hosts bad-token-msgs]]
-            [milia.utils.seq :refer [in?]]
-            [milia.utils.string :refer [is-not-null?]])
+            [milia.utils.remote :refer [*credentials* hosts bad-token-msgs]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (defn build-http-options
