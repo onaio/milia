@@ -4,6 +4,8 @@
             [milia.api.io :as io]
             [milia.utils.remote :refer [*credentials*]]))
 
+(def auth-token "auth-token")
+
 (deftest build-request-headers
   (let [temp-token "z temp token"]
     (binding [*credentials* {:temp-token temp-token}]
@@ -24,7 +26,13 @@
       (testing "do not add authentication header when token is empty string"
         (set! *credentials* {:temp-token ""})
         (is (= (io/token->headers :token "")
-             {"Accept" "application/json"}))))))
+             {"Accept" "application/json"})))
+      
+      (testing "add auth-token to Authorization header when auth-token
+      exists"
+        (is (= (io/token->headers :auth-token auth-token)
+               {"Authorization" (str "Token "  auth-token)
+                "Accept" "application/json"}))))))
 
 (deftest build-http-options
   (let [params {:a 1}

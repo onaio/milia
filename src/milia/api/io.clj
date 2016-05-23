@@ -5,6 +5,7 @@
             [clj-http.client :as client]
             [clj-http.conn-mgr :as conn-mgr]
             [clojure.java.io :as io]
+            [clojure.string :refer [join]]
             [clojure.tools.logging :as log]
             [environ.core :refer [env]]
             [milia.helpers.io :refer [error-status?]]
@@ -38,22 +39,24 @@
 
 (defn- req+auth
   "Add authorization to options"
-  [req]
+  [http-options]
   (let [{:keys [temp-token token username password]} *credentials*
-        {:keys [auth-token]} req]
-    (if (or temp-token token)
-      (assoc req
-             :headers {"Authorization" (if auth-token
-                                         (str "Token " auth-token)
-                                         (if temp-token
-                                           (str "TempToken " temp-token)
-                                           (str "Token " token)))})
-      (merge req (when password {:digest-auth [username password]})))))
+        {:keys [auth-token]} http-options]
+    (if (or temp-token token auth-token)
+      (assoc http-options
+             :headers {"Authorization"
+                       (join
+                        " "
+                        (if (and temp-token (not auth-token))
+                          ["TempToken" temp-token]
+                          ["Token" (or auth-token token)]))})
+      (merge http-options
+             (when password {:digest-auth [username password]})))))
 
 (defn build-req
   ([] (build-req nil))
-  ([req]
-   (assoc (req+auth (or req {}))
+  ([http-options]
+   (assoc (req+auth (or http-options {}))
           :conn-timeout connection-timeout
           :socket-timeout socket-timeout
           :save-request? (env :debug-api)

@@ -65,7 +65,7 @@
              headers (token->headers :get-crsftoken? (not= method :get)
                                      :must-revalidate? must-revalidate?
                                      :accept-header accept-header
-                                     :token auth-token)
+                                     :auth-token auth-token)
              ch (http-request
                  request-fn
                  (merge (build-http-options http-options method no-cache?)
