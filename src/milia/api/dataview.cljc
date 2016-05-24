@@ -18,9 +18,8 @@
     (parse-http :get url :no-cache? no-cache? :suppress-4xx-exceptions? true)))
 
 (defn data
-  "Retrieves dataview data using dataview id"
-  [dataview-id & {:keys
-                  [:raw? :must-revalidate? :query-params]}]
+  "Retrieves dataview data by ID and with the optional parameters."
+  [dataview-id & {:keys [:raw? :must-revalidate? :query-params]}]
   (let [url (make-url "dataviews" dataview-id "data.json")
         options {:query-params query-params}]
     (parse-http :get url
