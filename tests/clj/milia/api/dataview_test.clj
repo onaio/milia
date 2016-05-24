@@ -34,8 +34,11 @@
       (data dataview-id) => :response
       (provided
        (make-url "dataviews" dataview-id "data.json") => url
-       (parse-http :get url :suppress-4xx-exceptions?
-                   true :raw-response? true) => :response))
+       (parse-http :get url
+                   :http-options {:query-params nil}
+                   :must-revalidate? nil
+                   :raw-response? nil
+                   :suppress-4xx-exceptions? true) => :response))
 
 (fact "about get dataview's form"
       (form dataview-id) => :response
