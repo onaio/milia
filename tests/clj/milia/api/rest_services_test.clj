@@ -19,8 +19,7 @@
                    :http-options
                    {:form-params {:xform xform-id
                                   :name "generic_json"
-                                  :service_url service-url}
-                    :content-type :json}) => :api-response))
+                                  :service_url service-url}}) => :api-response))
 
 (fact "delete calls parse-http with the correct parameters"
       (delete rest-service-id) => :api-response
@@ -52,5 +51,4 @@
                    :http-options
                    {:form-params {:xform xform-id
                                   :name "generic_json"
-                                  :service_url service-url}
-                    :content-type :json}) => :api-response))
+                                  :service_url service-url}}) => :api-response))
