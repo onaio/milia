@@ -26,8 +26,7 @@
                 {:xform xform-id
                  :name name
                  :service_url service-url}
-                options)
-               :content-type :json}))
+                options)}))
 
 (defn update-restservice
   "Updates a rest service."
@@ -40,8 +39,7 @@
                                {:xform xform-id
                                 :name name
                                 :service_url service-url}
-                               options)
-               :content-type :json}))
+                               options)}))
 
 (defn delete
   "Delete a rest service"
