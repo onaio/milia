@@ -466,11 +466,12 @@
        (parse-http :get :url) => :response))
 
 (fact "about listing submission files"
-      (files :dataset-id) => :response
+      (files :dataset-id :project-id) => :response
       (provided
        (make-url "metadata") => :url
        (parse-http :get :url :no-cache? nil
-                   :http-options {:query-params {:instance :dataset-id}
+                   :http-options {:query-params {:instance :dataset-id
+                                                 :project :project-id}
                                   :content-type :json})
        => :response))
 
