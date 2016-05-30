@@ -63,7 +63,10 @@
   "Update project metadata"
   [project-id data]
   (let [url (make-url "projects" project-id)]
-    (parse-http :patch url :http-options {:form-params data})))
+    (parse-http :patch url :http-options
+                #?(:clj  {:form-params data
+                          :content-type :json})
+                #?(:cljs  {:form-params data}))))
 
 (defn share
   "Share project with specific user or remove specific user from project"

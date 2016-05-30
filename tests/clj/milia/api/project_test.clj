@@ -118,7 +118,8 @@
                   (make-url "projects" :id) => url
                   (parse-http :patch
                               url
-                              :http-options {:form-params data})
+                              :http-options {:form-params data
+                                             :content-type :json})
                   => :updated-project))))
 
   (facts "about add-tags"
