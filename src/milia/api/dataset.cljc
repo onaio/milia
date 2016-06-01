@@ -296,5 +296,7 @@
      (upload-metadata-file "instance" submission-id file)))
 
 (defn files
-  [dataset-id & {:keys [no-cache?]}]
-  (metadata-files :instance dataset-id no-cache?))
+  [dataset-id project-id & {:keys [no-cache?]}]
+  (let [extra-params {:project project-id}]
+    (metadata-files :instance dataset-id no-cache?
+                    :extra-params extra-params)))
