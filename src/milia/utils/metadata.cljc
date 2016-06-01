@@ -23,8 +23,8 @@
 
 (defn metadata-files
   "Fetch `metadata` with query key `id-key` and value `id`."
-  [id-key id no-cache?]
+  [id-key id no-cache? & {:keys [extra-params]}]
   (parse-http :get (make-url "metadata")
               :no-cache? no-cache?
-              :http-options {:query-params {id-key id}
+              :http-options {:query-params (conj {id-key id} extra-params)
                              :content-type :json}))
