@@ -141,4 +141,4 @@
   "Send a code to authorize a user to use google sheets"
   [code redirect_uri]
   (let [url (make-url "export" (str "google_auth?code=" code "&redirect_uri=" redirect_uri))]
-    (parse-http :get url)))
+    (parse-http :get url :as-map? true)))
