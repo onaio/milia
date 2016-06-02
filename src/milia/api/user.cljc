@@ -139,6 +139,6 @@
 
 (defn google-sheet-authorization
   "Send a code to authorize a user to use google sheets"
-  [code]
-  (let [url (make-url "export" "google_auth?code=" code)]
+  [code redirect_uri]
+  (let [url (make-url "export" (str "google_auth?code=" code "&redirect_uri=" redirect_uri))]
     (parse-http :get url)))
