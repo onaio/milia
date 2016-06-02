@@ -466,12 +466,13 @@
        (parse-http :get :url) => :response))
 
 (fact "about listing submission files"
-      (files :dataset-id :project-id) => :response
+      (files :instance-id :project-id :dataset-id 1) => :response
       (provided
        (make-url "metadata") => :url
        (parse-http :get :url :no-cache? nil
-                   :http-options {:query-params {:instance :dataset-id
-                                                 :project :project-id}
+                   :http-options {:query-params {:instance :instance-id
+                                                 :project :project-id
+                                                 :xform 1}
                                   :content-type :json})
        => :response))
 
