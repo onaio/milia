@@ -53,10 +53,12 @@
 
 (defn get-by-id
   "Get information for a specific rest service"
-  [id]
-  (parse-http :get (make-url "restservices" id)))
+  [id  & {:keys [no-cache?]}]
+  (parse-http :get (make-url "restservices" id)
+              :no-cache? no-cache?))
 
 (defn get-by-form-id
   "Get rest services for a form"
-  [formid]
-  (parse-http :get (make-url (str "restservices?xform="formid))))
+  [formid  & {:keys [no-cache?]}]
+  (parse-http :get (make-url (str "restservices?xform="formid))
+              :no-cache? no-cache?))
