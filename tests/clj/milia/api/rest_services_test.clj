@@ -32,14 +32,16 @@
        (parse-http :get base-url) => :api-response))
 
 (fact "get-by-id calls parse-http with the correct parameters"
-      (get-by-id rest-service-id) => :api-response
+      (get-by-id rest-service-id :no-cache? true) => :api-response
       (provided
-       (parse-http :get single-rest-service-url) => :api-response))
+       (parse-http :get single-rest-service-url
+                   :no-cache? true) => :api-response))
 
 (fact "get-by-form-id calls parse-http with the correct parameters"
-      (get-by-form-id xform-id) => :api-response
+      (get-by-form-id xform-id :no-cache? true) => :api-response
       (provided
-       (parse-http :get form-rest-service-url) => :api-response))
+       (parse-http :get form-rest-service-url
+                   :no-cache? true) => :api-response))
 
 (fact "update calls parse-http with the correct parameters"
       (update-restservice rest-service-id xform-id "generic_json"
@@ -49,6 +51,7 @@
        (parse-http :put
                    single-rest-service-url
                    :http-options
-                   {:form-params {:xform xform-id
-                                  :name "generic_json"
-                                  :service_url service-url}}) => :api-response))
+                   {:form-params
+                    {:xform xform-id
+                     :name "generic_json"
+                     :service_url service-url}}) => :api-response))
