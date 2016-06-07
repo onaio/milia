@@ -133,10 +133,14 @@
   [params]
   (let [url (make-url "orgs" (:org params))
         params (dissoc params :org)]
-    (parse-http :patch
-                url
-                :http-options {:form-params params :content-type :json}
-                :as-map? true)))
+        (parse-http
+          :patch
+          url
+          :http-options
+          #?(:clj   {:form-params params
+                     :content-type :json})
+          #?(:cljs  {:json-params params})
+          :as-map? true)))
 
 (defn get-team
   "Returns an Organizaion team given the team name."
