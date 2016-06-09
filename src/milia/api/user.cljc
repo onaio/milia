@@ -136,3 +136,11 @@
   []
   (let [url (make-url "user" "expire")]
     (parse-http :delete url)))
+
+(defn google-sheet-authorization
+  "Send a code to authorize a user to use google sheets"
+  [code redirect_uri]
+  (let [url (make-url "export"
+                      (format "google_auth?code=%s&redirect_uri=%s"
+                              code redirect_uri))]
+    (parse-http :get url :as-map? true)))
