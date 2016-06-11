@@ -1,6 +1,7 @@
 (ns milia.api.user
   (:refer-clojure :exclude [get update])
-  (:require [chimera.seq :refer [has-keys?]]
+  (:require #?(:cljs [chimera.js-interop :refer [format]])
+            [chimera.seq :refer [has-keys?]]
             [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]))
 
