@@ -18,7 +18,9 @@
 (defn build-http-options
   "Build http-options based on arguments."
   [http-options method no-cache?]
-  (let [stateful-method? (in? [:post :put :patch] method)]
+  (let [stateful-method? (in? [:post :put :patch] method)
+        ;; With credentials always false
+        http-options (assoc http-options :with-credentials? false)]
     ;; if JSON Params and stateful do not alter
     (if (and (:json-params http-options) stateful-method?)
       http-options
