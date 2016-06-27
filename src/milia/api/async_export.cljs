@@ -76,9 +76,14 @@
    :include-hxl? :include-images? :remove-group-name? :version :query :export_id
    :include-labels? :labels-only?])
 
+(defn- get-param [key value]
+  (cond
+    (= key "_version") (str "&query='{\"" key "\":"\" value "\"}'")
+    (or value (= value false)) (str "&" key "=" value)))
+
 (defn- add-param [key value]
   (when (or value (= value false))
-    (str "&" key "=" value)))
+    (get-param key value)))
 
 (defn build-export-suffix
   "Build the export options string to pass to the Ona API."
