@@ -78,7 +78,7 @@
 
 (defn- get-param [key value]
   (cond
-    (= key "_version") (str "&query='{\"" key "\":"\" value "\"}'")
+    (= key "_version") (str "&query='{\"" key "\":" \" value "\"}'")
     (or value (= value false)) (str "&" key "=" value)))
 
 (defn- add-param [key value]
