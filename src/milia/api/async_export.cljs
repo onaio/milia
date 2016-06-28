@@ -1,6 +1,7 @@
 (ns milia.api.async-export
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [chimera.seq :refer [select-values]]
+            [chimera.js-interop :refer [format]]
             [cljs.core.async :as async :refer [<! chan put! timeout]]
             [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
@@ -77,9 +78,9 @@
    :include-labels? :labels-only?])
 
 (defn- get-param [key value]
-  (cond
-    (= key "_version") (str "&query='{\"" key "\":" \" value "\"}'")
-    (or value (= value false)) (str "&" key "=" value)))
+  (if (= key "_version")
+    (format "&query='{\"%s\":\"%s\"}'" key value)
+    (str "&" key "=" value)))
 
 (defn- add-param [key value]
   (when (or value (= value false))
