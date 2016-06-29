@@ -298,7 +298,8 @@
 (defn files
   [instance-id project-id & {:keys [no-cache? dataset-id dataview-id]}]
   (let [extra-params {:project project-id}
-        extra-params (if dataview-id
+        extra-params (if (and (not= dataview-id "null")
+                              (true? dataview-id))
                        (assoc extra-params :dataview dataview-id)
                        (assoc extra-params :xform dataset-id))]
     (metadata-files :instance instance-id no-cache?
