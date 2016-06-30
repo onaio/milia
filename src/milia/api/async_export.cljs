@@ -70,12 +70,12 @@
 (def export-option-keys
   ["meta" "data_id" "group_delimiter" "do_not_split_select_multiples"
    "include_hxl" "include_images" "remove_group_name" "_version" "query"
-   "export_id" "include_labels" "include_labels_only"])
+   "export_id" "include_labels" "include_labels_only" "win_excel_utf8"])
 
 (def export-option-values
   [:meta-id :data-id :group-delimiter :do-not-split-multi-selects?
    :include-hxl? :include-images? :remove-group-name? :version :query :export_id
-   :include-labels? :labels-only?])
+   :include-labels? :labels-only? :windows-compatible-csv?])
 
 (defn- get-param [key value]
   (if (= key "_version")
