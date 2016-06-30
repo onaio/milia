@@ -75,12 +75,16 @@
           meta-id "meta-id"
           data-id "data-id"
           version "20160627"
+          windows-compatible-csv true
           options {:meta-id meta-id
                    :data-id data-id
-                   :version version}]
+                   :version version
+                   :windows-compatible-csv windows-compatible-csv}
+          ]
       (is (= (async-export/build-export-suffix async-export/export-async-url
                                                fmt options)
              (str async-export/export-async-url fmt
                   "&meta=" meta-id
                   "&data_id=" data-id
-                  "&query='{\"_version\":\"20160627\"}'"))))))
+                  "&query='{\"_version\":\"20160627\"}'"
+                  "&win_excel_utf8=" windows-compatible-csv))))))
