@@ -1,11 +1,14 @@
 (ns milia.api.user_test
   (:refer-clojure :exclude [get update])
-  (:require [midje.sweet :refer :all]
+  (:require [clojure.string :refer [join]]
+            [midje.sweet :refer :all]
             [milia.api.user :refer :all]
             [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]))
 
 (def username :fake-username)
+(def username2 :fake-username2)
+(def username3 :fake-username3)
 (def password :fake-password)
 (def account {:username username :password password})
 
@@ -46,6 +49,20 @@
                (profile username) => :something
                (provided
                 (make-url "profiles" username) => url
+                (parse-http :get url
+                            :suppress-4xx-exceptions? true) => :something)))
+
+  (facts "About getting profiles for a list of users"
+         (fact "Should get correct url"
+               (get-profiles-for-list-of-users [username
+                                                username2
+                                                username3]) => :something
+               (provided
+                (make-url (str "profiles"
+                               "?users="
+                               (join "," [username
+                                          username2
+                                          username3]))) => url
                 (parse-http :get url
                             :suppress-4xx-exceptions? true) => :something)))
 
