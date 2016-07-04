@@ -1,6 +1,7 @@
 (ns milia.api.async-export
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [chimera.seq :refer [select-values]]
+            [chimera.js-interop :refer [format]]
             [cljs.core.async :as async :refer [<! chan put! timeout]]
             [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
@@ -69,16 +70,21 @@
 (def export-option-keys
   ["meta" "data_id" "group_delimiter" "do_not_split_select_multiples"
    "include_hxl" "include_images" "remove_group_name" "_version" "query"
-   "export_id" "include_labels" "include_labels_only"])
+   "export_id" "include_labels" "include_labels_only" "win_excel_utf8"])
 
 (def export-option-values
   [:meta-id :data-id :group-delimiter :do-not-split-multi-selects?
    :include-hxl? :include-images? :remove-group-name? :version :query :export_id
-   :include-labels? :labels-only?])
+   :include-labels? :labels-only? :windows-compatible-csv?])
+
+(defn- get-param [key value]
+  (if (= key "_version")
+    (format "&query='{\"%s\":\"%s\"}'" key value)
+    (str "&" key "=" value)))
 
 (defn- add-param [key value]
   (when (or value (= value false))
-    (str "&" key "=" value)))
+    (get-param key value)))
 
 (defn build-export-suffix
   "Build the export options string to pass to the Ona API."
