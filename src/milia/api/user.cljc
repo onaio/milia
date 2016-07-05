@@ -1,6 +1,7 @@
 (ns milia.api.user
   (:refer-clojure :exclude [get update])
   (:require #?(:cljs [chimera.js-interop :refer [format]])
+            [clojure.string :refer [join]]
             [chimera.seq :refer [has-keys?]]
             [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]))
@@ -19,7 +20,14 @@
   [username]
   (let [url (make-url "profiles" username)
         response (parse-http :get url :suppress-4xx-exceptions? true)]
-    (if-let [error (:detail response)] nil response)))
+    (if-let [error (:detail response)] error response)))
+
+(defn get-profiles-for-list-of-users
+  "Return the profile for the account username or the passed username."
+  [users]
+  (let [url (make-url (str "profiles" "?users=" (join "," users)))
+        response (parse-http :get url :suppress-4xx-exceptions? true)]
+     (if-let [error (:detail response)] error response)))
 
 (defn user
   "Return the user profile with authentication details."
