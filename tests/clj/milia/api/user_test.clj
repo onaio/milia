@@ -50,7 +50,15 @@
                (provided
                 (make-url "profiles" username) => url
                 (parse-http :get url
-                            :suppress-4xx-exceptions? true) => :something)))
+                            :suppress-4xx-exceptions? true) => :something))
+
+         (fact "Should get correct url"
+               (profile username) => nil
+               (provided
+                (make-url "profiles" username) => url
+                (parse-http :get url
+                            :suppress-4xx-exceptions? true) =>
+                {:detail :error})))
 
   (facts "About getting profiles for a list of users"
          (fact "Should get correct url"
