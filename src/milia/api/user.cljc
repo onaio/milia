@@ -152,4 +152,4 @@
   (let [url (make-url "export"
                       (format "google_auth?code=%s&redirect_uri=%s"
                               code redirect_uri))]
-    (parse-http :get url :as-map? true)))
+    (parse-http :get url :as-map? true :suppress-4xx-exceptions? true)))

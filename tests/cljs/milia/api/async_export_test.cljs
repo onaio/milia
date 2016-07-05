@@ -75,11 +75,13 @@
           meta-id "meta-id"
           data-id "data-id"
           version "20160627"
+          url "http://test.me/"
           windows-compatible-csv true
           options {:meta-id meta-id
                    :data-id data-id
                    :version version
-                   :windows-compatible-csv windows-compatible-csv}
+                   :windows-compatible-csv windows-compatible-csv
+                   :redirect_uri url}
           ]
       (is (= (async-export/build-export-suffix async-export/export-async-url
                                                fmt options)
@@ -87,4 +89,5 @@
                   "&meta=" meta-id
                   "&data_id=" data-id
                   "&query='{\"_version\":\"20160627\"}'"
-                  "&win_excel_utf8=" windows-compatible-csv))))))
+                  "&win_excel_utf8=" windows-compatible-csv
+                  "&redirect_uri=" url))))))
