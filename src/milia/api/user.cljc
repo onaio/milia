@@ -20,7 +20,7 @@
   [username]
   (let [url (make-url "profiles" username)
         response (parse-http :get url :suppress-4xx-exceptions? true)]
-    (if-let [error (:detail response)] error response)))
+    (if-let [error (:detail response)] nil response)))
 
 (defn get-profiles-for-list-of-users
   "Return the profile for the account username or the passed username."
