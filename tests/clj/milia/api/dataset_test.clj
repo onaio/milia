@@ -465,15 +465,42 @@
        (make-url "data" :dataset-id :instance-id "history") => :url
        (parse-http :get :url) => :response))
 
-(fact "about listing submission files"
-      (files :dataset-id :project-id) => :response
-      (provided
-       (make-url "metadata") => :url
-       (parse-http :get :url :no-cache? nil
-                   :http-options {:query-params {:instance :dataset-id
-                                                 :project :project-id}
-                                  :content-type :json})
-       => :response))
+(facts "about listing submission files"
+       (fact "if dataview null send dataset ID"
+             (files :instance-id :project-id :dataset-id 1 :dataview-id "null")
+             => :response
+             (provided
+              (make-url "metadata") => :url
+              (parse-http :get :url :no-cache? nil
+                          :http-options {:query-params {:instance :instance-id
+                                                        :project :project-id
+                                                        :xform 1}
+                                         :content-type :json})
+              => :response))
+
+       (fact "if dataview nil send dataset ID"
+             (files :instance-id :project-id :dataset-id 1)
+             => :response
+             (provided
+              (make-url "metadata") => :url
+              (parse-http :get :url :no-cache? nil
+                          :http-options {:query-params {:instance :instance-id
+                                                        :project :project-id
+                                                        :xform 1}
+                                         :content-type :json})
+              => :response))
+
+       (fact "if dataview exists send dataview"
+             (files :instance-id :project-id :dataview-id 1)
+             => :response
+             (provided
+              (make-url "metadata") => :url
+              (parse-http :get :url :no-cache? nil
+                          :http-options {:query-params {:instance :instance-id
+                                                        :project :project-id
+                                                        :dataview 1}
+                                         :content-type :json})
+              => :response)))
 
 (fact "about upload project files"
       (upload-file :submission-id {:filename "image.png"}) => :response
