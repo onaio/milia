@@ -210,4 +210,5 @@
        (make-url "export"
                  (format "google_auth?code=%s&redirect_uri=%s"
                          :code :redirect_uri)) => :url
-       (parse-http :get :url :as-map? true) => :response))
+       (parse-http :get :url :as-map? true :suppress-4xx-exceptions? true)
+       => :response))

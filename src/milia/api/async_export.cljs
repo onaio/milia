@@ -26,7 +26,7 @@
          job-status   :job_status
          job-id       :job_uuid} body
         is-failed-status? #(= job-status export-failure-status-msg)
-        error-detail (or (:detail body) (:error body)
+        error-detail (or (:detail body) (:error body) (:details body)
                          (when (is-failed-status?) job-status))]
     ;; sometimes API server returns an export-url quickly
     (when export-url
@@ -42,7 +42,9 @@
     (when (or (>= status 400)
               (is-failed-status?))
       (when (fn? on-error)
-        (on-error error-detail))
+        (if (= status 403)
+          (on-error error-detail (:url body))
+          (on-error error-detail)))
       (on-stop))))
 
 (defn- monitor-async-export!
@@ -70,12 +72,13 @@
 (def export-option-keys
   ["meta" "data_id" "group_delimiter" "do_not_split_select_multiples"
    "include_hxl" "include_images" "remove_group_name" "_version" "query"
-   "export_id" "include_labels" "include_labels_only" "win_excel_utf8"])
+   "export_id" "include_labels" "include_labels_only" "win_excel_utf8"
+   "redirect_uri"])
 
 (def export-option-values
   [:meta-id :data-id :group-delimiter :do-not-split-multi-selects?
    :include-hxl? :include-images? :remove-group-name? :version :query :export_id
-   :include-labels? :labels-only? :windows-compatible-csv?])
+   :include-labels? :labels-only? :windows-compatible-csv? :redirect_uri])
 
 (defn- get-param [key value]
   (if (= key "_version")
