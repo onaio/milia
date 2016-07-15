@@ -54,8 +54,9 @@
      (let [client-host (-> js/window (aget "location") (aget "origin"))]
        (url-join client-host postfix))))
 
-(defn make-json-url [& args]
+(defn make-json-url
   "Like make-url, but ensures an ending in .json"
+  [& args]
   (str (apply make-url args) ".json"))
 
 (defn make-j2x-url
