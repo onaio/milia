@@ -256,7 +256,7 @@
    (let [url (make-url "metadata")
          form-params {:data_type "media"
                       :data_value
-                      (str object-type " " object-id " " media-filename)
+                      (str (join " " [object-type object-id media-filename]))
                       :xform xform-id}]
      (parse-http :post url
                  :http-options {:form-params form-params}
