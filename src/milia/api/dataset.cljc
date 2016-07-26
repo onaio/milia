@@ -249,6 +249,19 @@
                    :http-options {:multipart muiltipart}
                    :suppress-4xx-exceptions? true))))
 
+
+ (defn link-xform-or-dataview-as-media
+   "Link xform or dataview as media"
+   [object-type object-id media-filename xform-id]
+   (let [url (make-url "metadata")
+         form-params {:data_type "media"
+                      :data_value
+                      (str (join " " [object-type object-id media-filename]))
+                      :xform xform-id}]
+     (parse-http :post url
+                 :http-options {:form-params form-params}
+                 :suppress-4xx-exceptions? true)))
+
 (defn add-xls-report
   "Add xls report link to dataset"
   [dataset-id uuid filename]
