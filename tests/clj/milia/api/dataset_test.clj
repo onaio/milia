@@ -1,6 +1,7 @@
 (ns milia.api.dataset-test
   (:refer-clojure :exclude [update])
-  (:require [midje.sweet :refer :all]
+  (:require [clojure.string :refer [join]]
+            [midje.sweet :refer :all]
             [milia.api.dataset :refer :all]
             [milia.utils.file :as f]
             [milia.utils.remote :refer [make-j2x-url make-url make-client-url]]
@@ -308,6 +309,25 @@
                                                  :content :media-file}]}
                      :suppress-4xx-exceptions? true)
          => :response))
+
+  (fact "about link xform or dataview as media"
+        (link-xform-or-dataview-as-media
+          "dataview" "123" "dataview-example" "45") => :response
+        (provided
+          (make-url "metadata") => url
+          (parse-http :post
+                      url
+                      :http-options {:form-params {:data_type "media"
+                                                   :data_value
+                                                   (str
+                                                     (join
+                                                       " "
+                                                       ["dataview"
+                                                        "123"
+                                                        "dataview-example"]))
+                                                   :xform "45"}}
+                      :suppress-4xx-exceptions? true)
+          => :response))
 
   (facts "About patch"
          (let [options {:form-params nil}
