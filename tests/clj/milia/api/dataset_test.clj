@@ -312,22 +312,22 @@
 
   (fact "about link xform or dataview as media"
         (link-xform-or-dataview-as-media
-          "dataview" "123" "dataview-example" "45") => :response
+         "dataview" "123" "dataview-example" "45") => :response
         (provided
-          (make-url "metadata") => url
-          (parse-http :post
-                      url
-                      :http-options {:form-params {:data_type "media"
-                                                   :data_value
-                                                   (str
-                                                     (join
-                                                       " "
-                                                       ["dataview"
-                                                        "123"
-                                                        "dataview-example"]))
-                                                   :xform "45"}}
-                      :suppress-4xx-exceptions? true)
-          => :response))
+         (make-url "metadata") => url
+         (parse-http :post
+                     url
+                     :http-options {:form-params {:data_type "media"
+                                                  :data_value
+                                                  (str
+                                                   (join
+                                                    " "
+                                                    ["dataview"
+                                                     "123"
+                                                     "dataview-example"]))
+                                                  :xform "45"}}
+                     :suppress-4xx-exceptions? true)
+         => :response))
 
   (facts "About patch"
          (let [options {:form-params nil}
