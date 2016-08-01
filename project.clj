@@ -3,7 +3,7 @@
       [path]
       (str "resources/public/js/" path))
 
-(defproject onaio/milia "0.3.12"
+(defproject onaio/milia "0.3.13-SNAPSHOT"
   :description "The milia.io Clojure Web API"
   :dependencies [;; CORE MILIA REQUIREMENTS
                  [cheshire "5.6.1"]
