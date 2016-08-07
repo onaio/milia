@@ -5,7 +5,8 @@
             [cljs.core.async :as async :refer [<! chan put! timeout]]
             [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
-            [milia.utils.remote :refer [make-url]]))
+            [milia.utils.remote :refer [make-url]]
+            [milia.utils.retry :refer [retry-parse-http]]))
 
 (def export-async-url "export_async.json?format=")
 (def export-failure-status-msg "FAILURE")
@@ -60,7 +61,7 @@
               job-url (make-url (if is-filtered-dataview? "dataviews" "forms")
                                 dataset-id
                                 job-suffix)
-              response (<! (parse-http :get job-url :no-cache? true))]
+              response (<! (retry-parse-http :get job-url :no-cache? true))]
           ;; Never use `on-job-id` here b/c `on-job-id` should only be
           ;; triggered once in `trigger-async-export!` where it starts
           ;; `monitor-async-export!` itself
@@ -112,7 +113,7 @@
            export-endpoint (if is-filtered-dataview?
                              "dataviews" "forms")
            export-url (make-url export-endpoint dataset-id export-suffix)
-           response (<! (parse-http :get export-url))
+           response (<! (retry-parse-http :get export-url))
            ;; new on-job-id that will be used in handle-response
            inner-on-job-id
            (fn [job-id]
@@ -128,16 +129,16 @@
                          :on-export-url on-export-url})))))
 
 (defn get-async-export-url
-  [dataset-id data-format]
   "Returns a channel, which will have the async export url when ready."
+  [dataset-id data-format]
   (let [ch (chan 1)]
     (trigger-async-export! dataset-id {:data-format   data-format
                                        :on-export-url #(put! ch %)})
     ch))
 
 (defn get-async-export-data
-  [dataset-id fmt http-method & args]
   "Returns a channel, which will have the async _data_
    downloaded using http-method when ready."
+  [dataset-id fmt http-method & args]
   (go (let [url (<! (get-async-export-url dataset-id fmt))]
         (<! (apply parse-http (concat [http-method url] args))))))
