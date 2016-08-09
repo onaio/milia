@@ -309,10 +309,8 @@
      (upload-metadata-file "instance" submission-id file)))
 
 (defn files
-  [instance-id project-id & {:keys [no-cache? dataset-id dataview-id]}]
+  [instance-id project-id & {:keys [no-cache? dataset-id]}]
   (let [extra-params (apply assoc {:project project-id}
-                            (if (and dataview-id (not= dataview-id "null"))
-                              [:dataview dataview-id]
-                              [:xform dataset-id]))]
+                            [:xform dataset-id])]
     (metadata-files :instance instance-id no-cache?
                     :extra-params extra-params)))
