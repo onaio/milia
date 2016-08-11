@@ -5,7 +5,8 @@
             [milia.api.io :refer :all]
             [milia.helpers :refer [slingshot-exception]]
             [milia.utils.remote
-             :refer [*credentials* make-url token-expired-msg]]
+             :refer [*credentials* make-url token-expired-msg
+                     make-google-core-url]]
             [environ.core :refer [env]]))
 
 (def body [1,2])
@@ -90,7 +91,10 @@
                               url
                               http-options)
                 => response
-                (parse-binary-response body :filename) => file))))
+                (parse-binary-response body :filename) => file)))
+       (fact "test generated url for google"
+             (make-google-core-url "google-auth") => 
+             "https://stage.ona.io/google/google-auth"))
 
 (facts "about http-request"
        (fact "should add digest if account has password"

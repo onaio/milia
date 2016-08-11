@@ -63,3 +63,10 @@
   "Build an API url."
   [& postfix]
   (url-join (protocol-prefixed (:j2x @hosts)) postfix))
+
+(defn make-google-core-url
+  "Build an Google url."
+  [& postfix]
+  (url-join (str (protocol-prefixed (:data @hosts)) "/google") postfix))
+
+
