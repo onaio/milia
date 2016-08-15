@@ -63,6 +63,17 @@
                      :must-revalidate? nil
                      :accept-header nil) => :something))
 
+  (fact "about dataset get dataset datum"
+        (data :dataset-id :datum-id 1 :format "json") => :something
+        (provided
+         (make-url "data"  ":dataset-id.json") => url
+         (parse-http :get
+                     url
+                     :http-options {:query-params nil}
+                     :raw-response? nil
+                     :must-revalidate? nil
+                     :accept-header nil) => :something))
+
   (fact "about dataset-getdata :raw"
         (data :dataset-id :raw? true :must-revalidate? true) => :something
         (provided
