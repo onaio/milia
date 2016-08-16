@@ -84,10 +84,13 @@
 
 (defn data
   "Return the data associated with a dataset."
-  [dataset-id & {:keys
-                 [:format :raw? :must-revalidate? :accept-header :query-params]
-                 #?@(:cljs [:or {:format "json"}])}]
-  (let [dataset-suffix (if format (str dataset-id "." format) dataset-id)
+  [dataset-id &
+   {:keys [format raw? must-revalidate? accept-header query-params
+           data-id] #?@(:cljs [:or {:format "json"}])}]
+  (let [dataset-suffix (if format
+                         (str dataset-id (when data-id (str "/" data-id))
+                              "." format)
+                         dataset-id)
         url (make-url "data" dataset-suffix)
         options {:query-params query-params}]
     (parse-http :get url
