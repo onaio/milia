@@ -4,7 +4,7 @@
             [midje.sweet :refer :all]
             [milia.api.user :refer :all]
             [milia.api.http :refer [parse-http]]
-            [milia.utils.remote :refer [make-url]]))
+            [milia.utils.remote :refer [make-url make-non-api-url]]))
 
 (def username :fake-username)
 (def username2 :fake-username2)
@@ -207,8 +207,8 @@
 (fact "expire-temp-token should call delete on the expire endpoint"
       (google-sheet-authorization :code :redirect_uri) => :response
       (provided
-       (make-url "google"
-                 (format "google-auth?code=%s&redirect_uri=%s"
-                         :code :redirect_uri)) => :url
+       (make-non-api-url "google"
+                         (format "google-auth?code=%s&redirect_uri=%s"
+                                 :code :redirect_uri)) => :url
        (parse-http :get :url :as-map? true :suppress-4xx-exceptions? true)
        => :response))
