@@ -64,11 +64,12 @@
               ["Accept" (or accept-header "application/json")]])))
 
 (defn get-xhr-io-response
-  [io-obj]
+  [io-obj & [{:keys [require-json?]}]]
   (try
     (.getResponseJson io-obj)
     (catch js/Error _
-      {:error (.getResponseText io-obj)})))
+      (let [text-response (.getResponseText io-obj)]
+        (if require-json? {:error text-response} text-response)))))
 
 (defn upload-via-iframe
   [form form-api event-chan]
@@ -88,7 +89,7 @@
   and (optionally) an id to include in the result message. Returns the
   XhrIo object that can be used to abort request. More XhrIo API
   docs at: https://goo.gl/B0fm2a"
-  [form chan & {:keys [headers id]}]
+  [form chan & {:keys [headers id require-json?] :or {:require-json true}}]
   (let [io-obj (XhrIo.)
         data   (when id {:id id})
         url    (.-action form)]
@@ -96,11 +97,13 @@
     ;; event handlers
     (gev/listen io-obj goog.net.EventType.SUCCESS
                 #(put! chan (assoc data
-                                   :data (get-xhr-io-response io-obj)
+                                   :data (get-xhr-io-response io-obj
+                                                              require-json?)
                                    :success? true)))
     (gev/listen io-obj goog.net.EventType.ERROR
                 #(put! chan (assoc data
-                                   :data (get-xhr-io-response io-obj)
+                                   :data (get-xhr-io-response io-obj
+                                                              require-json?)
                                    :success? false)))
     (gev/listen io-obj goog.net.EventType.PROGRESS
                 #(put! chan (assoc data :progress
