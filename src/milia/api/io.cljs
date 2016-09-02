@@ -64,12 +64,15 @@
               ["Accept" (or accept-header "application/json")]])))
 
 (defn get-xhr-io-response
-  [io-obj & [{:keys [require-json?]}]]
-  (try
-    (.getResponseJson io-obj)
-    (catch js/Error _
-      (let [text-response (.getResponseText io-obj)]
-        (if require-json? {:error text-response} text-response)))))
+  "Get the response out of an object that watches an async/xhr request.
+   JsIoObject, Maybe {Keyword Bool} -> {:keyword }"
+  [io-obj & [{:keys [require-json?] :or {:require-json? true}}]]
+  (if require-json?
+    (try
+      (.getResponseJson io-obj)
+      (catch js/Error _
+        {:error (.getResponseText io-obj)}))
+    (.getResponseText io-obj)))
 
 (defn upload-via-iframe
   [form form-api event-chan]
@@ -89,7 +92,7 @@
   and (optionally) an id to include in the result message. Returns the
   XhrIo object that can be used to abort request. More XhrIo API
   docs at: https://goo.gl/B0fm2a"
-  [form chan & {:keys [headers id require-json?] :or {:require-json true}}]
+  [form chan & {:keys [headers id require-json?] :or {:require-json? true}}]
   (let [io-obj (XhrIo.)
         data   (when id {:id id})
         url    (.-action form)]
