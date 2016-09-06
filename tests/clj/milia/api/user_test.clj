@@ -207,7 +207,7 @@
 (fact "expire-temp-token should call delete on the expire endpoint"
       (google-sheet-authorization :code :redirect_uri) => :response
       (provided
-       (make-url "export"
+       (make-url "google"
                  (format "google_auth?code=%s&redirect_uri=%s"
                          :code :redirect_uri)) => :url
        (parse-http :get :url :as-map? true :suppress-4xx-exceptions? true)
