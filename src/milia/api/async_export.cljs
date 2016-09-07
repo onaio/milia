@@ -60,7 +60,7 @@
               job-url (make-url (if is-filtered-dataview? "dataviews" "forms")
                                 dataset-id
                                 job-suffix)
-              response (<! (parse-http :get job-url))]
+              response (<! (parse-http :get job-url :no-cache? true))]
           ;; Never use `on-job-id` here b/c `on-job-id` should only be
           ;; triggered once in `trigger-async-export!` where it starts
           ;; `monitor-async-export!` itself
