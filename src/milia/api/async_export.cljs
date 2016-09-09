@@ -1,6 +1,6 @@
 (ns milia.api.async-export
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [chimera.seq :refer [select-values]]
+  (:require [chimera.seq :refer [in? select-values]]
             [chimera.js-interop :refer [format]]
             [cljs.core.async :as async :refer [<! chan put! timeout]]
             [clojure.string :refer [join]]
@@ -8,7 +8,8 @@
             [milia.utils.remote :refer [make-url]]))
 
 (def export-async-url "export_async.json?format=")
-(def export-failure-status-msg "FAILURE")
+(def export-failure-status-msgs #{"FAILURE" "Failed"})
+
 (def polling-interval 5000) ;; Async export polling interval in ms
 
 (defn- handle-response
@@ -25,8 +26,9 @@
   (let [{export-url   :export_url
          job-status   :job_status
          job-id       :job_uuid} body
-        is-failed-status? #(= job-status export-failure-status-msg)
+        is-failed-status? #(in? export-failure-status-msgs job-status)
         error-detail (or (:detail body) (:error body) (:details body)
+                         (:error_message body)
                          (when (is-failed-status?) job-status))]
     ;; sometimes API server returns an export-url quickly
     (when export-url
