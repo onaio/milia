@@ -56,7 +56,8 @@
                                          "target/main-test.js"]
                         :compiler {:output-to "target/main-test.js"
                                    :optimizations :whitespace
-                                   :pretty-print true}}
+                                   :pretty-print true
+                                   :closure-output-charset "US-ASCII"}}
                        :prod
                        {:source-paths ["src"]
                         :compiler {:output-to ~(js-dir "lib/milia.js")
