@@ -8,7 +8,9 @@
             [milia.utils.remote :refer [make-url]]))
 
 (def export-async-url "export_async.json?format=")
-(def export-failure-status-msgs #{"FAILURE" "Failed"})
+(def FAILURE "FAILURE")
+(def Failed "Failed")
+(def export-failure-status-msgs #{FAILURE Failed})
 
 (def polling-interval 5000) ;; Async export polling interval in ms
 

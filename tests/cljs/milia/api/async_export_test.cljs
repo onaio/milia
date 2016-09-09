@@ -1,7 +1,6 @@
 (ns milia.api.async-export-test
   (:require-macros [cljs.test :refer (is deftest testing)])
-  (:require [cljs.test :as t]
-            [milia.api.async-export :as async-export]))
+  (:require [milia.api.async-export :as async-export]))
 
 (deftest handle-response-test
   (testing "handle export-url, on-export-url called, on-stop called"
@@ -30,16 +29,27 @@
       (is (= (.-stopped mutable-obj)
              false))))
 
-  (testing "Failure causes on-error called, on-stop called"
-    (let [sample-job-id "012345"
-          response {:status 202
-                    :body {:job_status async-export/export-failure-status-msg}}
+  (testing "FAILURE causes on-error called, on-stop called"
+    (let [response {:status 202
+                    :body {:job_status async-export/FAILURE}}
           mutable-obj #js {:stopped false}]
       (->> {:on-error #(aset mutable-obj "error" %)
             :on-stop #(aset mutable-obj "stopped" true)}
            (async-export/handle-response response))
       (is (= (.-error mutable-obj)
-             async-export/export-failure-status-msg))
+             async-export/FAILURE))
+      (is (= (.-stopped mutable-obj)
+             true))))
+
+  (testing "Failed causes on-error called, on-stop called"
+    (let [response {:status 202
+                    :body {:job_status async-export/FAILURE}}
+          mutable-obj #js {:stopped false}]
+      (->> {:on-error #(aset mutable-obj "error" %)
+            :on-stop #(aset mutable-obj "stopped" true)}
+           (async-export/handle-response response))
+      (is (= (.-error mutable-obj)
+             async-export/FAILURE))
       (is (= (.-stopped mutable-obj)
              true))))
 
@@ -81,8 +91,7 @@
                    :data-id data-id
                    :version version
                    :windows-compatible-csv windows-compatible-csv
-                   :redirect_uri url}
-          ]
+                   :redirect_uri url}]
       (is (= (async-export/build-export-suffix async-export/export-async-url
                                                fmt options)
              (str async-export/export-async-url fmt
