@@ -1,7 +1,6 @@
 (ns milia.api.async-export-test
   (:require-macros [cljs.test :refer (is deftest testing)])
-  (:require [cljs.test :as t]
-            [milia.api.async-export :as async-export]))
+  (:require [milia.api.async-export :as async-export]))
 
 (deftest handle-response-test
   (testing "handle export-url, on-export-url called, on-stop called"
@@ -30,9 +29,8 @@
       (is (= (.-stopped mutable-obj)
              false))))
 
-  (testing "Failure causes on-error called, on-stop called"
-    (let [sample-job-id "012345"
-          response {:status 202
+  (testing "Failed causes on-error called, on-stop called"
+    (let [response {:status 202
                     :body {:job_status async-export/export-failure-status-msg}}
           mutable-obj #js {:stopped false}]
       (->> {:on-error #(aset mutable-obj "error" %)
@@ -69,7 +67,7 @@
       (is (= (.-stopped mutable-obj)
              true)))))
 
-(deftest build-export-suffix
+(deftest test-build-export-suffix
   (testing "params rendered correctly"
     (let [fmt "format"
           meta-id "meta-id"
@@ -80,11 +78,11 @@
           options {:meta-id meta-id
                    :data-id data-id
                    :version version
-                   :windows-compatible-csv windows-compatible-csv
-                   :redirect_uri url}
-          ]
-      (is (= (async-export/build-export-suffix async-export/export-async-url
-                                               fmt options)
+                   :windows-compatible-csv? windows-compatible-csv
+                   :redirect-uri url}
+          export-suffix (async-export/build-export-suffix
+                         async-export/export-async-url fmt options)]
+      (is (= export-suffix
              (str async-export/export-async-url fmt
                   "&meta=" meta-id
                   "&data_id=" data-id

@@ -3,7 +3,7 @@
       [path]
       (str "resources/public/js/" path))
 
-(defproject onaio/milia "0.3.15"
+(defproject onaio/milia "0.3.16-SNAPSHOT"
   :description "The milia.io Clojure Web API"
   :dependencies [;; CORE MILIA REQUIREMENTS
                  [cheshire "5.6.1"]
@@ -56,7 +56,8 @@
                                          "target/main-test.js"]
                         :compiler {:output-to "target/main-test.js"
                                    :optimizations :whitespace
-                                   :pretty-print true}}
+                                   :pretty-print true
+                                   :closure-output-charset "US-ASCII"}}
                        :prod
                        {:source-paths ["src"]
                         :compiler {:output-to ~(js-dir "lib/milia.js")

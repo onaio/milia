@@ -5,6 +5,10 @@
             [milia.utils.remote :refer [*credentials*]]))
 
 (def auth-token "auth-token")
+(def params {:a 1})
+(def params-w-xhr-true (assoc params :xhr true))
+(def json-params {:json-params params :with-credentials? false})
+(def form-params {:form-params params-w-xhr-true :with-credentials? false})
 
 (deftest build-request-headers
   (let [temp-token "z temp token"]
@@ -35,10 +39,9 @@
                 "Accept" "application/json"}))))))
 
 (deftest build-http-options
-  (let [params {:a 1}
-        params-w-xhr-true (assoc params :xhr true)
-        get-http-options {:query-params params-w-xhr-true}
-        post-http-options {:form-params params-w-xhr-true}]
+  (let [get-http-options {:query-params params-w-xhr-true
+                          :with-credentials? false}
+        post-http-options form-params]
 
     (testing "for get request with no-cache? nil, should add {:xhr true}
               to :query-params"
@@ -55,17 +58,17 @@
     (testing "for post/patch/put request with no-cache? nil should add
               {:xhr true} to :form-params"
       (doseq [method [:post :patch :put]]
-        (is (= (io/build-http-options {:form-params params} method nil)
+        (is (= (io/build-http-options form-params method nil)
                post-http-options))))
 
     (testing "for post/patch/put requests are never cached, should not add
               no-cache? even when passed"
       (doseq [method [:post :patch :put]]
-        (is (= (io/build-http-options {:form-params params} method true)
+        (is (= (io/build-http-options form-params method true)
                post-http-options))))
 
     (testing "for post/patch/put requests if json-params are passed should not
               add xhr or no-cache?"
       (doseq [method [:post :patch :put]]
         (is (= (io/build-http-options {:json-params params} method true)
-              {:json-params params}))))))
+              json-params))))))

@@ -1,7 +1,7 @@
 (ns milia.api.async-export
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [chimera.seq :refer [select-values]]
-            [chimera.js-interop :refer [format]]
+            goog.string.format
             [cljs.core.async :as async :refer [<! chan put! timeout]]
             [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
@@ -69,20 +69,22 @@
                                      :on-export-url on-export-url})
           (<! (timeout polling-interval)))))))
 
+(def version-key "_version")
+
 (def export-option-keys
   ["meta" "data_id" "group_delimiter" "do_not_split_select_multiples"
-   "include_hxl" "include_images" "remove_group_name" "_version" "query"
+   "include_hxl" "include_images" "remove_group_name" version-key "query"
    "export_id" "include_labels" "include_labels_only" "win_excel_utf8"
    "redirect_uri"])
 
 (def export-option-values
   [:meta-id :data-id :group-delimiter :do-not-split-multi-selects?
    :include-hxl? :include-images? :remove-group-name? :version :query :export_id
-   :include-labels? :labels-only? :windows-compatible-csv? :redirect_uri])
+   :include-labels? :labels-only? :windows-compatible-csv? :redirect-uri])
 
 (defn- get-param [key value]
-  (if (= key "_version")
-    (format "&query='{\"%s\":\"%s\"}'" key value)
+  (if (= key version-key)
+    (goog.string.format "&query='{\"%s\":\"%s\"}'" key value)
     (str "&" key "=" value)))
 
 (defn- add-param [key value]
