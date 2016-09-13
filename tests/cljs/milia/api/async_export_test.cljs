@@ -29,27 +29,15 @@
       (is (= (.-stopped mutable-obj)
              false))))
 
-  (testing "FAILURE causes on-error called, on-stop called"
-    (let [response {:status 202
-                    :body {:job_status async-export/FAILURE}}
-          mutable-obj #js {:stopped false}]
-      (->> {:on-error #(aset mutable-obj "error" %)
-            :on-stop #(aset mutable-obj "stopped" true)}
-           (async-export/handle-response response))
-      (is (= (.-error mutable-obj)
-             async-export/FAILURE))
-      (is (= (.-stopped mutable-obj)
-             true))))
-
   (testing "Failed causes on-error called, on-stop called"
     (let [response {:status 202
-                    :body {:job_status async-export/FAILURE}}
+                    :body {:job_status async-export/export-failure-status-msg}}
           mutable-obj #js {:stopped false}]
       (->> {:on-error #(aset mutable-obj "error" %)
             :on-stop #(aset mutable-obj "stopped" true)}
            (async-export/handle-response response))
       (is (= (.-error mutable-obj)
-             async-export/FAILURE))
+             async-export/export-failure-status-msg))
       (is (= (.-stopped mutable-obj)
              true))))
 
@@ -79,7 +67,7 @@
       (is (= (.-stopped mutable-obj)
              true)))))
 
-(deftest build-export-suffix
+(deftest test-build-export-suffix
   (testing "params rendered correctly"
     (let [fmt "format"
           meta-id "meta-id"
@@ -90,10 +78,11 @@
           options {:meta-id meta-id
                    :data-id data-id
                    :version version
-                   :windows-compatible-csv windows-compatible-csv
-                   :redirect_uri url}]
-      (is (= (async-export/build-export-suffix async-export/export-async-url
-                                               fmt options)
+                   :windows-compatible-csv? windows-compatible-csv
+                   :redirect-uri url}
+          export-suffix (async-export/build-export-suffix
+                         async-export/export-async-url fmt options)]
+      (is (= export-suffix
              (str async-export/export-async-url fmt
                   "&meta=" meta-id
                   "&data_id=" data-id
