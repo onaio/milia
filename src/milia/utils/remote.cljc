@@ -45,6 +45,11 @@
   [& postfix]
   (url-join (str (protocol-prefixed (:data @hosts)) "/api/v1") postfix))
 
+(defn make-non-api-url
+  "Build a non API url"
+  [& postfix]
+  (url-join (protocol-prefixed (:data @hosts)) postfix))
+
 (defn make-client-url
   "Build a URL pointing to the client."
   [& postfix]

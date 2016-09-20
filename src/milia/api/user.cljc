@@ -4,7 +4,8 @@
             [clojure.string :refer [join]]
             [chimera.seq :refer [has-keys?]]
             [milia.api.http :refer [parse-http]]
-            [milia.utils.remote :refer [make-url]]))
+            [milia.utils.remote :refer [make-url
+                                        make-non-api-url]]))
 
 (defn patch
   [username params & {:keys [suppress-4xx-exceptions?]}]
@@ -149,7 +150,7 @@
 (defn google-sheet-authorization
   "Send a code to authorize a user to use google sheets"
   [code redirect_uri]
-  (let [url (make-url "export"
-                      (format "google_auth?code=%s&redirect_uri=%s"
+  (let [url (make-non-api-url "google"
+                      (format "google-auth?code=%s&redirect_uri=%s"
                               code redirect_uri))]
     (parse-http :get url :as-map? true :suppress-4xx-exceptions? true)))
