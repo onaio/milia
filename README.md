@@ -132,7 +132,17 @@ You can change the remote server URLs by importing and updating the hosts atom:
 
 Set the environment variable `DEBUG_API` to true to enable console debugging output on API requests.
 
+## Using Milia in JavaScript
+
+To use milia in JavaScript you will have to
+
+1. Compile the ClojureScript code to JavaScript: `lein cljsbuild once prod`.
+2. Load the compiled JavaScript into your application.
+3. Use the JavaScript helpers in `milia.utils.remote` to the set the remote server and the credentials to authenticate against that server.
+4. Only call milia functions that are `export`ed to JavaScript.
+
 ## [TODO] Proposed Client Architecture
+
 Convert remaining API endpoint files to cljc:
 
 * charts
