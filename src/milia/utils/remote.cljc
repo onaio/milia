@@ -28,6 +28,35 @@
          ;; protocol to use in all requests
          :request-protocol "https"}))
 
+(defn ^:export set-hosts
+  "Swap values into hosts atom, requires data-host, other args are option but
+   must be provided in order. If an option arg is nil it is ignored, and not
+   swapped into hosts.
+
+   Built to support setting hosts from JavaScript."
+  [data-host & [client-host j2x-host request-protocol]]
+  (swap! hosts merge
+         (cond-> {:data data-host}
+           (some? client-host) (assoc :client client-host)
+           (some? j2x-host) (assoc :j2x j2x-host)
+           (some? request-protocol)
+           (assoc :request-protocol request-protocol))))
+
+(defn ^:export set-credentials
+  "Set the dynamic credentials to include the username and optionally
+   any other arguments that are passed. If an argument is nil or not passed
+   it will be set to nil in the credentials.
+
+   Calling this from Clojure will break if not done from within a previous
+   binding of the *credentials* variable.
+
+   Built to support setting hosts from JavaScript."
+  [username & [password temp-token token]]
+  (set! *credentials* {:username username
+                       :password password
+                       :temp-token temp-token
+                       :token token}))
+
 (defn protocol-prefixed
   "Prefix the resources with the protocol and format strings."
   [resources] (-> [(:request-protocol @hosts) "://" resources]
