@@ -134,12 +134,29 @@ Set the environment variable `DEBUG_API` to true to enable console debugging out
 
 ## Using Milia in JavaScript
 
-To use milia in JavaScript you will have to
+To use milia in JavaScript you will have to compile milia and then refer to the compiled output in your JavaScript code.
+Below are example steps to follow and an example HTML file using the basic features of milia.
 
-1. Compile the ClojureScript code to JavaScript: `lein cljsbuild once prod`.
-2. Load the compiled JavaScript into your application.
+1. Compile the ClojureScript code to JavaScript: `lein cljsbuild once prod`
+2. Copy the output JavaScript from `resources/public/js/lib/milia.js`, local to your root milia folder to the location of your choice.
+3. Load the compiled JavaScript into your application.
 3. Use the JavaScript helpers in `milia.utils.remote` to the set the remote server and the credentials to authenticate against that server.
 4. Only call milia functions that are `export`ed to JavaScript.
+
+For example:
+
+```html
+<html>
+  <script type="text/javascript" src="resources/public/js/lib/milia.js"></script>
+  <script type="text/javascript">
+    milia.utils.remote.set_hosts("api.ona.io");
+    milia.utils.remote.set_credentials("[username]", "[password]");
+    milia.api.dataset.data(21438);
+  </script>
+</html>
+```
+
+> NOTE: In the above, and any other HTML example, the domain hosting the HTML page must have cross-origin access rights to the Ona server you are requesting data from.
 
 ## [TODO] Proposed Client Architecture
 
