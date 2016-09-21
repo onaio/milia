@@ -41,8 +41,7 @@
                              :jetty-min-threads 10
                              :jetty-max-threads 80}}}
   :test-paths ["tests/clj" "target/generated/tests/clj"]
-  :cljsbuild {
-              :builds {:dev
+  :cljsbuild {:builds {:dev
                        {:compiler {:output-to ~(js-dir "lib/main.js")
                                    :output-dir ~(js-dir "lib/out")
                                    :optimizations :whitespace
