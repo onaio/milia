@@ -82,7 +82,7 @@
   (let [url (make-url "forms" dataset-id)]
     (parse-http :put url :http-options {:form-params params})))
 
-(defn data
+(defn ^:export data
   "Return the data associated with a dataset."
   [dataset-id &
    {:keys [format raw? must-revalidate? accept-header query-params
