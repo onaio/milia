@@ -133,9 +133,11 @@
                                              :uid uid}})))
 
 (defn change-email-address
-  "Change the user's email address"
-  [username email-address]
-  (let [params {:email email-address}]
+  "Change the user's email address. This requires a password so that the API
+   can successful update the authentication digest and email can be used to
+   login."
+  [username email-address password]
+  (let [params {:email email-address :password password}]
     (patch username params :suppress-4xx-exceptions? true)))
 
 (defn expire-temp-token
