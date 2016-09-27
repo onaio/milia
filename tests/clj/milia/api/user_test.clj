@@ -193,9 +193,9 @@
                    :suppress-4xx-exceptions? nil) => :response))
 
 (fact "change-email-address should submit a partial update for email"
-      (change-email-address account :email) => :response
+      (change-email-address username :email :password) => :response
       (provided
-       (patch account {:email :email}
+       (patch username {:email :email :password :password}
               :suppress-4xx-exceptions? true) => :response))
 
 (fact "expire-temp-token should call delete on the expire endpoint"
