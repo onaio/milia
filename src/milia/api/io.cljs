@@ -12,7 +12,8 @@
             [clojure.string :refer [join split blank?]]
             [goog.net.cookies :as cookies]
             [goog.events :as gev]
-            [milia.utils.remote :refer [*credentials* hosts bad-token-msgs]])
+            [milia.utils.remote :refer [*credentials* hosts bad-token-msgs
+                                        make-url]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (defn build-http-options
@@ -116,6 +117,25 @@
     (.send io-obj url "POST" form headers)
     io-obj))
 
+(defn handle-401-response
+  "Assume 401s can be either login requests or the temp token has expired."
+  [response-channel]
+  (let [{:keys [username password temp-token]} *credentials*
+        digest-auth {:digest-auth [username password]}
+        login-ch (http/get (make-url "user") digest-auth)]
+    (if temp-token
+      ;; expired token
+      (set! js/window.location js/window.location)
+      ;; new login
+      (go
+        (let [{:keys [status body] :as response} (<! login-ch)]
+          (if (= status 401)
+            ;; bad credentials
+            (put! response-channel response)
+            ;; add temp-token to *credentials*
+            (set! *credentials* (assoc *credentials*
+                                  :temp-token (:temp_token body)))))))))
+
 (defn http-request
   "Wraps cljs-http.client/request and redirects if status is 401"
   [request-fn & args]
@@ -124,6 +144,6 @@
       (let [original-response-channel (apply request-fn args)
             {:keys [status] :as response} (<! original-response-channel)]
         (if (= status 401)
-          (set! js/window.location js/window.location)
+          (handle-401-response response-channel)
           (put! response-channel response))))
     response-channel))
