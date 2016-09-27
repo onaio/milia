@@ -128,13 +128,7 @@
       (set! js/window.location js/window.location)
       ;; new login
       (go
-        (let [{:keys [status body] :as response} (<! login-ch)]
-          (if (= status 401)
-            ;; bad credentials
-            (put! response-channel response)
-            ;; add temp-token to *credentials*
-            (set! *credentials* (assoc *credentials*
-                                  :temp-token (:temp_token body)))))))))
+        (put! response-channel (<! login-ch))))))
 
 (defn http-request
   "Wraps cljs-http.client/request and redirects if status is 401"
