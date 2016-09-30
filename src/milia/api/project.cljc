@@ -66,7 +66,7 @@
     (parse-http :patch url :http-options
                 #?(:clj  {:form-params data
                           :content-type :json})
-                #?(:cljs  {:form-params data}))))
+                #?(:cljs  {:json-params data}))))
 
 (defn share
   "Share project with specific user or remove specific user from project"
