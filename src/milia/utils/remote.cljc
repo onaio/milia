@@ -2,7 +2,6 @@
   (:require [clojure.string :refer [join]]
             [chimera.urls :refer [url]]))
 
-
 (def ^:dynamic *credentials*
   "Store credentials used to authenticate API requests.
    Based on existence in this atom credentials will be tried in top down order."
@@ -27,6 +26,11 @@
          :j2x "j2x.ona.io"
          ;; protocol to use in all requests
          :request-protocol "https"}))
+
+(def timeouts
+  "Store customizable timeouts to use in the http libraries. In milliseconds."
+  (atom {:conn-timeout 30000
+         :socket-timeout 30000}))
 
 (defn ^:export set-hosts
   "Swap values into hosts atom, requires data-host, other args are option but

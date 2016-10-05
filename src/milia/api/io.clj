@@ -10,7 +10,8 @@
             [environ.core :refer [env]]
             [milia.helpers.io :refer [error-status?]]
             [milia.utils.file :as file-utils]
-            [milia.utils.remote :refer [*credentials* bad-token-msgs make-url]]
+            [milia.utils.remote :refer [*credentials* bad-token-msgs make-url
+                                        timeouts]]
             [slingshot.slingshot :refer [throw+ try+]]))
 
 (def ^:private client-methods
@@ -23,12 +24,6 @@
 (defn call-client-method
   [method url req]
   ((client-methods method) url req))
-
-;; timeout waiting for data, 5 seconds less than nginx
-(def socket-timeout 115000)
-
-;; timeout until a connection is established, 5 seconds less than nginx
-(def connection-timeout 55000)
 
 (defn multipart-options
   "Parse file and return multipart options"
@@ -57,8 +52,8 @@
   ([] (build-req nil))
   ([http-options]
    (assoc (req+auth (or http-options {}))
-          :conn-timeout connection-timeout
-          :socket-timeout socket-timeout
+          :conn-timeout (:conn-timeout @timeouts)
+          :socket-timeout (:socket-timeout @timeouts)
           :save-request? (env :debug-api)
           :debug (env :debug-api)
           :debug-body (env :debug-api))))
