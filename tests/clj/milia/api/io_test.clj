@@ -5,7 +5,7 @@
             [milia.api.io :refer :all]
             [milia.helpers :refer [slingshot-exception]]
             [milia.utils.remote
-             :refer [*credentials* make-url token-expired-msg]]
+             :refer [*credentials* make-url token-expired-msg timeouts]]
             [environ.core :refer [env]]))
 
 (def body [1,2])
@@ -27,8 +27,8 @@
 (def temp-token "temp token")
 (def auth-token "auth token for external api")
 (def options
-  {:socket-timeout socket-timeout
-   :conn-timeout connection-timeout
+  {:socket-timeout (:socket-timeout @timeouts)
+   :conn-timeout (:conn-timeout @timeouts)
    :save-request? (env :debug-api)
    :debug (env :debug-api)
    :debug-body (env :debug-api)})
