@@ -119,13 +119,13 @@
 
 (defn handle-401-response
   "Assume 401s can be either login requests or the temp token has expired."
-  [response-channel]
+  [response-channel response]
   (let [{:keys [username password temp-token]} *credentials*
         digest-auth {:digest-auth [username password]}
         login-ch (http/get (make-url "user") digest-auth)]
     (if temp-token
       ;; expired token
-      (set! js/window.location js/window.location)
+      (put! response-channel response)
       ;; new login
       (go
         (put! response-channel (<! login-ch))))))
@@ -138,6 +138,6 @@
       (let [original-response-channel (apply request-fn args)
             {:keys [status] :as response} (<! original-response-channel)]
         (if (= status 401)
-          (handle-401-response response-channel)
+          (handle-401-response response-channel response)
           (put! response-channel response))))
     response-channel))
