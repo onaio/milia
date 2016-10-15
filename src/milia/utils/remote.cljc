@@ -1,6 +1,7 @@
 (ns milia.utils.remote
   (:require [clojure.string :refer [join]]
-            [chimera.urls :refer [url]]))
+            [chimera.urls :refer [url]]
+            #?(:clj [environ.core :refer [env]])))
 
 (def ^:dynamic *credentials*
   "Store credentials used to authenticate API requests.
@@ -14,6 +15,12 @@
 (def invalid-token-msg "Invalid token")
 (def token-expired-msg "Token expired")
 (def bad-token-msgs [invalid-token-msg token-expired-msg])
+
+;; clj-http config options
+#?(:clj (def debug-api? (read-string (env :debug-api))))
+#?(:clj (def http-default-per-route
+          (read-string (env :http-default-per-route))))
+#?(:clj (def http-threads (read-string (env :http-threads))))
 
 (def hosts
   "Store remote hosts that requests are made to."

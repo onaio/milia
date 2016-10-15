@@ -34,12 +34,12 @@
                            :unused-private-vars]
              :namespaces [:source-paths]}
   :profiles {:dev {:dependencies [[midje "1.8.3"]]
-                   :env {:debug-api? false
-                         :jetty-min-threads 10
-                         :jetty-max-threads 80}}
-             :uberjar {:env {:debug-api? false
-                             :jetty-min-threads 10
-                             :jetty-max-threads 80}}}
+                   :env {:debug-api "false"
+                         :http-default-per-route "10"
+                         :http-threads "20"}}
+             :uberjar {:env {:debug-api? "false"
+                             :http-default-per-route "10"
+                             :http-threads "20"}}}
   :test-paths ["tests/clj" "target/generated/tests/clj"]
   :cljsbuild {:builds {:dev
                        {:compiler {:output-to ~(js-dir "lib/main.js")

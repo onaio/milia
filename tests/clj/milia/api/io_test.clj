@@ -4,9 +4,8 @@
             [milia.api.http :refer [parse-http]]
             [milia.api.io :refer :all]
             [milia.helpers :refer [slingshot-exception]]
-            [milia.utils.remote
-             :refer [*credentials* make-url token-expired-msg timeouts]]
-            [environ.core :refer [env]]))
+            [milia.utils.remote :refer [*credentials* debug-api? make-url
+                                        timeouts token-expired-msg]]))
 
 (def body [1,2])
 (def raw-body "bla")
@@ -29,9 +28,9 @@
 (def options
   {:socket-timeout (:socket-timeout @timeouts)
    :conn-timeout (:conn-timeout @timeouts)
-   :save-request? (env :debug-api)
-   :debug (env :debug-api)
-   :debug-body (env :debug-api)})
+   :save-request? debug-api?
+   :debug debug-api?
+   :debug-body debug-api?})
 
 (defn with-options [m] (merge options m))
 (def as-raw {:raw-response? true})
