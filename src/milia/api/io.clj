@@ -7,11 +7,11 @@
             [clojure.java.io :as io]
             [clojure.string :refer [join]]
             [clojure.tools.logging :as log]
-            [environ.core :refer [env]]
             [milia.helpers.io :refer [error-status?]]
             [milia.utils.file :as file-utils]
-            [milia.utils.remote :refer [*credentials* bad-token-msgs make-url
-                                        timeouts]]
+            [milia.utils.remote :refer [*credentials* bad-token-msgs debug-api?
+                                        http-default-per-route http-threads
+                                        make-url timeouts]]
             [slingshot.slingshot :refer [throw+ try+]]))
 
 (def ^:private client-methods
@@ -54,14 +54,14 @@
    (assoc (req+auth (or http-options {}))
           :conn-timeout (:conn-timeout @timeouts)
           :socket-timeout (:socket-timeout @timeouts)
-          :save-request? (env :debug-api)
-          :debug (env :debug-api)
-          :debug-body (env :debug-api))))
+          :save-request? debug-api?
+          :debug debug-api?
+          :debug-body debug-api?)))
 
 (defn debug-api
   "Print out debug information."
   [method url http-options {:keys [status body request] :as response}]
-  (when (env :debug-api)
+  (when debug-api?
     (log/info (str "-- DEBUG API --"
                    "\nREQUEST"
                    "\n-- method: " method
@@ -131,8 +131,10 @@
         #(call-client-method method url (build-req http-options))]
     (try+
      (client/with-connection-pool
-       {:default-per-route (env :jetty-min-threads)
-        :threads (env :jetty-min-threads)}
+       {;; Maximum number of simultaneous connections per host
+        :default-per-route http-default-per-route
+        ;; Maximum number of threads that will be used for connecting
+        :threads http-threads}
        (try+
         (send-request)
         (catch expired-token? _

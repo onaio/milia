@@ -3,22 +3,22 @@
       [path]
       (str "resources/public/js/" path))
 
-(defproject onaio/milia "0.3.19-SNAPSHOT"
+(defproject onaio/milia "0.3.19"
   :description "The ona.io Clojure Web API Client."
   :dependencies [;; CORE MILIA REQUIREMENTS
-                 [cheshire "5.6.1"]
-                 [clj-http "2.2.0" :exclusions [org.clojure/tools.reader]]
-                 [environ "1.0.1"]
-                 [onaio/chimera "0.0.2-SNAPSHOT"]
+                 [cheshire "5.6.3"]
+                 [clj-http "3.3.0" :exclusions [org.clojure/tools.reader]]
+                 [environ "1.1.0"]
+                 [onaio/chimera "0.0.2"]
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  ;;cljs
                  [cljs-hash "0.0.2"]
-                 [org.clojure/clojurescript "1.8.51"]
-                 [org.clojure/core.async "0.2.374"]
+                 [org.clojure/clojurescript "1.9.229"]
+                 [org.clojure/core.async "0.2.395"]
                  [slingshot "0.12.2"]
                  ;; CLIENT REQUIREMENTS
-                 [cljs-http "0.1.40"]]
+                 [cljs-http "0.1.42"]]
   :license "Apache 2"
   :url "https://github.com/onaio/milia"
   :plugins [[jonase/eastwood "0.2.1"]
@@ -34,12 +34,12 @@
                            :unused-private-vars]
              :namespaces [:source-paths]}
   :profiles {:dev {:dependencies [[midje "1.8.3"]]
-                   :env {:debug-api? false
-                         :jetty-min-threads 10
-                         :jetty-max-threads 80}}
-             :uberjar {:env {:debug-api? false
-                             :jetty-min-threads 10
-                             :jetty-max-threads 80}}}
+                   :env {:debug-api "false"
+                         :http-default-per-route "10"
+                         :http-threads "20"}}
+             :uberjar {:env {:debug-api? "false"
+                             :http-default-per-route "10"
+                             :http-threads "20"}}}
   :test-paths ["tests/clj" "target/generated/tests/clj"]
   :cljsbuild {:builds {:dev
                        {:compiler {:output-to ~(js-dir "lib/main.js")
