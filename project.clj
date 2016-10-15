@@ -6,19 +6,19 @@
 (defproject onaio/milia "0.3.19-SNAPSHOT"
   :description "The ona.io Clojure Web API Client."
   :dependencies [;; CORE MILIA REQUIREMENTS
-                 [cheshire "5.6.1"]
-                 [clj-http "2.2.0" :exclusions [org.clojure/tools.reader]]
-                 [environ "1.0.1"]
+                 [cheshire "5.6.3"]
+                 [clj-http "3.3.0" :exclusions [org.clojure/tools.reader]]
+                 [environ "1.1.0"]
                  [onaio/chimera "0.0.2-SNAPSHOT"]
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  ;;cljs
                  [cljs-hash "0.0.2"]
-                 [org.clojure/clojurescript "1.8.51"]
-                 [org.clojure/core.async "0.2.374"]
+                 [org.clojure/clojurescript "1.9.229"]
+                 [org.clojure/core.async "0.2.395"]
                  [slingshot "0.12.2"]
                  ;; CLIENT REQUIREMENTS
-                 [cljs-http "0.1.40"]]
+                 [cljs-http "0.1.42"]]
   :license "Apache 2"
   :url "https://github.com/onaio/milia"
   :plugins [[jonase/eastwood "0.2.1"]
