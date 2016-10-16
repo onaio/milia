@@ -3,7 +3,12 @@
       [path]
       (str "resources/public/js/" path))
 
-(defproject onaio/milia "0.3.19"
+(def project-env
+  {:debug-api "false"
+   :milia-http-default-per-route "10"
+   :milia-http-threads "20"})
+
+(defproject onaio/milia "0.3.20"
   :description "The ona.io Clojure Web API Client."
   :dependencies [;; CORE MILIA REQUIREMENTS
                  [cheshire "5.6.3"]
@@ -34,12 +39,8 @@
                            :unused-private-vars]
              :namespaces [:source-paths]}
   :profiles {:dev {:dependencies [[midje "1.8.3"]]
-                   :env {:debug-api "false"
-                         :http-default-per-route "10"
-                         :http-threads "20"}}
-             :uberjar {:env {:debug-api? "false"
-                             :http-default-per-route "10"
-                             :http-threads "20"}}}
+                   :env ~project-env}
+             :uberjar {:env ~project-env}}
   :test-paths ["tests/clj" "target/generated/tests/clj"]
   :cljsbuild {:builds {:dev
                        {:compiler {:output-to ~(js-dir "lib/main.js")

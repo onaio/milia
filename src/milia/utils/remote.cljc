@@ -17,10 +17,15 @@
 (def bad-token-msgs [invalid-token-msg token-expired-msg])
 
 ;; clj-http config options
-#?(:clj (def debug-api? (read-string (env :debug-api))))
+#?(:clj (defn read-env-string
+          "Read a string using env return nil if nil."
+          [k]
+          (if-let [v (env k)] (read-string v))))
+
+#?(:clj (def debug-api? (read-env-string :debug-api)))
 #?(:clj (def http-default-per-route
-          (read-string (env :http-default-per-route))))
-#?(:clj (def http-threads (read-string (env :http-threads))))
+          (read-env-string :milia-http-default-per-route)))
+#?(:clj (def http-threads (read-env-string :milia-http-threads)))
 
 (def hosts
   "Store remote hosts that requests are made to."
