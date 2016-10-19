@@ -86,12 +86,13 @@
   "Return the data associated with a dataset."
   [dataset-id &
    {:keys [format raw? must-revalidate? accept-header query-params
-           data-id] #?@(:cljs [:or {:format "json"}])}]
+           query-suffix data-id] #?@(:cljs [:or {:format "json"}])}]
   (let [dataset-suffix (if format
                          (str dataset-id (when data-id (str "/" data-id))
                               "." format)
                          dataset-id)
         url (make-url "data" dataset-suffix)
+        url (if query-suffix (str url "?query=" query-suffix) url)
         options {:query-params query-params}]
     (parse-http :get url
                 :http-options options
