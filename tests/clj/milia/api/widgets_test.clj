@@ -5,7 +5,7 @@
             [milia.api.widgets :refer :all]
             [milia.utils.remote :refer [hosts make-url]]))
 
-(def widgets-url "https://stage.ona.io/api/v1/widgets")
+(def widgets-url "https://stage-api.ona.io/api/v1/widgets")
 
 (let [widget-definition {:title "A Widgy Widgy Woo"
                          :description "The Widget to end all Widgets"
@@ -13,7 +13,7 @@
                          :content_id 12345
                          :widget_type "charts"
                          :view_type "horizontal-bar-chart"}
-      content-object-url "https://stage.ona.io/api/v1/forms/12345"
+      content-object-url "https://stage-api.ona.io/api/v1/forms/12345"
       widgets-url-with-data (str widgets-url "?data=true")]
 
   (fact "widgets/generate-content-object-url"
