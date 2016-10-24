@@ -33,7 +33,7 @@
          ;; used to create URLs that return to the client
          :client "zebra.ona.io"
          ;; Ona compatible API to request data from
-         :data "stage.ona.io"
+         :data "stage-api.ona.io"
          ;; XLSReport server URL
          :j2x "j2x.ona.io"
          ;; protocol to use in all requests
@@ -78,7 +78,8 @@
   [resources] (-> [(:request-protocol @hosts) "://" resources]
                   flatten join))
 
-(def thumbor-server "https://images.ona.io")
+(def thumbor-host "images.ona.io")
+(def thumbor-server (protocol-prefixed thumbor-host))
 
 (defn url-join
   [host args]
