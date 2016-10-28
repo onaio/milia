@@ -72,7 +72,10 @@
                                           username2
                                           username3]))) => url
                 (parse-http :get url
-                            :suppress-4xx-exceptions? true) => :something)))
+                            :suppress-4xx-exceptions? true) => :something))
+         (fact "Should not allow an empty list of users"
+               (get-profiles-for-list-of-users [])
+               => (throws AssertionError)))
 
   (facts "About user"
          (fact "Should get correct url"
