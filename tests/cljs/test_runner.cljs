@@ -3,8 +3,8 @@
    [cljs.test :as test :refer-macros [run-tests] :refer [report]]
    [milia.api.async-export-test]
    [milia.api.io-test]
+   [milia.api.submissions-test]
    [milia.api.project-test]))
-
 
 (enable-console-print!)
 
@@ -20,6 +20,7 @@
         (test/empty-env ::test/default)
         'milia.api.async-export-test
         'milia.api.io-test
+        'milia.api.submissions-test
         'milia.api.project-test))
     0
     1))
