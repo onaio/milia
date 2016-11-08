@@ -317,3 +317,14 @@
                             [:xform dataset-id])]
     (metadata-files :instance instance-id no-cache?
                     :extra-params extra-params)))
+
+(defn share
+  "Map through the vector of Username and Role dicts
+   and send a request to the API for each.
+  Int [{String/Username String/Role}] -> (Channel)"
+  [dataset-id roles]
+  (let [url (make-url "forms" dataset-id "share")
+        strict-map (comp doall map)]
+    (strict-map
+     #(parse-http :post url :http-options {:form-params %})
+     roles)))
