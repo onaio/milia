@@ -319,8 +319,10 @@
                     :extra-params extra-params)))
 
 (defn share
-  "Map through the vector of Username and Role dicts
-   and send a request to the API for each.
+  "Map through the vector of dicts of usernames and role
+   send a request to the API for each we expect them to be only 2 requests.
+  [{\"users\": \"alice, bob, job\",    \"role\":  \"editor\"}
+   {\"users\": \"cow, chicken, rigz\", \"role\":  \"dataentry\"}]
   Int [{String/Username String/Role}] -> (Channel)"
   [dataset-id roles]
   (let [url (make-url "forms" dataset-id "share")
