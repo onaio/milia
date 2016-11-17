@@ -318,15 +318,13 @@
     (metadata-files :instance instance-id no-cache?
                     :extra-params extra-params)))
 
-(defn share
-  "Map through the vector of dicts of usernames and role
-   send a request to the API for each we expect them to be only 2 requests.
-  [{\"users\": \"alice, bob, job\",    \"role\":  \"editor\"}
-   {\"users\": \"cow, chicken, rigz\", \"role\":  \"dataentry\"}]
-  Int [{String/Username String/Role}] -> (Channel)"
-  [dataset-id roles]
-  (let [url (make-url "forms" dataset-id "share")
-        strict-map (comp doall map)]
-    (strict-map
-     #(parse-http :post url :http-options {:form-params %})
-     roles)))
+(defn update-xform-meta-permissions
+  "Integer String String -> Channel HttpRequest"
+  [dataset-id editor-meta-role dataentry-meta-role]
+  (parse-http
+   :post (make-url "metadata")
+   :http-options
+   {:form-params
+    {:data_type  "xform_meta_perms"
+     :xform      dataset-id
+     :data_value (str editor-meta-role "|" dataentry-meta-role)}}))
