@@ -70,15 +70,11 @@
 
 (defn share
   "Share project with specific user or remove specific user from project"
-  ([project-id username role]
-    (share project-id username role false))
-  ([project-id username role remove?]
-    (let [url (make-url "projects" project-id "share")
-          data {:username username :role role}
-          form-params (if remove?
-                        (merge data {:remove "True"})
-                        data)]
-      (parse-http :put url :http-options {:form-params form-params}))))
+  [project-id username role & [remove?]]
+  (let [url         (make-url "projects" project-id "share")
+        data        {:username username :role role}
+        form-params (if remove? (merge data {:remove "True"}) data)]
+    (parse-http :put url :http-options {:form-params form-params})))
 
 (defn add-tags
   "Add tags to a project."
