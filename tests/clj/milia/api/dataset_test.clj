@@ -526,3 +526,13 @@
                                                :content :file}]}
                    :suppress-4xx-exceptions? true)
        => :response))
+(fact "about update xform meta permissions"
+      (update-xform-meta-permissions 1 "editor-minor" "dataentry-only")
+      => :response
+      (provided (parse-http
+                 :post (make-url "metadata")
+                 :http-options
+                 {:form-params {:data_type  "xform_meta_perms"
+                                :xform      1
+                                :data_value "editor-minor|dataentry-only"}})
+                => :response))
