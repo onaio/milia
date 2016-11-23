@@ -319,10 +319,21 @@
                     :extra-params extra-params)))
 
 (defn update-xform-meta-permissions
-  "Integer String String -> Channel HttpRequest"
-  [dataset-id metadata-id method editor-meta-role dataentry-meta-role]
+  "Integer Integer String String -> Channel HttpResponse"
+  [dataset-id metadata-id editor-meta-role dataentry-meta-role]
   (parse-http
-   method (make-url "metadata" metadata-id)
+   :put (make-url "metadata" metadata-id)
+   :http-options
+   {:form-params
+    {:data_type  "xform_meta_perms"
+     :xform      dataset-id
+     :data_value (str editor-meta-role "|" dataentry-meta-role)}}))
+
+(defn create-xform-meta-permissions
+  "Integer String String -> Channel HttpResponse"
+  [dataset-id editor-meta-role dataentry-meta-role]
+  (parse-http
+   :post (make-url "metadata")
    :http-options
    {:form-params
     {:data_type  "xform_meta_perms"

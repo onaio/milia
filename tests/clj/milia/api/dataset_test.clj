@@ -526,18 +526,18 @@
                                                :content :file}]}
                    :suppress-4xx-exceptions? true)
        => :response))
-(fact "about update xform meta permissions POST"
-      (update-xform-meta-permissions 1 nil :post "editor-minor" "dataentry-only")
+(fact "about create xform meta permissions"
+      (create-xform-meta-permissions 1 "editor-minor" "dataentry-only")
       => :response
       (provided (parse-http
-                 :post (make-url "metadata" nil)
+                 :post (make-url "metadata")
                  :http-options
                  {:form-params {:data_type  "xform_meta_perms"
                                 :xform      1
                                 :data_value "editor-minor|dataentry-only"}})
                 => :response))
-(fact "about update xform meta permissions PUT"
-      (update-xform-meta-permissions 1 10 :put "editor-minor" "dataentry-only")
+(fact "about update xform meta permissions"
+      (update-xform-meta-permissions 1 10 "editor-minor" "dataentry-only")
       => :response
       (provided (parse-http
                  :put (make-url "metadata" 10)
