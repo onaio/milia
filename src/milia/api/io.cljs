@@ -19,16 +19,15 @@
   "Build http-options based on arguments."
   [http-options method no-cache?]
   (let [stateful-method? (in? [:post :put :patch] method)
+        param-key (if stateful-method? :form-params :query-params)
         ;; With credentials always false
         http-options (assoc http-options :with-credentials? false)]
-    ;; if JSON Params and stateful do not alter
-    (if (and (:json-params http-options) stateful-method?)
-      http-options
-      (let [param-key (if stateful-method? :form-params :query-params)
-            options+xhr (assoc-in http-options [param-key :xhr] true)]
-        (if (and no-cache? (not stateful-method?))
-          (assoc-in options+xhr [param-key :t] (-> js/Date .now str md5))
-          options+xhr)))))
+    ;; If not JSON Params and not stateful and no-cache, add cache-buster
+    (cond-> http-options
+      (and no-cache?
+           (not (:json-params http-options))
+           (not stateful-method?))
+      (assoc-in [param-key :t] (-> js/Date .now str md5)))))
 
 (def raw-request
   "An almost 'batteries-included' request, similar to cljs-http.client/request.
