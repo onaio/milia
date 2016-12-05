@@ -46,10 +46,11 @@
       (is (= (io/build-http-options {:query-params params} :get nil)
              get-http-options)))
 
-    (testing "for get request with no-cache? true {:t (timestamp)} to
+    (testing "for get request with no-cache? true add {:t (timestamp)} to
               :query-params"
       (is (contains? (-> (io/build-http-options {:query-params params}
-                                                :get true)
+                                                :get
+                                                true)
                          :query-params keys set) :t)))
 
     (testing "for post/patch/put request with no-cache? nil"

@@ -19,6 +19,7 @@
   "Build http-options based on arguments."
   [http-options method no-cache?]
   (let [stateful-method? (in? [:post :put :patch] method)
+        param-key (if stateful-method? :form-params :query-params)
         ;; With credentials always false
         http-options (assoc http-options :with-credentials? false)]
     ;; If not JSON Params and not stateful and no-cache, add cache-buster
