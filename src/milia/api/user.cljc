@@ -18,6 +18,7 @@
 (defn profile
   "Return the profile for the account username or the passed username."
   [username]
+  {:pre [username]}
   (let [url (make-url "profiles" username)
         response (parse-http :get url :suppress-4xx-exceptions? true)]
     (if-let [error (:detail response)] nil response)))
