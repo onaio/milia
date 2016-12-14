@@ -41,7 +41,7 @@
   :profiles {:dev {:dependencies [[midje "1.8.3"]]
                    :env ~project-env}
              :uberjar {:env ~project-env}}
-  :test-paths ["tests/clj" "target/generated/tests/clj"]
+  :test-paths ["test/clj" "target/generated/test/clj"]
   :cljsbuild {:builds {:dev
                        {:compiler {:output-to ~(js-dir "lib/main.js")
                                    :output-dir ~(js-dir "lib/out")
@@ -49,7 +49,7 @@
                                    :pretty-print true
                                    :source-map ~(js-dir "lib/main.js.map")}}
                        :test
-                       {:source-paths ["src" "tests/cljs"]
+                       {:source-paths ["src" "test/cljs"]
                         :notify-command ["phantomjs"
                                          "phantom/unit-test.js"
                                          "phantom/unit-test.html"
