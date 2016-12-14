@@ -8,18 +8,18 @@
    :milia-http-default-per-route "10"
    :milia-http-threads "20"})
 
-(defproject onaio/milia "0.3.23"
+(defproject onaio/milia "0.3.24-SNAPSHOT"
   :description "The ona.io Clojure Web API Client."
   :dependencies [;; CORE MILIA REQUIREMENTS
                  [cheshire "5.6.3"]
-                 [clj-http "3.3.0" :exclusions [org.clojure/tools.reader]]
+                 [clj-http "3.4.1" :exclusions [org.clojure/tools.reader]]
                  [environ "1.1.0"]
-                 [onaio/chimera "0.0.2"]
+                 [onaio/chimera "0.0.4"]
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  ;;cljs
                  [cljs-hash "0.0.2"]
-                 [org.clojure/clojurescript "1.9.229"]
+                 [org.clojure/clojurescript "1.9.293"]
                  [org.clojure/core.async "0.2.395"]
                  [slingshot "0.12.2"]
                  ;; CLIENT REQUIREMENTS
@@ -41,7 +41,7 @@
   :profiles {:dev {:dependencies [[midje "1.8.3"]]
                    :env ~project-env}
              :uberjar {:env ~project-env}}
-  :test-paths ["tests/clj" "target/generated/tests/clj"]
+  :test-paths ["test/clj" "target/generated/test/clj"]
   :cljsbuild {:builds {:dev
                        {:compiler {:output-to ~(js-dir "lib/main.js")
                                    :output-dir ~(js-dir "lib/out")
@@ -49,7 +49,7 @@
                                    :pretty-print true
                                    :source-map ~(js-dir "lib/main.js.map")}}
                        :test
-                       {:source-paths ["src" "tests/cljs"]
+                       {:source-paths ["src" "test/cljs"]
                         :notify-command ["phantomjs"
                                          "phantom/unit-test.js"
                                          "phantom/unit-test.html"

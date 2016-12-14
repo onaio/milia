@@ -6,45 +6,48 @@
             [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]))
 
-(def username :fake-username)
+(def username  :fake-username)
 (def username2 :fake-username2)
 (def username3 :fake-username3)
-(def password :fake-password)
-(def account {:username username :password password})
+(def password  :fake-password)
+(def account   {:username username :password password})
 
 (let [url :fake-url
-      default-params {:city ""
-                      :country ""
-                      :email ""
-                      :gravatar ""
-                      :name ""
-                      :is_org ""
-                      :owner ""
+      default-params {:city         ""
+                      :country      ""
+                      :email        ""
+                      :gravatar     ""
+                      :name         ""
+                      :is_org       ""
+                      :owner        ""
                       :require_auth ""
-                      :twitter ""
-                      :url ""
-                      :user ""
-                      :username ""
-                      :website ""
+                      :twitter      ""
+                      :url          ""
+                      :user         ""
+                      :username     ""
+                      :website      ""
                       :organization ""}
       params {:first_name "fake-first-name"
-              :last_name "fake-last-name"
-              :username "fake-username"
-              :email "fake-email"
+              :last_name  "fake-last-name"
+              :username   "fake-username"
+              :email      "fake-email"
               :password "fake-password"}
       update-params (merge default-params
                            {:first_name "fake-first-name"
-                            :last_name "fake-last-name"
-                            :email "fake-email"
-                            :city "fake-city"
-                            :country "fakecountry"
-                            :org "fake-org"
-                            :website "fake-website"})
+                            :last_name  "fake-last-name"
+                            :email      "fake-email"
+                            :city       "fake-city"
+                            :country    "fakecountry"
+                            :org        "fake-org"
+                            :website    "fake-website"})
       data {:form-params params}
       updated-data {:form-params update-params
                     :content-type :json}]
 
   (facts "About user-profile"
+         (fact "Should throw if no username"
+               (profile nil) => (throws AssertionError))
+
          (fact "Should get correct url"
                (profile username) => :something
                (provided
