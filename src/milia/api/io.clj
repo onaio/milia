@@ -1,5 +1,6 @@
 (ns milia.api.io
   (:import [com.fasterxml.jackson.core JsonParseException]
+           [java.io File]
            [org.apache.http NoHttpResponseException])
   (:require [cheshire.core :as json]
             [clj-http.client :as client]
@@ -75,7 +76,7 @@
 
 (defn parse-json-response
   "Parse a body as JSON catching formatting exceptions."
-  [body]
+  [^String body]
   (try+
    (json/parse-string body true)
    (catch ClassCastException _
@@ -86,13 +87,20 @@
 (defn parse-binary-response
   "Parse binary response by writing into a temp file and returning the path."
   [body filename]
-  (let [tempfile (java.io.File/createTempFile filename "")
+  (let [tempfile (File/createTempFile filename "")
         path (str (.getAbsolutePath tempfile))
-        file (clojure.java.io/file path)]
+        ^File file (clojure.java.io/file path)]
     (.deleteOnExit file)
-    (with-open [out-file ((if (instance? String body)
-                            io/writer io/output-stream) file :append false)]
-      (.write out-file body))
+    ;; Broken out so we can add type hints to avoid reflection
+    (if (instance? String body)
+      (let [^String body-string body]
+        (with-open [^java.io.Writer w (io/writer file :append false)]
+          (.write w body-string)))
+      (let [^byte body-bytes body]
+        (with-open [^java.io.OutputStream w (io/output-stream file
+                                                              :append
+                                                              false)]
+          (.write w body-bytes))))
     path))
 
 (defn parse-response
