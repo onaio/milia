@@ -69,4 +69,5 @@
                               ["phantomjs"
                                "phantom/unit-test.js"
                                "phantom/unit-test.html"
-                               "target/main-test.js"]}})
+                               "target/main-test.js"]}}
+  :global-vars {*warn-on-reflection* true})
