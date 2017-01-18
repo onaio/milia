@@ -96,7 +96,7 @@
       (let [^String body-string body]
         (with-open [^java.io.Writer w (io/writer file :append false)]
           (.write w body-string)))
-      (let [^byte body-bytes body]
+      (let [^bytes body-bytes body]
         (with-open [^java.io.OutputStream w (io/output-stream file
                                                               :append
                                                               false)]
