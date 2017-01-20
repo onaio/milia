@@ -2,7 +2,7 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [chimera.seq :refer [select-values]]
             goog.string.format
-            [cljs.core.async :as async :refer [<! chan put! timeout]]
+            [cljs.core.async :refer [<! chan put! timeout]]
             [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]
@@ -10,11 +10,10 @@
 
 (def export-async-url "export_async.json?format=")
 (def export-failure-status-msg "FAILURE")
-(def polling-interval 5000) ;; Async export polling interval in ms
+(def initial-polling-interval 5000) ; Async export polling interval in ms
 
 (defn- handle-response
-  "Handles API server's response and acts according to given
-  callbacks."
+  "Handles API server's response and acts according to given callbacks."
   [{:as   response
     :keys [status body]}
    {:as   callbacks
@@ -38,7 +37,8 @@
     ;; us a job-uuid for the heavy-lifting export task.
     (when job-id
       (when (fn? on-job-id)
-        (on-job-id job-id)))
+        (on-job-id job-id))
+      false)
     ;; or it just gives an error
     (when (or (>= status 400)
               (is-failed-status?))
@@ -51,24 +51,24 @@
 (defn- monitor-async-export!
   "Repeatedly polls the async export progress for the given job_uuid,
    When export_url is returned, fires callback on-export-url."
-  [dataset-id job-id
-   & {:keys [on-error on-export-url
-             is-filtered-dataview?]}]
-  (let [done-polling? (atom false)]
-    (go
-      (while (not @done-polling?)
-        (let [job-suffix (str "export_async.json?job_uuid=" job-id)
-              job-url (make-url (if is-filtered-dataview? "dataviews" "forms")
-                                dataset-id
-                                job-suffix)
-              response (<! (retry-parse-http :get job-url :no-cache? true))]
-          ;; Never use `on-job-id` here b/c `on-job-id` should only be
-          ;; triggered once in `trigger-async-export!` where it starts
-          ;; `monitor-async-export!` itself
-          (handle-response response {:on-stop #(reset! done-polling? true)
-                                     :on-error on-error
-                                     :on-export-url on-export-url})
-          (<! (timeout polling-interval)))))))
+  [dataset-id job-id & {:keys [on-error on-export-url
+                               is-filtered-dataview?]}]
+  (go
+    (loop [polling-interval initial-polling-interval]
+      (let [job-suffix (str "export_async.json?job_uuid=" job-id)
+            job-url (make-url (if is-filtered-dataview? "dataviews" "forms")
+                              dataset-id
+                              job-suffix)
+            response (<! (retry-parse-http :get job-url :no-cache? true))]
+        ;; Never use `on-job-id` here b/c `on-job-id` should only be
+        ;; triggered once in `trigger-async-export!` where it starts
+        ;; `monitor-async-export!` itself
+        (when (not= (handle-response response {:on-stop #(constantly :stop)
+                                               :on-error on-error
+                                               :on-export-url on-export-url})
+                    :stop)
+          (<! (timeout polling-interval))
+          (recur (Math/pow polling-interval 2)))))))
 
 (def version-key "_version")
 
