@@ -141,3 +141,21 @@
           (handle-401-response response-channel response)
           (put! response-channel response))))
     response-channel))
+
+(defn promise-http-request
+  "Promise-based http-requests"
+  [method url http-options headers]
+  (let [promise (js/Promise. (fn [resolve reject]
+                             (let [io-obj (XhrIo.)]
+                               (gev/listen io-obj goog.net.EventType.SUCCESS
+                                           #(resolve
+                                            (get-xhr-io-response
+                                             io-obj
+                                             {:require-json? true})))
+                               (gev/listen io-obj goog.net.EventType.ERROR
+                                           #(reject
+                                            (get-xhr-io-response
+                                             io-obj
+                                             {:require-json? true})))
+                               (.send io-obj url method http-options headers))))]
+    promise))

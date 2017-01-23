@@ -4,7 +4,8 @@
                                             http-request debug-api]]
                       [slingshot.slingshot :refer [throw+]]]
                 :cljs [[milia.api.io :refer [build-http-options token->headers
-                                             http-request raw-request]]
+                                             http-request raw-request
+                                             promise-http-request]]
                        [cljs-hash.md5  :refer [md5]]
                        [cljs-http.client :as http]
                        [cljs.core.async :as async :refer [<!]]]))
@@ -71,3 +72,16 @@
                  (merge (build-http-options http-options method no-cache?)
                         {:headers headers :method method :url url}))]
          (if callback (go (-> ch <! callback)) ch)))))
+
+#?(:cljs
+   (defn parse-http-promise
+     "Promise-based HTTP requests"
+     [method url & {:keys [callback http-options must-revalidate?
+                           accept-header auth-token no-cache?]}]
+     (let [headers (token->headers :get-crsftoken? (not= method :get)
+                                   :must-revalidate? must-revalidate?
+                                   :accept-header accept-header
+                                   :auth-token auth-token)
+           built-http-options (build-http-options http-options method no-cache?)
+           promise (promise-http-request method url built-http-options headers)]
+       promise)))
