@@ -68,7 +68,7 @@
                                                :on-export-url on-export-url})
                     :stop)
           (<! (timeout polling-interval))
-          (recur (Math/pow polling-interval 2)))))))
+          (recur (* polling-interval 2)))))))
 
 (def version-key "_version")
 
