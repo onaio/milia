@@ -27,6 +27,6 @@
          ;; retry
          (do
            #?(:cljs (<! (timeout polling-interval)))
-           (recur (Math/pow polling-interval 2) (inc retry-count)))
+           (recur (* polling-interval 2) (inc retry-count)))
          ;; exit
          response)))))
