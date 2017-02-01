@@ -38,13 +38,14 @@ map, which defaults to:
 Set the map by creating a `binding`:
 
 ```clojure
-(binding [milia.remote/*credentials* merge {:temp-token "SECRET TOKEN"}]
+(binding [milia.utils.remote/*credentials* {:username "username"
+                                            :temp-token "SECRET TOKEN"}]
   ...)
 ```
 
 And then within that binding change the value of the var using `set!`:
 ```clojure
-(set! milia.remote/*credentials* {:temp-token "NEW SECRET TOKEN"})
+(set! milia.utils.remote/*credentials* {:temp-token "NEW SECRET TOKEN"})
 ```
 
 **WARNING** From CLJS you should ONLY set the `temp-token`, setting another
