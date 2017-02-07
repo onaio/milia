@@ -124,6 +124,6 @@
       (let [original-response-channel (apply request-fn args)
             {:keys [status] :as response} (<! original-response-channel)]
         (if (= status 401)
-          (set! js/window.location js/window.location)
+          (set! js/window.location (.href js/window.location))
           (put! response-channel response))))
     response-channel))
