@@ -21,9 +21,13 @@
   (let [stateful-method? (in? [:post :put :patch] method)
         param-key (if stateful-method? :form-params :query-params)
         ;; With credentials always false
-        http-options (assoc http-options :with-credentials? false)]
-    ;; If not JSON Params and not stateful and no-cache, add cache-buster
+        http-options (assoc http-options :with-credentials? false)
+        {:keys [username password]} *credentials*]
     (cond-> http-options
+      ;; If username and password are set use basic auth
+      (and username password)
+      (assoc :basic-auth {:username username :password password})
+      ;; If not JSON Params and not stateful and no-cache, add cache-buster
       (and no-cache?
            (not (:json-params http-options))
            (not stateful-method?))
@@ -48,7 +52,8 @@
   "Builds request headers for the HTTP request by adding
   Authorization, X-CSRFToken and Cache-control headers where necessary"
   [& {:keys [get-crsftoken? must-revalidate? accept-header auth-token]}]
-  (let [temp-token (:temp-token *credentials*)]
+  (let [{:keys [token temp-token]} *credentials*
+        auth-token (or auth-token token)]
     (into {} [(if auth-token
                 ["Authorization" (str "Token " auth-token)]
                 (when (and (not-empty temp-token) (is-not-null?
