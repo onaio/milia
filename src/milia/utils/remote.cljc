@@ -41,8 +41,8 @@
 
 (def timeouts
   "Store customizable timeouts to use in the http libraries. In milliseconds."
-  (atom {:conn-timeout 30000
-         :socket-timeout 30000}))
+  (atom {:conn-timeout   60000
+         :socket-timeout 60000}))
 
 (defn ^:export set-hosts
   "Swap values into hosts atom, requires data-host, other args are option but
