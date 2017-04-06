@@ -10,7 +10,6 @@
       name      "fake-name"
       data-type "fake-data-type"
       uuid      "fake-uuid"]
-
   (facts "About create"
          (fact "Should create a new open-data object"
                (create object-id name data-type) => :something
