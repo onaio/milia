@@ -22,6 +22,7 @@
                                 {:object_id object-id
                                  :name name
                                  :data_type data-type}}) => :something)))
+
   (facts "About update"
          (fact "Should update an existing open-data-object"
                (update object-id data-type uuid) => :something
