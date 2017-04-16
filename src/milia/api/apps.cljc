@@ -12,7 +12,7 @@
     (if-let [host-url (get rapidpro-hosts server)]
         (str "https://" host-url)
       server)
-    "/api/v1"))
+    "/api/v2"))
 
 (defn make-textit-url
   "Build a texit server API url."
