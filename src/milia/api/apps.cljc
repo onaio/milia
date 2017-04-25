@@ -6,18 +6,25 @@
 (def rapidpro-hosts {"rapidpro-ona" "rapidpro.ona.io"
                      "textit" "textit.in"})
 
-(defn get-host-url
+(defn get-textit-host
+  "Returns host URL"
   [server]
-  (str
-    (if-let [host-url (get rapidpro-hosts server)]
-        (str "https://" host-url)
-      server)
-    "/api/v1"))
+  (str (if-let [host-url (get rapidpro-hosts server)]
+         (str "https://" host-url)
+         server)))
+
+(defn get-textit-api-url
+  "Returns host url appended with API path"
+  [server]
+  (str (get-textit-host server) "/api/v2"))
 
 (defn make-textit-url
   "Build a texit server API url."
   [server & postfix]
-  (url-join (get-host-url server)  postfix))
+  (url-join (get-textit-api-url server) postfix))
+
+(defn make-textit-service-url [server]
+  (make-textit-url server "flow_starts.json"))
 
 (defn get-textit-data
   "Get data from textit server given server URL, endpoint & API Key."
