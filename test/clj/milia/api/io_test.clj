@@ -40,6 +40,10 @@
   [auth]
   (assoc options :headers {"Authorization" auth}))
 
+(facts "about parse-json-response"
+       (fact "should render utf8 string"
+             (parse-json-response "{\"foo\":\"bår\"}") => {:foo "bår"}))
+
 (facts "about parse-http"
        (fact "should return a file when filename and use-raw-response are
               passed"

@@ -80,7 +80,7 @@
   (try+
    (json/parse-string body true)
    (catch ClassCastException _
-     (parse-json-response (String. body)))
+     (parse-json-response (String. body "UTF-8")))
    (catch JsonParseException _
      (str "Improperly formatted API response: " body))))
 
