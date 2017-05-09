@@ -1,7 +1,8 @@
 (ns milia.api.organization
   (:refer-clojure :exclude [update])
   (:require [milia.api.http :refer [parse-http]]
-            [milia.utils.remote :refer [make-url]]))
+            [milia.utils.remote :refer [make-url]]
+            [milia.api.user :as user]))
 
 (def internal-members-team-name "members")
 
