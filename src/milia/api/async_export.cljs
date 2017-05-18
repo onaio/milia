@@ -85,7 +85,7 @@
 
 (defn- get-param [key value]
   (if (= key version-key)
-    (goog.string.format "&query='{\"%s\":\"%s\"}'" key value)
+    (goog.string.format "&query={\"%s\":\"%s\"}" key value)
     (str "&" key "=" value)))
 
 (defn- add-param [key value]
