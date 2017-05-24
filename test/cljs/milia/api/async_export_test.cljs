@@ -86,6 +86,6 @@
              (str async-export/export-async-url fmt
                   "&meta=" meta-id
                   "&data_id=" data-id
-                  "&query='{\"_version\":\"20160627\"}'"
+                  "&query={\"_version\":\"20160627\"}"
                   "&win_excel_utf8=" windows-compatible-csv
                   "&redirect_uri=" url))))))
