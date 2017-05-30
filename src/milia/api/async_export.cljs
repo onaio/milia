@@ -115,13 +115,11 @@
            export-endpoint (if is-filtered-dataview?
                              "dataviews" "forms")
            export-url (make-url export-endpoint dataset-id export-suffix)
-           response (<! (retry-parse-http :get export-url))
-           ;; new on-job-id that will be used in handle-response
-           inner-on-job-id (fn [job-id]
-                             (on-job-id job-id))]
+           response (<! (retry-parse-http :get export-url))]
        (handle-response response
                         {:on-error on-error
-                         :on-job-id inner-on-job-id
+                         ;; new on-job-id that will be used in handle-response
+                         :on-job-id on-job-id
                          :on-export-url on-export-url})))))
 
 (defn get-async-export-url
