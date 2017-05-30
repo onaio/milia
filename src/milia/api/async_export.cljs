@@ -117,14 +117,8 @@
            export-url (make-url export-endpoint dataset-id export-suffix)
            response (<! (retry-parse-http :get export-url))
            ;; new on-job-id that will be used in handle-response
-           inner-on-job-id
-           (fn [job-id]
-             (on-job-id job-id)
-             (monitor-async-export!
-              dataset-id job-id
-              :on-export-url on-export-url
-              :on-error on-error
-              :is-filtered-dataview? is-filtered-dataview?))]
+           inner-on-job-id (fn [job-id]
+                             (on-job-id job-id))]
        (handle-response response
                         {:on-error on-error
                          :on-job-id inner-on-job-id
@@ -144,3 +138,18 @@
   [dataset-id fmt http-method & args]
   (go (let [url (<! (get-async-export-url dataset-id fmt))]
         (<! (apply parse-http (concat [http-method url] args))))))
+
+(defn get-exports-per-form
+  "Get exports based on a form id."
+  [dataset-id temp-token]
+  (parse-http
+   :get
+   (make-url
+    (str "export?xform=" dataset-id "&temp_token=" temp-token))))
+
+(defn delete-export
+  "Delete an export based on an export id"
+  [export-id temp-token]
+  (parse-http
+   :delete
+   (make-url "export" (str export-id "?temp_token=" temp-token))))
