@@ -5,7 +5,7 @@
             [cljs.core.async :refer [<! chan put! timeout]]
             [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
-            [milia.utils.remote :refer [make-url]]
+            [milia.utils.remote :refer [make-url *credentials*]]
             [milia.utils.retry :refer [retry-parse-http]]))
 
 (def export-async-url "export_async.json?format=")
@@ -68,6 +68,26 @@
                                                :on-export-url on-export-url})
                     :stop)
           (<! (timeout polling-interval))
+          (recur (* polling-interval 2)))))))
+
+(defn monitor-async-exports-per-form!
+  "Repeatedly polls the export endpoint given a form_id while any of the export
+  status is pending."
+  [dataset-id  callback]
+  (go
+    (loop [polling-interval initial-polling-interval]
+      (let [temp-token (:temp-token *credentials*)
+            export-url (make-url
+                        (str "export?xform=" dataset-id
+                             "&temp_token=" temp-token))
+            {:keys [status body]} (<! (retry-parse-http :get
+                                                        export-url
+                                                        :no-cache?
+                                                        true))
+            pending-exports-list (vec (filter #(= (:job_status %) "PENDING")
+                                              body))]
+        (if (empty? pending-exports-list)
+          (callback body)
           (recur (* polling-interval 2)))))))
 
 (def version-key "_version")
