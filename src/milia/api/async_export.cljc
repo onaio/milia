@@ -1,8 +1,8 @@
 (ns milia.api.async-export
-  (:require-macros [cljs.core.async.macros :refer [go]])
+  #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]]))
   (:require [chimera.seq :refer [select-values]]
-            goog.string.format
-            [cljs.core.async :refer [<! chan put! timeout]]
+            #?@(:cljs [[goog.string.format]
+                      [cljs.core.async :refer [<! chan put! timeout]]])
             [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url *credentials*]]
@@ -48,7 +48,8 @@
           (on-error error-detail)))
       (on-stop))))
 
-(defn- monitor-async-export!
+#?(:cljs 
+  (defn- monitor-async-export!
   "Repeatedly polls the async export progress for the given job_uuid,
    When export_url is returned, fires callback on-export-url."
   [dataset-id job-id & {:keys [on-error on-export-url
@@ -68,8 +69,9 @@
                                                :on-export-url on-export-url})
                     :stop)
           (<! (timeout polling-interval))
-          (recur (* polling-interval 2)))))))
+          (recur (* polling-interval 2))))))))
 
+#?(:cljs 
 (defn monitor-async-exports-per-form!
   "Repeatedly polls the export endpoint given a form_id while any of the export
   status is pending."
@@ -88,7 +90,7 @@
                                               body))]
         (if (empty? pending-exports-list)
           (callback body)
-          (recur (* polling-interval 2)))))))
+          (recur (* polling-interval 2))))))))
 
 (def version-key "_version")
 
@@ -103,9 +105,10 @@
    :include-hxl? :include-images? :remove-group-name? :version :query :export_id
    :include-labels? :labels-only? :windows-compatible-csv? :redirect-uri])
 
-(defn- get-param [key value]
+
+  (defn- get-param [key value]
   (if (= key version-key)
-    (goog.string.format "&query={\"%s\":\"%s\"}" key value)
+    #?(:cljs (goog.string.format "&query={\"%s\":\"%s\"}" key value))
     (str "&" key "=" value)))
 
 (defn- add-param [key value]
@@ -121,7 +124,8 @@
        (concat [url data-format])
        (apply str)))
 
-(defn- trigger-async-export!
+#?(:cljs 
+  (defn- trigger-async-export!
   "Triggers async export and watches it via polling.
    Fires on-job-id callback on receving :job_uuid from server, then monitors
    job via polling. On receiving :export_url from server, on-export-url fired."
@@ -140,22 +144,24 @@
                         {:on-error on-error
                          ;; new on-job-id that will be used in handle-response
                          :on-job-id on-job-id
-                         :on-export-url on-export-url})))))
+                         :on-export-url on-export-url}))))))
 
-(defn get-async-export-url
+
+#?(:cljs (defn get-async-export-url
   "Returns a channel, which will have the async export url when ready."
   [dataset-id data-format]
   (let [ch (chan 1)]
     (trigger-async-export! dataset-id {:data-format   data-format
                                        :on-export-url #(put! ch %)})
-    ch))
+    ch)))
 
-(defn get-async-export-data
+#?(:cljs 
+  (defn get-async-export-data
   "Returns a channel, which will have the async _data_
    downloaded using http-method when ready."
   [dataset-id fmt http-method & args]
   (go (let [url (<! (get-async-export-url dataset-id fmt))]
-        (<! (apply parse-http (concat [http-method url] args))))))
+        (<! (apply parse-http (concat [http-method url] args)))))))
 
 (defn get-exports-per-form
   "Get exports based on a form id."
