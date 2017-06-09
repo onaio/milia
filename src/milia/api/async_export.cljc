@@ -48,49 +48,48 @@
           (on-error error-detail)))
       (on-stop))))
 
-#?(:cljs 
-  (defn- monitor-async-export!
-  "Repeatedly polls the async export progress for the given job_uuid,
-   When export_url is returned, fires callback on-export-url."
-  [dataset-id job-id & {:keys [on-error on-export-url
-                               is-filtered-dataview?]}]
-  (go
-    (loop [polling-interval initial-polling-interval]
-      (let [job-suffix (str "export_async.json?job_uuid=" job-id)
-            job-url (make-url (if is-filtered-dataview? "dataviews" "forms")
-                              dataset-id
-                              job-suffix)
-            response (<! (retry-parse-http :get job-url :no-cache? true))]
-        ;; Never use `on-job-id` here b/c `on-job-id` should only be
-        ;; triggered once in `trigger-async-export!` where it starts
-        ;; `monitor-async-export!` itself
-        (when (not= (handle-response response {:on-stop #(constantly :stop)
-                                               :on-error on-error
-                                               :on-export-url on-export-url})
-                    :stop)
-          (<! (timeout polling-interval))
-          (recur (* polling-interval 2))))))))
+#?(:cljs
+   (defn- monitor-async-export!
+    "Repeatedly polls the async export progress for the given job_uuid,
+    When export_url is returned, fires callback on-export-url."
+    [dataset-id job-id & {:keys [on-error on-export-url
+                                 is-filtered-dataview?]}]
+    (go
+      (loop [polling-interval initial-polling-interval]
+        (let [job-suffix (str "export_async.json?job_uuid=" job-id)
+              job-url (make-url (if is-filtered-dataview? "dataviews" "forms")
+                                dataset-id
+                                job-suffix)
+              response (<! (retry-parse-http :get job-url :no-cache? true))]
+          ;; Never use `on-job-id` here b/c `on-job-id` should only be
+          ;; triggered once in `trigger-async-export!` where it starts
+          ;; `monitor-async-export!` itself
+          (when (not= (handle-response response {:on-stop #(constantly :stop)
+                                                 :on-error on-error
+                                                 :on-export-url on-export-url})
+                 :stop)
+            (<! (timeout polling-interval))
+            (recur (* polling-interval 2))))))))
 
-#?(:cljs 
-(defn monitor-async-exports-per-form!
-  "Repeatedly polls the export endpoint given a form_id while any of the export
-  status is pending."
-  [dataset-id  callback]
-  (go
-    (loop [polling-interval initial-polling-interval]
-      (let [temp-token (:temp-token *credentials*)
-            export-url (make-url
-                        (str "export?xform=" dataset-id
-                             "&temp_token=" temp-token))
-            {:keys [status body]} (<! (retry-parse-http :get
-                                                        export-url
-                                                        :no-cache?
-                                                        true))
-            pending-exports-list (vec (filter #(= (:job_status %) "PENDING")
-                                              body))]
-        (if (empty? pending-exports-list)
-          (callback body)
-          (recur (* polling-interval 2))))))))
+#?(:cljs
+   (defn monitor-async-exports-per-form!
+    "Repeatedly polls the export endpoint given a form_id while any of the
+    export status is pending."
+    [dataset-id  callback]
+    (go
+      (loop [polling-interval initial-polling-interval]
+        (let [temp-token (:temp-token *credentials*)
+              export-url (make-url (str "export?xform=" dataset-id
+                                        "&temp_token=" temp-token))
+              {:keys [status body]} (<! (retry-parse-http :get
+                                                          export-url
+                                                          :no-cache?
+                                                          true))
+              pending-exports-list (vec (filter #(= (:job_status %) "PENDING")
+                                                body))]
+          (if (empty? pending-exports-list)
+            (callback body)
+            (recur (* polling-interval 2))))))))
 
 (def version-key "_version")
 
@@ -124,44 +123,45 @@
        (concat [url data-format])
        (apply str)))
 
-#?(:cljs 
-  (defn- trigger-async-export!
-  "Triggers async export and watches it via polling.
-   Fires on-job-id callback on receving :job_uuid from server, then monitors
-   job via polling. On receiving :export_url from server, on-export-url fired."
-  ([dataset-id
-    & [{:keys [is-filtered-dataview? data-format export-options
-               ;; callbacks
-               on-job-id on-export-url on-error]}]]
-   (go
-     (let [export-suffix (build-export-suffix
-                          export-async-url data-format export-options)
-           export-endpoint (if is-filtered-dataview?
-                             "dataviews" "forms")
-           export-url (make-url export-endpoint dataset-id export-suffix)
-           response (<! (retry-parse-http :get export-url))]
-       (handle-response response
-                        {:on-error on-error
-                         ;; new on-job-id that will be used in handle-response
-                         :on-job-id on-job-id
-                         :on-export-url on-export-url}))))))
+#?(:cljs
+   (defn- trigger-async-export!
+    "Triggers async export and watches it via polling.
+    Fires on-job-id callback on receving :job_uuid from server, then monitors
+    job via polling. On receiving :export_url from server, on-export-url fired."
+    ([dataset-id & [{:keys [is-filtered-dataview? data-format export-options
+                            ;; callbacks
+                            on-job-id on-export-url on-error]}]]
+      (go
+        (let [export-suffix (build-export-suffix export-async-url
+                                                 data-format
+                                                 export-options)
+              export-endpoint (if is-filtered-dataview? "dataviews" "forms")
+              export-url (make-url export-endpoint dataset-id export-suffix)
+              response (<! (retry-parse-http :get export-url))]
+          (handle-response response
+                           {:on-error on-error
+                            ;; new on-job-id that will be used in
+                            ;; handle-response
+                            :on-job-id on-job-id
+                            :on-export-url on-export-url}))))))
 
 
-#?(:cljs (defn get-async-export-url
-  "Returns a channel, which will have the async export url when ready."
-  [dataset-id data-format]
-  (let [ch (chan 1)]
-    (trigger-async-export! dataset-id {:data-format   data-format
-                                       :on-export-url #(put! ch %)})
-    ch)))
+#?(:cljs
+   (defn get-async-export-url
+    "Returns a channel, which will have the async export url when ready."
+    [dataset-id data-format]
+    (let [ch (chan 1)]
+      (trigger-async-export! dataset-id {:data-format   data-format
+                                         :on-export-url #(put! ch %)})
+      ch)))
 
-#?(:cljs 
-  (defn get-async-export-data
-  "Returns a channel, which will have the async _data_
-   downloaded using http-method when ready."
-  [dataset-id fmt http-method & args]
-  (go (let [url (<! (get-async-export-url dataset-id fmt))]
-        (<! (apply parse-http (concat [http-method url] args)))))))
+#?(:cljs
+   (defn get-async-export-data
+    "Returns a channel, which will have the async _data_
+    downloaded using http-method when ready."
+    [dataset-id fmt http-method & args]
+    (go (let [url (<! (get-async-export-url dataset-id fmt))]
+          (<! (apply parse-http (concat [http-method url] args)))))))
 
 (defn get-exports-per-form
   "Get exports based on a form id."

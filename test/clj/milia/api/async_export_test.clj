@@ -7,7 +7,7 @@
 (fact "get-exports-per-form calls parse-http with the correct parameters"
       (get-exports-per-form :dataset-id :temp-token) => :api-response
       (provided
-       (make-url (str "export?xform=" :dataset-id "&temp_token=" :temp-token)) 
+       (make-url (str "export?xform=" :dataset-id "&temp_token=" :temp-token))
        => :url
        (parse-http :get :url) => :api-response))
 
