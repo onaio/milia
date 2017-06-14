@@ -89,7 +89,9 @@
                                                 body))]
           (if (empty? pending-exports-list)
             (callback body)
-            (recur (* polling-interval 2))))))))
+            (do
+              (<! (timeout polling-interval))
+              (recur (* polling-interval 2)))))))))
 
 (def version-key "_version")
 
