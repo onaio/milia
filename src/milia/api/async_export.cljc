@@ -10,6 +10,7 @@
 
 (def export-async-url "export_async.json?format=")
 (def export-failure-status-msg "FAILURE")
+(def export-pending-status-msg "PENDING")
 (def initial-polling-interval 5000) ; Async export polling interval in ms
 
 (defn- handle-response
@@ -85,7 +86,8 @@
                                                           export-url
                                                           :no-cache?
                                                           true))
-              pending-exports-list (vec (filter #(= (:job_status %) "PENDING")
+              pending-exports-list (vec (filter #(= (:job_status %)
+                                                    export-pending-status-msg)
                                                 body))]
           (if (empty? pending-exports-list)
             (callback body)
