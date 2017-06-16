@@ -134,7 +134,7 @@
     job via polling. On receiving :export_url from server, on-export-url fired."
     ([dataset-id & [{:keys [is-filtered-dataview? data-format export-options
                             ;; callbacks
-                            on-job-id on-export-url on-error]}]]
+                            on-job-id on-export-url on-error on-done]}]]
       (go
         (let [export-suffix (build-export-suffix export-async-url
                                                  data-format
@@ -142,6 +142,7 @@
               export-endpoint (if is-filtered-dataview? "dataviews" "forms")
               export-url (make-url export-endpoint dataset-id export-suffix)
               response (<! (retry-parse-http :get export-url))]
+          (on-done response)
           (handle-response response
                            {:on-error on-error
                             ;; new on-job-id that will be used in
