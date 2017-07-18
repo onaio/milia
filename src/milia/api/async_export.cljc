@@ -129,25 +129,33 @@
 
 #?(:cljs
    (defn- trigger-async-export!
-    "Triggers async export and watches it via polling.
-    Fires on-job-id callback on receving :job_uuid from server, then monitors
-    job via polling. On receiving :export_url from server, on-export-url fired."
-    ([dataset-id & [{:keys [is-filtered-dataview? data-format export-options
-                            ;; callbacks
-                            on-job-id on-export-url on-error on-done]}]]
+     "Triggers async export and watches it via polling.
+      Fires on-job-id callback on receving :job_uuid from server, then monitors
+      job via polling.
+      On receiving :export_url from server, on-export-url fired."
+     ([dataset-id & [{:keys [is-filtered-dataview? data-format export-options
+                             ;; callbacks
+                             on-job-id on-export-url on-error on-done]}]]
       (go
         (let [export-suffix (build-export-suffix export-async-url
                                                  data-format
                                                  export-options)
               export-endpoint (if is-filtered-dataview? "dataviews" "forms")
               export-url (make-url export-endpoint dataset-id export-suffix)
-              response (<! (retry-parse-http :get export-url))]
-          (on-done response)
+              response (<! (retry-parse-http :get export-url))
+              inner-on-job-id (fn [job-id]
+                                (on-job-id job-id)
+                                (monitor-async-export!
+                                 dataset-id job-id
+                                 :on-export-url on-export-url
+                                 :on-error on-error
+                                 :is-filtered-dataview? is-filtered-dataview?))]
+          (when on-done (on-done response))
           (handle-response response
                            {:on-error on-error
                             ;; new on-job-id that will be used in
                             ;; handle-response
-                            :on-job-id on-job-id
+                            :on-job-id (if on-done on-job-id inner-on-job-id)
                             :on-export-url on-export-url}))))))
 
 
