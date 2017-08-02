@@ -11,20 +11,19 @@
 
 (defn ^:export data
   "Return the data associated with a dataset."
-  [merged-dataset-id &
-   {:keys [format raw? must-revalidate? accept-header query-params
-           data-id] #?@(:cljs [:or {:format "json"}])}]
-  (let [dataset-suffix (if format
-                         (str merged-dataset-id
-                              "/data"
-                              (when data-id
-                                (str "/" data-id))
-                              "." format)
-                         (str merged-dataset-id "/data"))
-        url (make-url "merged-datasets" dataset-suffix)
+  [merged-dataset-id & {:keys [format
+                               raw?
+                               must-revalidate?
+                               accept-header
+                               query-params
+                               data-id]
+                        #?@(:cljs [:or {:format "json"}])}]
+  (let [url     (make-url "merged-datasets"
+                           merged-dataset-id
+                           (when format (str "data" data-id "." format)))
         options {:query-params query-params}]
-    (parse-http :get url
-                :http-options options
-                :raw-response? raw?
+    (parse-http :get              url
+                :http-options     options
+                :raw-response?    raw?
                 :must-revalidate? must-revalidate?
-                :accept-header accept-header)))
+                :accept-header    accept-header)))
