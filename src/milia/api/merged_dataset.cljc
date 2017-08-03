@@ -18,12 +18,13 @@
                                query-params
                                data-id]
                         #?@(:cljs [:or {:format "json"}])}]
-  (let [url     (make-url "merged-datasets"
-                           merged-dataset-id
-                           (when format (str "data" data-id "." format)))
-        options {:query-params query-params}]
+  (let [url (make-url "merged-datasets"
+                      merged-dataset-id
+                      "data"
+                      (when format
+                        (str (when data-id (str "/" data-id)) "." format)))]
     (parse-http :get              url
-                :http-options     options
+                :http-options     {:query-params query-params}
                 :raw-response?    raw?
                 :must-revalidate? must-revalidate?
                 :accept-header    accept-header)))
