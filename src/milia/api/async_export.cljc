@@ -127,21 +127,32 @@
        (concat [url data-format])
        (apply str)))
 
+(defn type->endpoint
+  "Return the URL prefix based on data type."
+  [data-type]
+  (if (= data-type :dataview) "dataviews" "forms"))
+
 #?(:cljs
-   (defn- trigger-async-export!
+   (defn trigger-async-export!
      "Triggers async export and watches it via polling.
       Fires on-job-id callback on receving :job_uuid from server, then monitors
       job via polling.
       On receiving :export_url from server, on-export-url fired."
-     ([dataset-id & [{:keys [is-filtered-dataview? data-format export-options
+     ([dataset-id & [{:keys [data-type
+                             data-format
+                             export-options
                              ;; callbacks
-                             on-job-id on-export-url on-error on-done]}]]
+                             on-job-id
+                             on-export-url
+                             on-error
+                             on-done]}]]
       (go
         (let [export-suffix (build-export-suffix export-async-url
                                                  data-format
                                                  export-options)
-              export-endpoint (if is-filtered-dataview? "dataviews" "forms")
-              export-url (make-url export-endpoint dataset-id export-suffix)
+              export-url (make-url (type->endpoint data-type)
+                                   dataset-id
+                                   export-suffix)
               response (<! (retry-parse-http :get export-url))
               inner-on-job-id (fn [job-id]
                                 (on-job-id job-id)
