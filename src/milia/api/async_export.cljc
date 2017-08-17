@@ -127,10 +127,9 @@
        (concat [url data-format])
        (apply str)))
 
-(defn type->endpoint
-  "Return the URL prefix based on data type."
-  [data-type]
-  (if (= data-type :dataview) "dataviews" "forms"))
+(defmulti type->endpoint (fn [datatype & _] datatype))
+(defmethod type->endpoint :default [_] "forms")
+(defmethod type->endpoint :dataview [_] "dataviews")
 
 #?(:cljs
    (defn trigger-async-export!
