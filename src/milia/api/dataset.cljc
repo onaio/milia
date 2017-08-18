@@ -10,6 +10,11 @@
                       [milia.utils.file :as file-utils]
                       [milia.utils.metadata :refer [upload-metadata-file]]])))
 
+(defmulti type->endpoint (fn [datatype & _] datatype))
+(defmethod type->endpoint :default [_ & {:keys [async] :or {async true}}]
+  (if async "forms" "data"))
+(defmethod type->endpoint :filtered-dataset [_] "dataviews")
+
 (defn all
   "Return all the datasets for an account."
   [username]
@@ -127,28 +132,35 @@
   [format]
   (if (in? ["csvzip" "sav" "xls" "xlsx" "zip"] format) {:as :byte-array} {}))
 
+(defmulti type->download-path (fn [datatype & _] datatype))
+
+(defmethod type->download-path :default
+  [_ dataset-id format export-options]
+  [(str dataset-id "." format
+        (when export-options
+          (str "?"
+               (join "&"
+                     (for [[option val] export-options]
+                       (str (name option) "=" val))))))])
+
+(defmethod type->download-path :filtered-dataset
+  [_ dataset-id format export-options]
+  [dataset-id (str "data." format)])
+
 #?(:clj
    (defn download
      "Download dataset in specified format."
-     ([dataset-id format]
-      (download dataset-id format false))
-     ([dataset-id format async]
-      (download dataset-id format async false nil))
-     ([dataset-id format async dataview export-options]
-      (let [path (str dataset-id "." format)
-            options (options-for-format format)
-            url (if dataview
-                  (make-url "dataviews" dataset-id (str "data." format))
-                  (make-url
-                   (if async "forms" "data")
-                   (str path
-                        (when export-options
-                          (str "?"
-                               (join "&"
-                                     (for [[option val] export-options]
-                                       (str (name option) "=" val))))))))
-            filename (filename-for-format dataset-id format)]
-        (parse-http :get url :http-options options :filename filename)))))
+     [dataset-id format & [async data-type export-options]]
+     (let [options (options-for-format format)
+           endpoint (type->endpoint data-type :async async)
+           url (apply make-url
+                      (cons endpoint
+                            (type->download-path data-type
+                                                 dataset-id
+                                                 format
+                                                 export-options)))
+           filename (filename-for-format dataset-id format)]
+       (parse-http :get url :http-options options :filename filename))))
 
 (defn download-synchronously
   "Download form data in specified format. The synchronicity here refers to the
