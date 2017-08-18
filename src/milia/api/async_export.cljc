@@ -4,6 +4,7 @@
             #?@(:cljs [[goog.string.format]
                       [cljs.core.async :refer [<! chan put! timeout]]])
             [clojure.string :refer [join]]
+            [milia.api.dataset :refer [type->endpoint]]
             [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url *credentials*]]
             [milia.utils.retry :refer [retry-parse-http]]))
@@ -48,10 +49,6 @@
           (on-error error-detail (:url body))
           (on-error error-detail)))
       (on-stop))))
-
-(defmulti type->endpoint (fn [datatype & _] datatype))
-(defmethod type->endpoint :default [_] "forms")
-(defmethod type->endpoint :filtered-dataset [_] "dataviews")
 
 #?(:cljs
    (defn- monitor-async-export!
