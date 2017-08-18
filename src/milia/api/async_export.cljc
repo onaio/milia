@@ -49,16 +49,20 @@
           (on-error error-detail)))
       (on-stop))))
 
+(defmulti type->endpoint (fn [datatype & _] datatype))
+(defmethod type->endpoint :default [_] "forms")
+(defmethod type->endpoint :filtered-dataset [_] "dataviews")
+
 #?(:cljs
    (defn- monitor-async-export!
     "Repeatedly polls the async export progress for the given job_uuid,
     When export_url is returned, fires callback on-export-url."
     [dataset-id job-id & {:keys [on-error on-export-url
-                                 is-filtered-dataview?]}]
+                                 data-type]}]
     (go
       (loop [polling-interval initial-polling-interval]
         (let [job-suffix (str "export_async.json?job_uuid=" job-id)
-              job-url (make-url (if is-filtered-dataview? "dataviews" "forms")
+              job-url (make-url (type->endpoint data-type)
                                 dataset-id
                                 job-suffix)
               response (<! (retry-parse-http :get job-url :no-cache? true))]
@@ -127,10 +131,6 @@
        (concat [url data-format])
        (apply str)))
 
-(defmulti type->endpoint (fn [datatype & _] datatype))
-(defmethod type->endpoint :default [_] "forms")
-(defmethod type->endpoint :dataview [_] "dataviews")
-
 #?(:cljs
    (defn trigger-async-export!
      "Triggers async export and watches it via polling.
@@ -159,7 +159,7 @@
                                  dataset-id job-id
                                  :on-export-url on-export-url
                                  :on-error on-error
-                                 :is-filtered-dataview? is-filtered-dataview?))]
+                                 :data-type data-type))]
           (when on-done (on-done response))
           (handle-response response
                            {:on-error on-error
