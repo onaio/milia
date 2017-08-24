@@ -13,7 +13,7 @@
 (defmulti type->endpoint (fn [datatype & _] datatype))
 (defmethod type->endpoint :default [_ & {:keys [async] :or {async true}}]
   (if async "forms" "data"))
-(defmethod type->endpoint :filtered-dataset [_] "dataviews")
+(defmethod type->endpoint :filtered-dataset [_ & _] "dataviews")
 
 (defn all
   "Return all the datasets for an account."
