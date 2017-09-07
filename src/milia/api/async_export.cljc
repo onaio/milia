@@ -4,6 +4,7 @@
             #?@(:cljs [[goog.string.format]
                       [cljs.core.async :refer [<! chan put! timeout]]])
             [clojure.string :refer [join]]
+            [chimera.string :refer [is-not-null?]]
             [milia.api.dataset :refer [type->endpoint]]
             [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url *credentials*]]
@@ -185,11 +186,14 @@
 
 (defn get-exports-per-form
   "Get exports based on a form id."
-  [dataset-id temp-token]
+  [dataset-id & [temp-token]]
   (parse-http
    :get
    (make-url
-    (str "export?xform=" dataset-id "&temp_token=" temp-token))))
+    (str "export?xform="
+         dataset-id
+         (when (is-not-null? temp-token)
+          (str "&temp_token=" temp-token))))))
 
 (defn delete-export
   "Delete an export based on an export id"
