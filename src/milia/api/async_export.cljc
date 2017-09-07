@@ -192,8 +192,7 @@
    (make-url
     (str "export?xform="
          dataset-id
-         (when (is-not-null? temp-token)
-          (str "&temp_token=" temp-token))))))
+         (some->> temp-token (str "&temp_token="))))))
 
 (defn delete-export
   "Delete an export based on an export id"
