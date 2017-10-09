@@ -17,10 +17,9 @@
 (defn- temp-token-suffix
   "If a temp-token is set, add it as a query string parameter."
   [& s]
-  (apply str
-         (if-let [temp-token (:temp-token *credentials*)]
-           (conj (vec s) "temp_token=" temp-token)
-           s)))
+  (join (if-let [temp-token (:temp-token *credentials*)]
+          (conj (vec s) "temp_token=" temp-token)
+          s)))
 
 (defn- handle-response
   "Handles API server's response and acts according to given callbacks."
