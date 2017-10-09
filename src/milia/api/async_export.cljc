@@ -14,6 +14,14 @@
 (def export-pending-status-msg "PENDING")
 (def initial-polling-interval 5000) ; Async export polling interval in ms
 
+(defn- temp-token-suffix
+  "If a temp-token is set, add it as a query string parameter."
+  [& s]
+  (apply str
+         (if-let [temp-token (:temp-token *credentials*)]
+           (conj (vec s) "temp_token=" temp-token)
+           s)))
+
 (defn- handle-response
   "Handles API server's response and acts according to given callbacks."
   [{:as   response
@@ -75,26 +83,25 @@
 
 #?(:cljs
    (defn monitor-async-exports-per-form!
-    "Repeatedly polls the export endpoint given a form_id while any of the
-    export status is pending."
-    [dataset-id  callback]
-    (go
-      (loop [polling-interval initial-polling-interval]
-        (let [temp-token (:temp-token *credentials*)
-              export-url (make-url (str "export?xform=" dataset-id
-                                        "&temp_token=" temp-token))
-              {:keys [status body]} (<! (retry-parse-http :get
-                                                          export-url
-                                                          :no-cache?
-                                                          true))
-              pending-exports-list (vec (filter #(= (:job_status %)
-                                                    export-pending-status-msg)
-                                                body))]
-          (if (empty? pending-exports-list)
-            (callback body)
-            (do
-              (<! (timeout polling-interval))
-              (recur (* polling-interval 2)))))))))
+     "Repeatedly polls the export endpoint given a form_id while any of the
+      export status is pending."
+     [dataset-id  callback]
+     (go
+       (loop [polling-interval initial-polling-interval]
+         (let [export-url (make-url (temp-token-suffix "export?xform="
+                                                       dataset-id))
+               {:keys [status body]} (<! (retry-parse-http :get
+                                                           export-url
+                                                           :no-cache?
+                                                           true))
+               pending-exports-list (vec (filter #(= (:job_status %)
+                                                     export-pending-status-msg)
+                                                 body))]
+           (if (empty? pending-exports-list)
+             (callback body)
+             (do
+               (<! (timeout polling-interval))
+               (recur (* polling-interval 2)))))))))
 
 (def version-key "_version")
 
@@ -185,15 +192,12 @@
 
 (defn get-exports-per-form
   "Get exports based on a form id."
-  [dataset-id temp-token]
-  (parse-http
-   :get
-   (make-url
-    (str "export?xform=" dataset-id "&temp_token=" temp-token))))
+  [dataset-id]
+  (parse-http :get
+              (make-url (temp-token-suffix "export?xform=" dataset-id "&"))))
 
 (defn delete-export
   "Delete an export based on an export id"
-  [export-id temp-token]
-  (parse-http
-   :delete
-   (make-url "export" (str export-id "?temp_token=" temp-token))))
+  [export-id]
+  (parse-http :delete
+              (make-url "export" (temp-token-suffix export-id "?"))))
