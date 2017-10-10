@@ -15,7 +15,9 @@
 (def initial-polling-interval 5000) ; Async export polling interval in ms
 
 (defn- temp-token-suffix
-  "If a temp-token is set, add it as a query string parameter."
+  "If a temp-token is set, add it as a query string parameter. The caller needs
+   to explicity pass a question-mark or ampersand depending on whether this is
+   the first or a subsequenty query parameter."
   [& s]
   (join (if-let [temp-token (:temp-token *credentials*)]
           (conj (vec s) "temp_token=" temp-token)
@@ -88,7 +90,8 @@
      (go
        (loop [polling-interval initial-polling-interval]
          (let [export-url (make-url (temp-token-suffix "export?xform="
-                                                       dataset-id))
+                                                       dataset-id
+                                                       "&"))
                {:keys [status body]} (<! (retry-parse-http :get
                                                            export-url
                                                            :no-cache?
