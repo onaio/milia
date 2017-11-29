@@ -122,8 +122,8 @@
   (let [response-channel (chan)]
     (go
       (let [original-response-channel (apply request-fn args)
-            {:keys [status body] :as response} (<! original-response-channel)]
+            {:keys [status] :as response} (<! original-response-channel)]
         (if (= status 401)
-          (js/console.log "Something went wrong--->" body)
+          (set! js/window.location (.href js/window.location))
           (put! response-channel response))))
     response-channel))
