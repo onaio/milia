@@ -1,13 +1,15 @@
-(ns milia.api.dataset-test
-  (:refer-clojure :exclude [update])
-  (:require [clojure.string :refer [join]]
-            [midje.sweet :refer :all]
-            [milia.api.dataset :refer :all]
-            [milia.utils.file :as f]
-            [milia.utils.remote :refer [make-j2x-url make-url make-client-url]]
-            [milia.api.http :refer [parse-http]]
-            [milia.utils.remote :refer [*credentials*]]
-            [milia.api.io :refer [multipart-options]]))
+  (ns milia.api.dataset-test
+    (:refer-clojure :exclude [update])
+    (:require [clojure.string :refer [join]]
+              [midje.sweet :refer :all]
+              [milia.api.dataset :refer :all]
+              [milia.utils.file :as f]
+              [milia.utils.remote :refer [make-j2x-url
+                                          make-url
+                                          make-client-url]]
+              [milia.api.http :refer [parse-http]]
+              [milia.utils.remote :refer [*credentials*]]
+              [milia.api.io :refer [multipart-options]]))
 
 (let [url :fake-url
       username :fake-username
@@ -62,7 +64,8 @@
                      :http-options {:query-params nil}
                      :raw-response? nil
                      :must-revalidate? nil
-                     :accept-header nil) => :something))
+                     :accept-header nil
+                     :auth-token nil) => :something))
 
   (fact "about dataset get dataset datum"
         (data :dataset-id :datum-id 1 :format "json") => :something
@@ -73,7 +76,8 @@
                      :http-options {:query-params nil}
                      :raw-response? nil
                      :must-revalidate? nil
-                     :accept-header nil) => :something))
+                     :accept-header nil
+                     :auth-token nil) => :something))
 
   (fact "about dataset-getdata :raw"
         (data :dataset-id :raw? true :must-revalidate? true) => :something
@@ -84,7 +88,8 @@
                      :http-options {:query-params nil}
                      :raw-response? true
                      :must-revalidate? true
-                     :accept-header nil) => :something))
+                     :accept-header nil
+                     :auth-token nil) => :something))
 
   (fact "about dataset-getdata with :accept-header"
         (data :dataset-id :accept-header "text/*"
@@ -96,7 +101,8 @@
                      :http-options {:query-params nil}
                      :raw-response? nil
                      :must-revalidate? true
-                     :accept-header "text/*") => :something))
+                     :accept-header "text/*"
+                     :auth-token nil) => :something))
 
   (fact "about dataset-getdata with :query"
         (let [query (str "{\"_submitted_by\":\"" username "\"}")]
@@ -108,7 +114,8 @@
                        :http-options {:query-params {:query query}}
                        :raw-response? nil
                        :must-revalidate? nil
-                       :accept-header nil) => :something)))
+                       :accept-header nil
+                       :auth-token nil) => :something)))
 
   (fact "about dataset-getrecord"
         (record :dataset-id :record-id) => :something
