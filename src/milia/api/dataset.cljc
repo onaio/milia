@@ -91,7 +91,7 @@
   "Return the data associated with a dataset."
   [dataset-id &
    {:keys [format raw? must-revalidate? accept-header query-params
-           data-id] #?@(:cljs [:or {:format "json"}])}]
+           data-id auth-token] #?@(:cljs [:or {:format "json"}])}]
   (let [dataset-suffix (if format
                          (str dataset-id (when data-id (str "/" data-id))
                               "." format)
@@ -102,7 +102,8 @@
                 :http-options options
                 :raw-response? raw?
                 :must-revalidate? must-revalidate?
-                :accept-header accept-header)))
+                :accept-header accept-header
+                :auth-token auth-token)))
 
 (defn record
   "Retrieve a record from the dataset."
