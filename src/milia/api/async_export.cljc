@@ -22,7 +22,7 @@
   [& s]
   (let [temp-token (:temp-token *credentials*)]
   (join (if (is-not-null? temp-token)
-          (conj (vec s) "&temp_token=" temp-token)
+          (conj (vec s) "temp_token=" temp-token)
           s))))
 
 (defn- handle-response
@@ -198,7 +198,7 @@
   "Get exports based on a form id."
   [dataset-id]
   (parse-http :get
-              (make-url (temp-token-suffix "export?xform=" dataset-id))))
+              (make-url (temp-token-suffix "export?xform=" dataset-id "&"))))
 
 (defn delete-export
   "Delete an export based on an export id"
