@@ -1,6 +1,7 @@
 (ns milia.api.async-export
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]]))
   (:require [chimera.seq :refer [select-values]]
+            [chimera.string :refer [is-not-null?]]
             #?@(:cljs [[goog.string.format]
                       [cljs.core.async :refer [<! chan put! timeout]]])
             [clojure.string :refer [join]]
@@ -19,9 +20,10 @@
    to explicity pass a question-mark or ampersand depending on whether this is
    the first or a subsequenty query parameter."
   [& s]
-  (join (if-let [temp-token (:temp-token *credentials*)]
-          (conj (vec s) "temp_token=" temp-token)
-          s)))
+  (let [temp-token (:temp-token *credentials*)]
+  (join (if (is-not-null? temp-token)
+          (conj (vec s) "&temp_token=" temp-token)
+          s))))
 
 (defn- handle-response
   "Handles API server's response and acts according to given callbacks."
@@ -196,7 +198,7 @@
   "Get exports based on a form id."
   [dataset-id]
   (parse-http :get
-              (make-url (temp-token-suffix "export?xform=" dataset-id "&"))))
+              (make-url (temp-token-suffix "export?xform=" dataset-id))))
 
 (defn delete-export
   "Delete an export based on an export id"
