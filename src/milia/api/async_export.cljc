@@ -21,9 +21,9 @@
    the first or a subsequenty query parameter."
   [& s]
   (let [temp-token (:temp-token *credentials*)]
-  (join (if (is-not-null? temp-token)
-          (conj (vec s) "temp_token=" temp-token)
-          s))))
+        (join (if (is-not-null? temp-token)
+                (conj (vec s) "temp_token=" temp-token)
+                s))))
 
 (defn- handle-response
   "Handles API server's response and acts according to given callbacks."
