@@ -5,7 +5,7 @@
             [milia.api.http :refer [parse-http]]))
 
 (def default-max-retries 1)
-(def default-retry-for-statuses [502 503 504])
+(def default-retry-for-statuses [500 502 503 504])
 (def initial-polling-interval 1000) ; Retry polling inverval in ms
 (def retry-keys [:max-retries :retry-for-statuses])
 

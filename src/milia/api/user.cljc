@@ -4,7 +4,8 @@
             [clojure.string :refer [join]]
             [chimera.seq :refer [has-keys?]]
             [milia.api.http :refer [parse-http]]
-            [milia.utils.remote :refer [make-url]]))
+            [milia.utils.remote :refer [make-url]]
+            [milia.utils.retry :refer [retry-parse-http]]))
 
 (defn patch
   [username params & {:keys [suppress-4xx-exceptions?]}]
@@ -20,7 +21,9 @@
   [username]
   {:pre [username]}
   (let [url (make-url "profiles" username)
-        response (parse-http :get url :suppress-4xx-exceptions? true)]
+        response (retry-parse-http :get url
+                                   :suppress-4xx-exceptions? true
+                                   :max-retries 2)]
     (if-let [error (:detail response)] nil response)))
 
 (defn get-profiles-for-list-of-users
