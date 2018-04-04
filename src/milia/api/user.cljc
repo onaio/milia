@@ -41,6 +41,21 @@
     (parse-http :get url
                 :suppress-4xx-exceptions? suppress-4xx-exceptions?)))
 
+(defn get-subscription
+  [username]
+  (let [url (make-url "pricing" "subscription" "zoho" username)]
+    (parse-http :get url :suppress-4xx-exceptions? true)))
+
+(defn get-subscription-payment
+  [username]
+  (let [url (make-url "pricing" "payment" username)]
+    (parse-http :get url)))
+
+(defn get-invoices
+  [username]
+  (let [url (make-url "pricing" (str "invoices?username=" username))]
+    (parse-http :get url)))
+
 (defn create
   "Create a new user."
   [params]
