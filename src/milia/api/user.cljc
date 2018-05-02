@@ -113,7 +113,7 @@
 
 (defn update-user-metadata
   [username metadata & {:keys [suppress-4xx-exceptions?]
-                       :or {suppress-4xx-exceptions? false}}]
+                       :or {suppress-4xx-exceptions? nil}}]
   (let [current-metadata (retrieve-metadata username)
         updated-metadata (merge current-metadata metadata)]
     (patch username
