@@ -112,10 +112,13 @@
   (:metadata (profile username)))
 
 (defn update-user-metadata
-  [username metadata]
+  [username metadata & {:keys [suppress-4xx-exceptions?]
+                       :or {suppress-4xx-exceptions? nil}}]
   (let [current-metadata (retrieve-metadata username)
         updated-metadata (merge current-metadata metadata)]
-    (patch username {:metadata updated-metadata})))
+    (patch username
+           {:metadata updated-metadata}
+           :suppress-4xx-exceptions? suppress-4xx-exceptions?)))
 
 (defn get
   "Return the user for this username"
