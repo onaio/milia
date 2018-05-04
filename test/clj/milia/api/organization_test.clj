@@ -107,7 +107,8 @@
               (parse-http :post
                           url
                           :http-options {:form-params
-                                         {:username :member :role editor-role}}
+                                         {:username :member :role editor-role}
+                                         :content-type :json}
                           :suppress-4xx-exceptions? true
                           :as-map? true) => :something)))
 
@@ -119,7 +120,8 @@
               (parse-http :post
                           url
                           :http-options {:form-params
-                                         {:username :member :role :role}}
+                                         {:username :member :role :role}
+                                         :content-type :json}
                           :suppress-4xx-exceptions? true
                           :as-map? true) => :something)))
 
