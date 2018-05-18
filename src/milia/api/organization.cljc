@@ -98,8 +98,12 @@
          assigned-role (or role editor-role)]
      (parse-http :post
                  url
-                 :http-options {:form-params {:username member
-                                              :role assigned-role}}
+                 :http-options
+                 #?(:clj   {:form-params {:username member
+                                          :role assigned-role}
+                            :content-type :json})
+                 #?(:cljs  {:json-params {:username member
+                                          :role assigned-role}})
                  :suppress-4xx-exceptions? true
                  :as-map? true))))
 
