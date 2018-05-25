@@ -43,12 +43,12 @@
 
 (defn get-subscription
   [username]
-  (let [url (make-url "pricing" "subscription" "zoho" username)]
+  (let [url (make-url "pricing" "subscriptions" username)]
     (parse-http :get url :suppress-4xx-exceptions? true)))
 
 (defn get-subscription-payment
   [username]
-  (let [url (make-url "pricing" "payment" username)]
+  (let [url (make-url "pricing" "payments" username)]
     (parse-http :get url)))
 
 (defn get-invoices
