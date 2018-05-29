@@ -126,6 +126,22 @@
                           :suppress-4xx-exceptions? true
                           :as-map? true) => :something)))
 
+(facts "about change-org-member-role with assigned role"
+       (fact "should change a member's role in an org"
+             (change-org-member-role fake-member :orgname nil)
+             => :something
+             (provided
+              (make-url "orgs" :orgname "members") => url
+              (parse-http :put
+                          url
+                          :callback nil
+                          :http-options {:form-params
+                                         {:username (:username fake-member)
+                                          :role (:role fake-member)}
+                                         :content-type :json}
+                          :as-map? true)
+              => :something)))
+
 (facts "about remove-member"
        (fact "should remove a member"
              (remove-member :orgname :member nil) => :something
