@@ -108,16 +108,21 @@
                  :suppress-4xx-exceptions? true
                  :as-map? true))))
 
-#?(:cljs
-    (defn change-org-member-role
-      "Change the role of an organization member"
-      [member org-name event-chan]
-      (parse-http :put
-                  (make-url "orgs" org-name "members")
-                  :callback #(put! event-chan {:updated-member member})
-                  :http-options
-                  {:json-params {:username (:username member)
-                                 :role (:role member)}})))
+(defn change-org-member-role
+  "Change the role of an organization member"
+  [member org-name event-chan]
+  (let [data {:username (:username member)
+              :role (:role member)}]
+    (parse-http :put
+                (make-url "orgs" org-name "members")
+                :callback
+                #?(:clj nil)
+                #?(:cljs #(put! event-chan {:updated-member member}))
+                :http-options
+                #?(:clj   {:form-params data
+                           :content-type :json})
+                #?(:cljs {:json-params data})
+                :as-map? true)))
 
 (defn remove-member
   "Remove a user from an organization or organization team"
