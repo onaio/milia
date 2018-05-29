@@ -10,6 +10,7 @@
 (def password :fake-password)
 (def org-name :fake-org-name)
 (def fake-teams [{:organization org-name :name "name"}])
+(def fake-member {:username :username :role :role})
 (def org-profile {:org org-name})
 
 (facts "about organizations"
@@ -175,7 +176,9 @@
       (provided
        (make-url "teams" :team-id "share") => :url
        (parse-http :post :url
-                   :http-options {:form-params :data}) => :updated-team))
+                   :http-options {:form-params :data
+                                  :content-type :json}
+                   :as-map? true) => :updated-team))
 
 (facts "about can-user-create-project-under-organization?"
        (let [owner "i_own_this"
