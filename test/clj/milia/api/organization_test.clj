@@ -128,13 +128,12 @@
 
 (facts "about change-org-member-role with assigned role"
        (fact "should change a member's role in an org"
-             (change-org-member-role fake-member :orgname nil)
+             (change-org-member-role fake-member :orgname nil false)
              => :something
              (provided
               (make-url "orgs" :orgname "members") => url
               (parse-http :put
                           url
-                          :callback nil
                           :http-options {:form-params
                                          {:username (:username fake-member)
                                           :role (:role fake-member)}
