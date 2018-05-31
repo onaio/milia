@@ -110,19 +110,23 @@
 
 (defn change-org-member-role
   "Change the role of an organization member"
-  [member org-name event-chan]
+  [member org-name event-chan add-callback?]
   (let [data {:username (:username member)
               :role (:role member)}]
-    (parse-http :put
-                (make-url "orgs" org-name "members")
-                :callback
-                #?(:clj nil)
-                #?(:cljs #(put! event-chan {:updated-member member}))
-                :http-options
-                #?(:clj   {:form-params data
-                           :content-type :json})
-                #?(:cljs {:json-params data})
-                :as-map? true)))
+    (apply parse-http (->
+                        [:put
+                         (make-url "orgs" org-name "members")
+                         :http-options
+                         #?(:clj   {:form-params data
+                                    :content-type :json})
+                         #?(:cljs {:json-params data})
+                          :as-map? true]
+                        (concat (when add-callback?
+                                  [:callback
+                                   #?(:cljs
+                                    #(put! event-chan
+                                           {:updated-member member}))]))
+                        (vec)))))
 
 (defn remove-member
   "Remove a user from an organization or organization team"
