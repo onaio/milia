@@ -10,6 +10,7 @@
 (def password :fake-password)
 (def org-name :fake-org-name)
 (def fake-teams [{:organization org-name :name "name"}])
+(def fake-member {:username :username :role :role})
 (def org-profile {:org org-name})
 
 (facts "about organizations"
@@ -125,6 +126,22 @@
                           :suppress-4xx-exceptions? true
                           :as-map? true) => :something)))
 
+(facts "about change-org-member-role with assigned role"
+       (fact "should change a member's role in an org"
+             (change-org-member-role fake-member :orgname nil)
+             => :something
+             (provided
+              (make-url "orgs" :orgname "members") => url
+              (parse-http :put
+                          url
+                          :callback nil
+                          :http-options {:form-params
+                                         {:username (:username fake-member)
+                                          :role (:role fake-member)}
+                                         :content-type :json}
+                          :as-map? true)
+              => :something)))
+
 (facts "about remove-member"
        (fact "should remove a member"
              (remove-member :orgname :member nil) => :something
@@ -175,7 +192,9 @@
       (provided
        (make-url "teams" :team-id "share") => :url
        (parse-http :post :url
-                   :http-options {:form-params :data}) => :updated-team))
+                   :http-options {:form-params :data
+                                  :content-type :json}
+                   :as-map? true) => :updated-team))
 
 (facts "about can-user-create-project-under-organization?"
        (let [owner "i_own_this"

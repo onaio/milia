@@ -1,7 +1,8 @@
 (ns milia.api.organization
   (:refer-clojure :exclude [update])
   (:require [milia.api.http :refer [parse-http]]
-            [milia.utils.remote :refer [make-url]]))
+            [milia.utils.remote :refer [make-url]]
+            #?(:cljs [cljs.core.async :refer [put!]])))
 
 (def internal-members-team-name "members")
 
@@ -107,6 +108,22 @@
                  :suppress-4xx-exceptions? true
                  :as-map? true))))
 
+(defn change-org-member-role
+  "Change the role of an organization member"
+  [member org-name event-chan]
+  (let [data {:username (:username member)
+              :role (:role member)}]
+    (parse-http :put
+                (make-url "orgs" org-name "members")
+                :callback
+                #?(:clj nil
+                   :cljs #(put! event-chan {:updated-member member}))
+                :http-options
+                #?(:clj   {:form-params data
+                           :content-type :json})
+                #?(:cljs {:json-params data})
+                :as-map? true)))
+
 (defn remove-member
   "Remove a user from an organization or organization team"
   ([org-name member]
@@ -156,4 +173,9 @@
 (defn share-team [team-id data]
   "Changes default_role permissions on a project for a team"
   (let [url (make-url "teams" team-id "share")]
-    (parse-http :post url :http-options {:form-params data})))
+    (parse-http :post url
+                :http-options
+                #?(:clj   {:form-params data
+                           :content-type :json})
+                #?(:cljs  {:json-params data})
+                :as-map? true)))
