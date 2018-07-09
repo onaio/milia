@@ -30,6 +30,10 @@
   (let [url (make-url "orgs" org-name)]
     (parse-http :get url :no-cache? no-cache?)))
 
+(defn retrieve-org-metadata
+  [username]
+  (:metadata (profile username)))
+
 (defn can-user-create-project-under-organization?
   "Return whether a user can create projects within an organization"
   [username-to-check organization]
