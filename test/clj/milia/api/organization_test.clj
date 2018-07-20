@@ -26,6 +26,12 @@
               (make-url (str "orgs?shared_with=" username)) => url
               (parse-http :get url) => :something)))
 
+(facts "about org metadata"
+       (fact "Should retrieve org metadata"
+             (retrieve-org-metadata username) => :metadata
+             (provided
+              (profile username) => {:metadata :metadata})))
+
 (facts "about organization-create"
        (fact "should associate data"
              (create :data) => :something
