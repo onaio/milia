@@ -44,43 +44,43 @@
                             :website    "fake-website"})
       data {:form-params params}
       updated-data {:form-params update-params
-                    :content-type :json}
-      send-email-verification-data {:username username
-                                    :redirect_url redirect-url}]
+                    :content-type :json}]
 
-  (facts "About email-verification"
+  (facts "About email verification"
          (fact "Should throw error if verification-key is missing"
-            (verify-email nil) => (throws AssertionError))
+               (verify-email nil) => (throws AssertionError))
 
          (fact "Should get correct url"
-            (verify-email verification-key) => :something
-            (provided
+               (verify-email verification-key) => :something
+               (provided
                 (make-url "profiles"
                           (str "verify_email?verification_key="
-                                verification-key)) => url
+                               verification-key)) => url
                 (parse-http :get url
                             :suppress-4xx-exceptions? true) => :something))
 
          (fact "Should return an error"
-            (verify-email verification-key) => nil
-            (provided
+               (verify-email verification-key) => nil
+               (provided
                 (make-url "profiles"
                           (str "verify_email?verification_key="
-                                verification-key)) => url
+                               verification-key)) => url
                 (parse-http :get url
-                            :suppress-4xx-exceptions? true) => :something)))
+                            :suppress-4xx-exceptions? true) =>
+                {:detail :error})))
 
   (facts "About sending verification email"
          (fact "Should throw error if username is missing"
-            (send-verification-email nil) => (throws AssertionError))
+               (send-verification-email nil) => (throws AssertionError))
 
-         (fact "Should post email verification data")
-            (send-verification-email username) => :something
-            (provided
-              (make-url "profiles" "send_verification_email") => url
-              (parse-http
-               :post url
-               :http-options send-email-verification-data) => :something))
+         (fact "Should post email verification data"
+               (send-verification-email username) => :something
+               (provided
+                (make-url "profiles" "send_verification_email") => url
+                (parse-http
+                 :post url
+                 :http-options
+                 {:form-params {:username username}}) => :something)))
 
   (facts "About user-profile"
          (fact "Should throw if no username"
