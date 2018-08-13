@@ -11,6 +11,7 @@
 (def username3 :fake-username3)
 (def password  :fake-password)
 (def account   {:username username :password password})
+(def verification-key :fake-verification-key)
 
 (let [url :fake-url
       default-params {:city         ""
@@ -43,6 +44,28 @@
       data {:form-params params}
       updated-data {:form-params update-params
                     :content-type :json}]
+
+  (facts "About email-verification"
+         (fact "Should throw error if verification-key is missing"
+            (verify-email nil) => (throws AssertionError))
+
+         (fact "Should get correct url"
+            (verify-email verification-key) => :something
+            (provided
+                (make-url "profiles"
+                          (str "verify_email?verification_key="
+                                verification-key)) => url
+                (parse-http :get url
+                            :suppress-4xx-exceptions? true) => :something))
+
+         (fact "Should return an error"
+            (verify-email verification-key) => nil
+            (provided
+                (make-url "profiles"
+                          (str "verify_email?verification_key="
+                                verification-key)) => url
+                (parse-http :get url
+                            :suppress-4xx-exceptions? true) => :something)))
 
   (facts "About user-profile"
          (fact "Should throw if no username"
