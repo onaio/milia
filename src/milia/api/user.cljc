@@ -3,6 +3,7 @@
   (:require #?(:cljs [chimera.js-interop :refer [format]])
             [clojure.string :refer [join]]
             [chimera.seq :refer [has-keys?]]
+            [chimera.core :refer [not-nil?]]
             [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]
             [milia.utils.retry :refer [retry-parse-http]]))
@@ -38,8 +39,11 @@
 
 (defn send-verification-email
   [username & [redirect-url]]
+  {:pre [username]}
   (let [url (make-url "profiles" "send_verification_email")
-        form-params {:username username :redirect_url redirect-url}]
+        form-params
+        (cond-> {:username username}
+            (not-nil? redirect-url) (assoc :redirect_url redirect-url))]
     (parse-http :post url :http-options {:form-params form-params})))
 
 (defn get-profiles-for-list-of-users
