@@ -306,8 +306,12 @@
 #?(:clj
    (defn csv-import
      "Upload CSV data to existing form"
-     [dataset-id media-file]
-     (let [url (make-url "forms" dataset-id "csv_import")
+     [dataset-id media-file overwrite?]
+     (let [url (make-url "forms"
+                         dataset-id
+                         (str "csv_import"
+                              (when overwrite?
+                                "?overwrite=true")))
            multipart (multipart-options media-file "csv_file")]
        (parse-http :post url :http-options multipart
                              :suppress-4xx-exceptions? true
