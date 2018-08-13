@@ -12,6 +12,7 @@
 (def password  :fake-password)
 (def account   {:username username :password password})
 (def verification-key :fake-verification-key)
+(def redirect-url :fake-redirect-url)
 
 (let [url :fake-url
       default-params {:city         ""
@@ -43,7 +44,9 @@
                             :website    "fake-website"})
       data {:form-params params}
       updated-data {:form-params update-params
-                    :content-type :json}]
+                    :content-type :json}
+      send-email-verification-data {:username username
+                                    :redirect_url redirect-url}]
 
   (facts "About email-verification"
          (fact "Should throw error if verification-key is missing"
@@ -66,6 +69,18 @@
                                 verification-key)) => url
                 (parse-http :get url
                             :suppress-4xx-exceptions? true) => :something)))
+
+  (facts "About sending verification email"
+         (fact "Should throw error if username is missing"
+            (send-verification-email nil) => (throws AssertionError))
+
+         (fact "Should post email verification data")
+            (send-verification-email username) => :something
+            (provided
+              (make-url "profiles" "send_verification_email") => url
+              (parse-http
+               :post url
+               :http-options send-email-verification-data) => :something))
 
   (facts "About user-profile"
          (fact "Should throw if no username"
