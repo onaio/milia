@@ -36,6 +36,12 @@
                                    :max-retries 2)]
     (if-let [error (:detail response)] nil response)))
 
+(defn send-verification-email
+  [username & [redirect-url]]
+  (let [url (make-url "profiles" "send_verification_email")
+        form-params {:username username :redirect_url redirect-url}]
+    (parse-http :post url :http-options {:form-params form-params})))
+
 (defn get-profiles-for-list-of-users
   "Return the profile for the account username or the passed username."
   [users]
