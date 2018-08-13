@@ -26,6 +26,16 @@
                                    :max-retries 2)]
     (if-let [error (:detail response)] nil response)))
 
+(defn verify-email
+  [verification-key]
+  {:pre [verification-key]}
+  (let [url (make-url "profiles"
+                      (str "verify_email?verification_key=" verification-key))
+        response (retry-parse-http :get url
+                                   :suppress-4xx-exceptions? true
+                                   :max-retries 2)]
+    (if-let [error (:detail response)] nil response)))
+
 (defn get-profiles-for-list-of-users
   "Return the profile for the account username or the passed username."
   [users]
