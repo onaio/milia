@@ -306,16 +306,15 @@
 #?(:clj
    (defn csv-import
      "Upload CSV data to existing form"
-     [dataset-id media-file overwrite?]
+     [dataset-id media-file & overwrite?]
      (let [url (make-url "forms"
                          dataset-id
-                         (str "csv_import"
-                              (when overwrite?
-                                "?overwrite=true")))
+                         (cond-> "csv_import"
+                           overwrite? (str "?overwrite=true")))
            multipart (multipart-options media-file "csv_file")]
        (parse-http :post url :http-options multipart
-                             :suppress-4xx-exceptions? true
-                             :as-map? true))))
+                   :suppress-4xx-exceptions? true
+                   :as-map? true))))
 
 (defn edit-history
   "Returns a submission's edit history"
