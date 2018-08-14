@@ -306,7 +306,7 @@
 #?(:clj
    (defn csv-import
      "Upload CSV data to existing form"
-     [dataset-id media-file & overwrite?]
+     [dataset-id media-file & [overwrite?]]
      (let [url (make-url "forms"
                          dataset-id
                          (cond-> "csv_import"

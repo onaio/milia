@@ -3,6 +3,7 @@
   (:require #?(:cljs [chimera.js-interop :refer [format]])
             [clojure.string :refer [join]]
             [chimera.seq :refer [has-keys?]]
+            [chimera.core :refer [not-nil?]]
             [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]
             [milia.utils.retry :refer [retry-parse-http]]))
@@ -25,6 +26,25 @@
                                    :suppress-4xx-exceptions? true
                                    :max-retries 2)]
     (if-let [error (:detail response)] nil response)))
+
+(defn verify-email
+  [verification-key]
+  {:pre [verification-key]}
+  (let [url (make-url "profiles"
+                      (str "verify_email?verification_key=" verification-key))
+        response (retry-parse-http :get url
+                                   :suppress-4xx-exceptions? true
+                                   :max-retries 2)]
+    (if-let [error (:detail response)] nil response)))
+
+(defn send-verification-email
+  [username & [redirect-url]]
+  {:pre [username]}
+  (let [url (make-url "profiles" "send_verification_email")
+        form-params
+        (cond-> {:username username}
+            (not-nil? redirect-url) (assoc :redirect_url redirect-url))]
+    (parse-http :post url :http-options {:form-params form-params})))
 
 (defn get-profiles-for-list-of-users
   "Return the profile for the account username or the passed username."

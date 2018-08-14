@@ -11,6 +11,8 @@
 (def username3 :fake-username3)
 (def password  :fake-password)
 (def account   {:username username :password password})
+(def verification-key :fake-verification-key)
+(def redirect-url :fake-redirect-url)
 
 (let [url :fake-url
       default-params {:city         ""
@@ -43,6 +45,42 @@
       data {:form-params params}
       updated-data {:form-params update-params
                     :content-type :json}]
+
+  (facts "About email verification"
+         (fact "Should throw error if verification-key is missing"
+               (verify-email nil) => (throws AssertionError))
+
+         (fact "Should get correct url"
+               (verify-email verification-key) => :something
+               (provided
+                (make-url "profiles"
+                          (str "verify_email?verification_key="
+                               verification-key)) => url
+                (parse-http :get url
+                            :suppress-4xx-exceptions? true) => :something))
+
+         (fact "Should return an error"
+               (verify-email verification-key) => nil
+               (provided
+                (make-url "profiles"
+                          (str "verify_email?verification_key="
+                               verification-key)) => url
+                (parse-http :get url
+                            :suppress-4xx-exceptions? true) =>
+                {:detail :error})))
+
+  (facts "About sending verification email"
+         (fact "Should throw error if username is missing"
+               (send-verification-email nil) => (throws AssertionError))
+
+         (fact "Should post email verification data"
+               (send-verification-email username) => :something
+               (provided
+                (make-url "profiles" "send_verification_email") => url
+                (parse-http
+                 :post url
+                 :http-options
+                 {:form-params {:username username}}) => :something)))
 
   (facts "About user-profile"
          (fact "Should throw if no username"
