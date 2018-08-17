@@ -35,14 +35,19 @@
   [method url & {:keys [accept-header callback filename http-options
                         suppress-4xx-exceptions? raw-response? as-map?
                         no-cache? must-revalidate? auth-token]}]
-  ;; CLJ: synchronous implementation, checks status before returning.
+     ;; CLJ: synchronous implementation, checks status before returning.
   #?(:clj
-     (let [{:keys [body status] :as response} (http-request
+     (let [_ (prn ">>>url:" url)
+           _ (prn ">>>method:" method)
+           _ (prn ">>>http-options:" http-options)
+           _ (prn ">>>filename:" filename)
+       {:keys [body status] :as response} (http-request
                                                method url http-options)
            parsed-response (parse-response body
                                            status
                                            filename
                                            raw-response?)
+           _ (prn ">>>parsed-response:" parsed-response)
            error-fn #(throw-error
                       % status parsed-response
                       {:method method :url url :http-options http-options})]
