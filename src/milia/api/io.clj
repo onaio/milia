@@ -89,7 +89,9 @@
   [body filename]
   (let [tempfile (File/createTempFile filename "")
         path (str (.getAbsolutePath tempfile))
-        ^File file (clojure.java.io/file path)]
+        ^File file (clojure.java.io/file path)
+        _ (prn ">>>path:" path)
+        ]
     (.deleteOnExit file)
     ;; Broken out so we can add type hints to avoid reflection
     (if (instance? String body)
@@ -106,6 +108,10 @@
 (defn parse-response
   "Parse a response based on status, filename, and flags"
   [body status filename raw-response?]
+  ; {:pre [body]}
+  (prn ">>>status:" status)
+  (prn ">>>filename:" filename)
+  (prn ">>>raw-response?:" raw-response?)
   (if (and filename (not (error-status? status)))
     (parse-binary-response body filename)
     (if raw-response? body (parse-json-response body))))
