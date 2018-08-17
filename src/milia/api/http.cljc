@@ -37,17 +37,17 @@
                         no-cache? must-revalidate? auth-token]}]
      ;; CLJ: synchronous implementation, checks status before returning.
   #?(:clj
-     (let [_ (prn ">>>url:" url)
-           _ (prn ">>>method:" method)
-           _ (prn ">>>http-options:" http-options)
-           _ (prn ">>>filename:" filename)
+     (let [_ (when filename (prn ">>>url:" url))
+           _ (when filename (prn ">>>method:" method))
+           _ (when filename (prn ">>>http-options:" http-options))
+           _ (when filename (prn ">>>filename:" filename))
        {:keys [body status] :as response} (http-request
                                                method url http-options)
            parsed-response (parse-response body
                                            status
                                            filename
                                            raw-response?)
-           _ (prn ">>>parsed-response:" parsed-response)
+           _ (when filename (prn ">>>parsed-response:" parsed-response))
            error-fn #(throw-error
                       % status parsed-response
                       {:method method :url url :http-options http-options})]
