@@ -2,6 +2,8 @@
   (:require [clojure.java.io :as io])
   (:import [org.apache.commons.io IOUtils]))
 
+(def file-extension-regex #"\w+$")
+
 (defn to-byte-array
   [data-file]
   (IOUtils/toByteArray (io/input-stream data-file)))
@@ -16,3 +18,9 @@
     (.deleteOnExit tempdir)
     (clojure.java.io/copy tempfile file)
     file))
+
+(defn get-file-extension
+  "Get the file extension given full file name.
+   String -> String"
+  [filename]
+  (re-find file-extension-regex filename))
