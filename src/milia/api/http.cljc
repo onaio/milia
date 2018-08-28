@@ -3,7 +3,6 @@
             #?@(:clj [[milia.api.io :refer [build-req parse-response
                                             http-request debug-api
                                             parse-binary-response]]
-                      [milia.utils.file :as file-utils]
                       [slingshot.slingshot :refer [throw+]]]
                 :cljs [[milia.api.io :refer [build-http-options token->headers
                                              http-request raw-request]]
@@ -41,7 +40,7 @@
   #?(:clj
      (let [json-file?
           (when (and filename (not raw-response?))
-            (= "json" (file-utils/get-file-extension filename)))
+            (.endsWith filename ".json"))
           ;; Call http-request if filename extension is not of type json
           {:keys [body status] :as response}
           (when-not json-file?

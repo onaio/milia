@@ -95,7 +95,7 @@
         streamed-http-request
         (client/get url (build-req (assoc http-options :as (keyword "stream"))))
         json-file?
-        (when filename (= "json" (file-utils/get-file-extension filename)))]
+        (when filename (.endsWith filename ".json"))]
     (.deleteOnExit file)
     ;; io/copy is used since it takes an input-stream and an output-stream
     (if (and json-file? (not (error-status? (:status streamed-http-request))))
