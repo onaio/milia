@@ -99,11 +99,10 @@
     (.deleteOnExit file)
     ;; io/copy is used since it takes an input-stream and an output-stream
     (if (and json-file? (not (error-status? status)))
-      (with-open [in-stream streamed-body
-                  out-stream (->> file
+      (with-open [out-stream (->> file
                                   io/as-file
                                   io/output-stream)]
-        (io/copy in-stream out-stream))
+        (io/copy streamed-body out-stream))
       (parse-json-response streamed-body))
       ;; Broken out so we can add type hints to avoid reflection
     (when-not json-file?
