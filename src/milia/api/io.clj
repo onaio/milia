@@ -104,7 +104,7 @@
                                   io/output-stream)]
         (io/copy streamed-body out-stream))
       (parse-json-response streamed-body))
-      ;; Broken out so we can add type hints to avoid reflection
+    ;; Broken out so we can add type hints to avoid reflection
     (when-not json-file?
       (if (instance? String body)
         (let [^String body-string body]
