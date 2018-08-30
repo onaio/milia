@@ -86,21 +86,35 @@
 
 (defn parse-binary-response
   "Parse binary response by writing into a temp file and returning the path."
-  [body filename]
+  [body filename & {:keys [url http-options]}]
   (let [tempfile (File/createTempFile filename "")
         path (str (.getAbsolutePath tempfile))
-        ^File file (clojure.java.io/file path)]
+        ^File file (clojure.java.io/file path)
+        ;; Stream the http-request to avoid out of memory errors when the data
+        ;; to copy is large
+        {streamed-body :body status :status}
+        (client/get url (build-req (assoc http-options :as (keyword "stream"))))
+        json-file?
+        (when filename (.endsWith filename ".json"))]
     (.deleteOnExit file)
+    ;; io/copy is used since it takes an input-stream and an output-stream
+    (if (and json-file? (not (error-status? status)))
+      (with-open [out-stream (->> file
+                                  io/as-file
+                                  io/output-stream)]
+        (io/copy streamed-body out-stream))
+      (parse-json-response streamed-body))
     ;; Broken out so we can add type hints to avoid reflection
-    (if (instance? String body)
-      (let [^String body-string body]
-        (with-open [^java.io.Writer w (io/writer file :append false)]
-          (.write w body-string)))
-      (let [^bytes body-bytes body]
-        (with-open [^java.io.OutputStream w (io/output-stream file
-                                                              :append
-                                                              false)]
-          (.write w body-bytes))))
+    (when-not json-file?
+      (if (instance? String body)
+        (let [^String body-string body]
+          (with-open [^java.io.Writer w (io/writer file :append false)]
+            (.write w body-string)))
+        (let [^bytes body-bytes body]
+          (with-open [^java.io.OutputStream w (io/output-stream file
+                                                                :append
+                                                                false)]
+            (.write w body-bytes)))))
     path))
 
 (defn parse-response

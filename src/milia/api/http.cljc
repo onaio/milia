@@ -1,7 +1,8 @@
 (ns milia.api.http
   (:require [clojure.set :refer [rename-keys]]
             #?@(:clj [[milia.api.io :refer [build-req parse-response
-                                            http-request debug-api]]
+                                            http-request debug-api
+                                            parse-binary-response]]
                       [slingshot.slingshot :refer [throw+]]]
                 :cljs [[milia.api.io :refer [build-http-options token->headers
                                              http-request raw-request]]
@@ -37,24 +38,39 @@
                         no-cache? must-revalidate? auth-token]}]
   ;; CLJ: synchronous implementation, checks status before returning.
   #?(:clj
-     (let [{:keys [body status] :as response} (http-request
-                                               method url http-options)
-           parsed-response (parse-response body
-                                           status
-                                           filename
-                                           raw-response?)
+     (let [json-file?
+          (when (and filename (not raw-response?))
+            (.endsWith filename ".json"))
+          ;; Call http-request if filename extension is not of type json
+          {:keys [body status] :as response}
+          (when-not json-file?
+            (http-request method
+                          url
+                          http-options))
+          ;; Call parse-binary-response if filename extension is of type json
+          ;; which will then handle the http request
+          parsed-response (if json-file?
+                            (parse-binary-response nil
+                                                   filename
+                                                   :url url
+                                                   :http-options http-options)
+                            (parse-response body
+                                            status
+                                            filename
+                                            raw-response?))
            error-fn #(throw-error
                       % status parsed-response
                       {:method method :url url :http-options http-options})]
        (debug-api method url http-options response)
        ;; Assume that a nil status indicates an exception
-       (cond
-         (nil? response) (error-fn :no-http-response)
-         (nil? status) (error-fn :no-http-status)
-         (and status
+       (when-not json-file?
+        (cond
+          (nil? response) (error-fn :no-http-response)
+          (nil? status) (error-fn :no-http-status)
+          (and status
               (>= status 400) (< status 500) (not suppress-4xx-exceptions?))
-         (error-fn :http-client-error)
-         (>= status 500) (error-fn :http-server-error))
+          (error-fn :http-client-error)
+          (>= status 500) (error-fn :http-server-error)))
        (if as-map?
          (assoc response :body parsed-response) parsed-response))
      ;; CLJS: asynchronous implementation, returns a channel.
