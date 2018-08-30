@@ -92,10 +92,12 @@
         ^File file (clojure.java.io/file path)
         ;; Stream the http-request to avoid out of memory errors when the data
         ;; to copy is large
-        {streamed-body :body status :status}
-        (client/get url (build-req (assoc http-options :as (keyword "stream"))))
         json-file?
-        (when filename (.endsWith filename ".json"))]
+        (when filename (.endsWith filename ".json"))
+        {streamed-body :body status :status}
+        (when json-file?
+          (client/get url
+                      (build-req (assoc http-options :as (keyword "stream")))))]
     (.deleteOnExit file)
     ;; io/copy is used since it takes an input-stream and an output-stream
     (if (and json-file? (not (error-status? status)))
