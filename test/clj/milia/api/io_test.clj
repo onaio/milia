@@ -95,15 +95,29 @@
                 => response
                 (parse-binary-response body :filename) => file)))
        (fact "should return a file when filename has a .json extension"
-             (let [http-options {:multipart []}]
+             (let [http-options {:multipart []}
+                   filename "filename.json"]
                (parse-http :method url
                            :http-options http-options
-                           :filename "filename.json") => (contains file)
+                           :filename filename) => (contains file)
                (provided
                 (parse-binary-response nil
-                                       "filename.json"
+                                       filename
                                        :url url
-                                       :http-options http-options) => file))))
+                                       :http-options http-options) => file)))
+       (fact "should return a file when filename doesn't have a .json extension"
+             (let [http-options {:multipart []}
+                   filename "filename.xls"]
+               (parse-http :method
+                           url
+                           :http-options http-options
+                           :filename filename) => (contains file)
+               (provided
+                (http-request :method
+                              url
+                              http-options)
+                => response
+                (parse-binary-response body filename) => file))))
 
 (facts "about http-request"
        (fact "should add digest if account has password"
