@@ -78,7 +78,7 @@
   [resources] (-> [(:request-protocol @hosts) "://" resources]
                   flatten join))
 
-(def thumbor-host "images.ona.io")
+(def thumbor-host "india-images.ona.io")
 (def thumbor-server (protocol-prefixed thumbor-host))
 
 (defn url-join
