@@ -105,7 +105,7 @@
                                        filename
                                        :url url
                                        :http-options http-options) => file)))
-       (fact "should return a file when filename does'nt have a .json extension"
+       (fact "should return a file when filename doesn't have a .json extension"
              (let [http-options {:multipart []}
                    filename "filename.xls"]
                (parse-http :method
