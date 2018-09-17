@@ -1,6 +1,8 @@
 (ns milia.api.dataset
   (:refer-clojure :exclude [clone update])
   (:require [chimera.seq :refer [has-keys? in?]]
+            [chimera.core :refer [not-nil?]]
+            [chimera.string :refer [get-query-params-str]]
             [clojure.string :refer [join]]
             [milia.api.http :refer [parse-http]]
             [milia.utils.metadata :refer [metadata-files]]
@@ -8,7 +10,8 @@
              :refer [make-j2x-url make-client-url make-url]]
             #?@(:clj [[milia.api.io :refer [multipart-options]]
                       [milia.utils.file :as file-utils]
-                      [milia.utils.metadata :refer [upload-metadata-file]]])))
+                      [milia.utils.metadata :refer [upload-metadata-file]]
+                      [cheshire.core :refer [generate-string]]])))
 
 (defmulti type->endpoint (fn [datatype & _] datatype))
 (defmethod type->endpoint :default [_ & {:keys [async] :or {async true}}]
@@ -355,3 +358,65 @@
     {:data_type  "xform_meta_perms"
      :xform      dataset-id
      :data_value (str editor-meta-role "|" dataentry-meta-role)}}))
+
+(defn create-submission-review
+  "Create a submission review"
+  [{:keys [status instance note]}]
+  (parse-http
+    :post (make-url "submissionreview")
+    :http-options
+    {:form-params
+     {:status status
+      :instance instance
+      :note note}}))
+
+(defn create-multiple-submission-reviews
+  "Create a submission review"
+  [{:keys [status instances note]}]
+  (let [json-vec (mapv (fn [instance]
+                        {:note note :status status :instance instance})
+                       instances)]
+    (parse-http
+      :post (make-url "submissionreview")
+      :http-options
+      #?(:clj {:body
+               (generate-string json-vec)
+               :content-type :json})
+      #?(:cljs {:json-params json-vec}))))
+
+(defn get-submission-review
+  "Get a submission review"
+  [submission-review-id]
+  (parse-http :get (make-url "submissionreview" submission-review-id)))
+
+(defn list-submission-reviews
+  "List a submission review"
+  []
+  (parse-http :get (make-url "submissionreview")))
+
+(defn update-submission-review
+  "Update a submission review"
+  [{:keys [submission-review-id status note]}]
+  (when (not-every? nil? [status note])
+    (parse-http
+      :patch (make-url "submissionreview" submission-review-id)
+      :http-options
+      {:form-params
+       (cond-> {}
+         (not-nil? status) (assoc :status status)
+         (not-nil? note) (assoc :note note))})))
+
+(defn filter-submission-review-by-instance
+  [{:keys [instance status note]}]
+  (let [query-params-str
+        (get-query-params-str
+         (cond-> {}
+                (not-nil? instance) (assoc :instance instance)
+                (not-nil? status) (assoc :status status)
+                (not-nil? note) (assoc :note note)))]
+    (parse-http
+      :get (make-url (str "submissionreview" query-params-str)))))
+
+(defn delete-submission-review
+  [instance]
+    (parse-http :delete (make-url "submissionreview" instance)))

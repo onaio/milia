@@ -1,6 +1,8 @@
   (ns milia.api.dataset-test
     (:refer-clojure :exclude [update])
-    (:require [clojure.string :refer [join]]
+    (:require [cheshire.core :refer [generate-string]]
+              [clojure.string :refer [join]]
+              [chimera.core :refer [not-nil?]]
               [midje.sweet :refer :all]
               [milia.api.dataset :refer :all]
               [milia.utils.file :as f]
@@ -569,3 +571,61 @@
                                 :xform      1
                                 :data_value "editor-minor|dataentry-only"}})
                 => :response))
+
+(facts "about submission reviews"
+       (let [status 1
+             instance 1
+             note "note"
+             instances [1 2]
+             json-vec (mapv (fn [instance]
+                              {:note note :status status :instance instance})
+                            instances)
+             submission-review-id 1]
+         (fact "create submission review"
+               (create-submission-review
+                {:status status :instance instance :note note})
+               => :response
+               (provided
+                (parse-http
+                 :post (make-url "submissionreview")
+                 :http-options
+                 {:form-params
+                  {:status status
+                   :instance instance
+                   :note note}}) => :response))
+         (fact "create multiple submission review"
+               (create-multiple-submission-reviews
+                {:status status :instances instances :note note}) =>
+               :response
+               (provided
+                (parse-http
+                 :post (make-url "submissionreview")
+                 :http-options {:body (generate-string json-vec)
+                                :content-type :json}) => :response))
+         (fact "get submission review"
+               (get-submission-review submission-review-id) => :response
+               (provided
+                (parse-http
+                 :get (make-url "submissionreview" submission-review-id))
+                => :response))
+         (fact "list submission reviews"
+               (list-submission-reviews) => :response
+               (provided
+                (parse-http :get (make-url "submissionreview")) => :response))
+         (fact "update submission review"
+               (update-submission-review
+                {:submission-review-id submission-review-id
+                 :status status
+                 :note note}) => :response
+               (provided
+                (parse-http
+                 :patch (make-url "submissionreview" submission-review-id)
+                 :http-options
+                 {:form-params
+                  {:status status :note note}}) => :response))
+         (fact "delete submission review"
+               (delete-submission-review instance) => :response
+               (provided
+                (parse-http
+                 :delete (make-url "submissionreview" submission-review-id))
+                => :response))))
