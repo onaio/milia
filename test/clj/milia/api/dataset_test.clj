@@ -3,7 +3,6 @@
     (:require [cheshire.core :refer [generate-string]]
               [clojure.string :refer [join]]
               [chimera.core :refer [not-nil?]]
-              [chimera.string :refer [get-query-params-str]]
               [midje.sweet :refer :all]
               [milia.api.dataset :refer :all]
               [milia.utils.file :as f]
@@ -581,12 +580,7 @@
              json-vec (mapv (fn [instance]
                               {:note note :status status :instance instance})
                             instances)
-             submission-review-id 1
-             query-params-str (get-query-params-str
-                               (cond-> {}
-                                 (not-nil? instance) (assoc :instance instance)
-                                 (not-nil? status) (assoc :status status)
-                                 (not-nil? note) (assoc :note note)))]
+             submission-review-id 1]
          (fact "create submission review"
                (create-submission-review
                 {:status status :instance instance :note note})
@@ -628,9 +622,7 @@
                  :patch (make-url "submissionreview" submission-review-id)
                  :http-options
                  {:form-params
-                  (cond-> {}
-                    (not-nil? status) (assoc :status status)
-                    (not-nil? note) (assoc :note note))}) => :response))
+                  {:status status :note note}}) => :response))
          (fact "delete submission review"
                (delete-submission-review instance) => :response
                (provided
