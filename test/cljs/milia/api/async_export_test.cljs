@@ -75,11 +75,13 @@
           version "20160627"
           url "http://test.me/"
           windows-compatible-csv true
+          include-reviews true
           options {:meta-id meta-id
                    :data-id data-id
                    :version version
                    :windows-compatible-csv? windows-compatible-csv
-                   :redirect-uri url}
+                   :redirect-uri url
+                   :include-reviews? include-reviews}
           export-suffix (async-export/build-export-suffix
                          async-export/export-async-url fmt options)]
       (is (= export-suffix
@@ -88,4 +90,5 @@
                   "&data_id=" data-id
                   "&query={\"_version\":\"20160627\"}"
                   "&win_excel_utf8=" windows-compatible-csv
-                  "&redirect_uri=" url))))))
+                  "&redirect_uri=" url
+                  "&include_reviews=" include-reviews))))))
