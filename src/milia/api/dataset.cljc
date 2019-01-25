@@ -3,7 +3,7 @@
   (:require [chimera.seq :refer [has-keys? in?]]
             [chimera.core :refer [not-nil?]]
             [chimera.string :refer [get-query-params-str]]
-            [clojure.string :refer [join]]
+            [clojure.string :refer [join split]]
             [milia.api.http :refer [parse-http]]
             [milia.utils.metadata :refer [metadata-files]]
             [milia.utils.remote
@@ -296,28 +296,36 @@
   ([dataset-id meta-id filename]
     (download-xls-report dataset-id meta-id filename nil))
   ([dataset-id meta-id filename data-id]
-    (let [suffix (if data-id
-                   (str dataset-id ".xls?meta=" meta-id "&data_id="data-id)
-                   (str dataset-id ".xls?meta=" meta-id))
-          url (make-url "forms" suffix)]
-      (parse-http :get
-                  url
-                  :http-options {:as :byte-array}
-                  :as-map? true
-                  :filename filename))))
+   (let [suffix (if data-id
+                  (str dataset-id ".xls?meta=" meta-id "&data_id=" data-id)
+                  (str dataset-id ".xls?meta=" meta-id))
+         url (make-url "forms" suffix)]
+     (parse-http :get
+                 url
+                 :http-options {:as :byte-array}
+                 :as-map? true
+                 :filename filename))))
 
-#?(:clj
-   (defn csv-import
-     "Upload CSV data to existing form"
-     [dataset-id media-file & [overwrite?]]
-     (let [url (make-url "forms"
-                         dataset-id
-                         (cond-> "csv_import"
-                           overwrite? (str "?overwrite=true")))
-           multipart (multipart-options media-file "csv_file")]
-       (parse-http :post url :http-options multipart
-                   :suppress-4xx-exceptions? true
-                   :as-map? true))))
+(def import-file-extensions {:csv "csv_file" :xls "xls_file"})
+
+#? (:clj
+    (defn file-import
+      "Import csv or xls file data to existing form"
+      [dataset-id {:keys [filename] :as media-file} & [overwrite?]]
+      (let [media-file-extension (-> filename
+                                     (split #"\.")
+                                     peek)
+            url (make-url "forms"
+                          dataset-id
+                          (cond-> "import"
+                            overwrite? (str "?overwrite=true")))
+            multipart (multipart-options media-file
+                                         (->> media-file-extension
+                                              keyword
+                                              (get import-file-extensions)))]
+        (parse-http :post url :http-options multipart
+                    :suppress-4xx-exceptions? true
+                    :as-map? true))))
 
 (defn edit-history
   "Returns a submission's edit history"
