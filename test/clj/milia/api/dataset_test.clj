@@ -406,16 +406,18 @@
                                               :data_value data-value}})
                   => add-xls-response))))
 
-  (facts "About CSV Imports"
+  (facts "About File Imports"
          (fact "should import csv file to dataset endpoint when overwrite? is
                 true"
-               (let [multipart-options-map {:multi :part}]
-                 (csv-import :dataset-id :file true) => :response
+               (let [multipart-options-map {:multi :part}
+                     media-file {:filename "file.csv"}]
+                 (file-import :dataset-id media-file true) => :response
                  (provided
+                  (get-media-file-extension "file.csv") => :csv
                   (make-url "forms"
                             :dataset-id
-                            "csv_import?overwrite=true") => url
-                  (multipart-options :file "csv_file")
+                            "import?overwrite=true") => url
+                  (multipart-options media-file "csv_file")
                   => multipart-options-map
                   (parse-http :post :fake-url
                               :http-options multipart-options-map
@@ -424,11 +426,45 @@
                   => :response)))
          (fact "should import csv file to dataset endpoint when overwrite? is
                 false"
-               (let [multipart-options-map {:multi :part}]
-                 (csv-import :dataset-id :file) => :response
+               (let [multipart-options-map {:multi :part}
+                     media-file {:filename "file.csv"}]
+                 (file-import :dataset-id media-file) => :response
                  (provided
-                  (make-url "forms" :dataset-id "csv_import") => url
-                  (multipart-options :file "csv_file")
+                  (get-media-file-extension "file.csv") => :csv
+                  (make-url "forms" :dataset-id "import") => url
+                  (multipart-options media-file "csv_file")
+                  => multipart-options-map
+                  (parse-http :post :fake-url
+                              :http-options multipart-options-map
+                              :suppress-4xx-exceptions? true
+                              :as-map? true)
+                  => :response)))
+         (fact "should import xls file to dataset endpoint when overwrite? is
+                true"
+               (let [multipart-options-map {:multi :part}
+                     media-file {:filename "file.xls"}]
+                 (file-import :dataset-id media-file true) => :response
+                 (provided
+                  (get-media-file-extension "file.xls") => :xls
+                  (make-url "forms"
+                            :dataset-id
+                            "import?overwrite=true") => url
+                  (multipart-options media-file "xls_file")
+                  => multipart-options-map
+                  (parse-http :post :fake-url
+                              :http-options multipart-options-map
+                              :suppress-4xx-exceptions? true
+                              :as-map? true)
+                  => :response)))
+         (fact "should import xls file to dataset endpoint when overwrite? is
+                false"
+               (let [multipart-options-map {:multi :part}
+                     media-file {:filename "file.xls"}]
+                 (file-import :dataset-id media-file) => :response
+                 (provided
+                  (get-media-file-extension "file.xls") => :xls
+                  (make-url "forms" :dataset-id "import") => url
+                  (multipart-options media-file "xls_file")
                   => multipart-options-map
                   (parse-http :post :fake-url
                               :http-options multipart-options-map
