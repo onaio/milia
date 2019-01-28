@@ -8,7 +8,7 @@
             [milia.utils.metadata :refer [metadata-files]]
             [milia.utils.remote
              :refer [make-j2x-url make-client-url make-url]]
-            #? @(:clj [[milia.api.io :refer [multipart-options]]
+            #?@(:clj [[milia.api.io :refer [multipart-options]]
                        [milia.utils.file :as file-utils]
                        [milia.utils.metadata :refer [upload-metadata-file]]
                        [cheshire.core :refer [generate-string]]])))
@@ -30,7 +30,7 @@
   (let [url (make-url "forms" username)]
     (parse-http :get url)))
 
-#? (:clj
+#?(:clj
     (defn- send-file-or-params
       "Send request with file or params"
       [method url params suppress-4xx-exceptions?]
@@ -39,7 +39,7 @@
                       {:form-params params})]
         (parse-http method url :http-options options
                     :suppress-4xx-exceptions? suppress-4xx-exceptions?))))
-#? (:clj
+#?(:clj
     (defn create
       "Create a new dataset from a file."
       ([params]
@@ -50,7 +50,7 @@
                                    ["forms"]))]
          (send-file-or-params :post url params false)))))
 
-#? (:clj
+#?(:clj
     (defn patch
       "Set the metadata for a dataset using PATCH. Only a subset of the
       required parameters are needed."
@@ -94,7 +94,7 @@
   "Return the data associated with a dataset."
   [dataset-id &
    {:keys [format raw? must-revalidate? accept-header query-params
-           data-id auth-token] #? @(:cljs [:or {:format "json"}])}]
+           data-id auth-token] #?@(:cljs [:or {:format "json"}])}]
   (let [dataset-suffix (if format
                          (str dataset-id (when data-id (str "/" data-id))
                               "." format)
@@ -151,7 +151,7 @@
   [_ dataset-id format export-options]
   [dataset-id (str "data." format)])
 
-#? (:clj
+#?(:clj
     (defn download
       "Download dataset in specified format."
       [dataset-id format & [async data-type export-options]]
@@ -208,7 +208,7 @@
   "Return link to online data entry."
   [dataset-id]
   (let [url (make-url "forms" dataset-id "enketo")]
-    #? (:clj
+    #?(:clj
         (parse-http :get url :suppress-4xx-exceptions? true)
         :cljs
         (parse-http :get url))))
@@ -250,7 +250,7 @@
         data {:username username :role role}]
     (parse-http :post url :http-options {:form-params data})))
 
-#? (:clj
+#?(:clj
     (defn upload-media
       "Upload media for a form"
       [datasetd-id media-file]
@@ -266,17 +266,19 @@
                          :content data-file}]]
         (parse-http :post url
                     :http-options {:multipart muiltipart}
-                    :suppress-4xx-exceptions? true)))) (defn link-xform-or-dataview-as-media
-                                                         "Link xform or dataview as media"
-                                                         [object-type object-id media-filename xform-id]
-                                                         (let [url (make-url "metadata")
-                                                               form-params {:data_type "media"
-                                                                            :data_value
-                                                                            (str (join " " [object-type object-id media-filename]))
-                                                                            :xform xform-id}]
-                                                           (parse-http :post url
-                                                                       :http-options {:form-params form-params}
-                                                                       :suppress-4xx-exceptions? true)))
+                    :suppress-4xx-exceptions? true))))
+
+(defn link-xform-or-dataview-as-media
+  "Link xform or dataview as media"
+  [object-type object-id media-filename xform-id]
+  (let [url (make-url "metadata")
+        form-params {:data_type "media"
+                     :data_value
+                     (str (join " " [object-type object-id media-filename]))
+                     :xform xform-id}]
+    (parse-http :post url
+                :http-options {:form-params form-params}
+                :suppress-4xx-exceptions? true)))
 
 (defn add-xls-report
   "Add xls report link to dataset"
@@ -303,15 +305,18 @@
                  :as-map? true
                  :filename filename))))
 
-(def import-file-extensions {:csv "csv_file" :xls "xls_file"})
+(def file-ext-query-param-map {:csv "csv_file" :xls "xls_file"})
 
-#? (:clj
+(defn get-media-file-extension [filename]
+  (-> filename
+      (split #"\.")
+      peek))
+
+#?(:clj
     (defn file-import
       "Import csv or xls file data to existing form"
       [dataset-id {:keys [filename] :as media-file} & [overwrite?]]
-      (let [media-file-extension (-> filename
-                                     (split #"\.")
-                                     peek)
+      (let [media-file-extension (get-media-file-extension filename)
             url (make-url "forms"
                           dataset-id
                           (cond-> "import"
@@ -319,7 +324,7 @@
             multipart (multipart-options media-file
                                          (->> media-file-extension
                                               keyword
-                                              (get import-file-extensions)))]
+                                              (get file-ext-query-param-map)))]
         (parse-http :post url :http-options multipart
                     :suppress-4xx-exceptions? true
                     :as-map? true))))
@@ -329,7 +334,7 @@
   [dataset-id instance-id]
   (parse-http :get (make-url "data" dataset-id instance-id "history")))
 
-#? (:clj
+#?(:clj
     (defn upload-file
       "Upload metadata file for a submission"
       [submission-id file]
@@ -384,10 +389,10 @@
     (parse-http
      :post (make-url "submissionreview")
      :http-options
-     #? (:clj {:body
+     #?(:clj {:body
                (generate-string json-vec)
                :content-type :json})
-     #? (:cljs {:json-params json-vec}))))
+     #?(:cljs {:json-params json-vec}))))
 
 (defn get-submission-review
   "Get a submission review"
