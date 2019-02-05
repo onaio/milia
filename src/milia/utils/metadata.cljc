@@ -7,7 +7,7 @@
    (defn upload-metadata-file
      "Upload `file` to metadata with name `id-name` for content `id`."
      [id-name id file]
-     (let [url (make-url "metadata")
+     (let [url (make-url "metadata.json")
            data-file (uploaded->file file)
            muiltipart [{:name "data_value"
                         :content (:filename file)}
@@ -24,7 +24,7 @@
 (defn metadata-files
   "Fetch `metadata` with query key `id-key` and value `id`."
   [id-key id no-cache? & {:keys [extra-params]}]
-  (parse-http :get (make-url "metadata")
+  (parse-http :get (make-url "metadata.json")
               :no-cache? no-cache?
               :http-options {:query-params (conj {id-key id} extra-params)
                              :content-type :json}))
