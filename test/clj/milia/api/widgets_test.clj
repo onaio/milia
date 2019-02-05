@@ -5,7 +5,6 @@
             [milia.api.widgets :refer :all]
             [milia.utils.remote :refer [hosts make-url]]))
 
-
 (def widgets-url (make-url "widgets.json"))
 
 (let [widget-definition {:title "A Widgy Widgy Woo"

@@ -667,5 +667,5 @@
                (provided
                 (parse-http
                  :delete (make-url "submissionreview" (str submission-review-id
-                                                           ".json") ))
+                                                           ".json")))
                 => :response))))

@@ -45,6 +45,9 @@
          (get-open-data-uuid object-id data-type) => :something
          (provided
           (make-url
-           (str "open-data/uuid.json?object_id=" object-id "&data_type=" data-type))
+           (str "open-data/uuid.json?object_id="
+                object-id
+                "&data_type="
+                data-type))
           => url
           (parse-http :get url) => :something)))
