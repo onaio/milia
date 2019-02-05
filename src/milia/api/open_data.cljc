@@ -33,7 +33,7 @@
 (defn delete
   "Delete an open-data object"
   [uuid]
-  (parse-http :delete (make-url "open-data" (uuid ".json"))))
+  (parse-http :delete (make-url "open-data" (str uuid ".json"))))
 
 (defn get-open-data-uuid
   "Get uuid of an open-data object."
