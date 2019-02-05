@@ -91,7 +91,7 @@
      [dataset-id  callback]
      (go
        (loop [polling-interval initial-polling-interval]
-         (let [export-url (make-url (temp-token-suffix "export?xform="
+         (let [export-url (make-url (temp-token-suffix "export.json?xform="
                                                        dataset-id
                                                        "&"))
                {:keys [status body]} (<! (retry-parse-http :get
@@ -200,7 +200,8 @@
   "Get exports based on a form id."
   [dataset-id]
   (parse-http :get
-              (make-url (temp-token-suffix "export?xform=" dataset-id "&"))))
+              (make-url
+               (temp-token-suffix "export.json?xform=" dataset-id "&"))))
 
 (defn delete-export
   "Delete an export based on an export id"

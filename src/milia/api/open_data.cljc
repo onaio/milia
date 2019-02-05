@@ -13,7 +13,7 @@
    'xform' or 'dataview'."
   [object-id name data-type]
   (parse-http :post
-              (make-url "open-data")
+              (make-url "open-data.json")
               :http-options
               {:form-params
                {:object_id object-id
@@ -24,7 +24,7 @@
   "Updates an open-data object."
   [object-id data-type uuid]
   (parse-http :patch
-              (make-url "open-data" uuid)
+              (make-url "open-data" (str uuid ".json"))
               :http-options
               {:form-params
                {:object_id object-id
@@ -33,7 +33,7 @@
 (defn delete
   "Delete an open-data object"
   [uuid]
-  (parse-http :delete (make-url "open-data" uuid)))
+  (parse-http :delete (make-url "open-data" (uuid ".json"))))
 
 (defn get-open-data-uuid
   "Get uuid of an open-data object."
@@ -41,4 +41,4 @@
   (parse-http
    :get
    (make-url
-    (str "open-data/uuid?object_id=" object-id "&data_type=" data-type))))
+    (str "open-data/uuid.json?object_id=" object-id "&data_type=" data-type))))
