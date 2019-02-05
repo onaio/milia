@@ -20,14 +20,14 @@
          (fact "Should get correct url"
                (all) => :response
                (provided
-                (make-url "projects") => url
+                (make-url "projects.json") => url
                 (parse-http :get url :http-options {:query-params nil}
                             :no-cache? nil) => :response))
 
          (fact "Should pass owner as a query parameter"
                (all username) => :response
                (provided
-                (make-url "projects") => url
+                (make-url "projects.json") => url
                 (parse-http :get
                             url
                             :http-options {:query-params
@@ -38,7 +38,7 @@
                (all username
                     :logged-in-username logged-in-username) => :response
                (provided
-                (make-url "projects") => url
+                (make-url "projects.json") => url
                 (parse-http :get
                             url
                             :http-options {:query-params
@@ -50,8 +50,8 @@
          (fact "Should associate data"
                (create data username) => parsed-data
                (provided
-                (make-url "users" username) => url
-                (make-url "projects") => url
+                (make-url "users" ":fake-username.json") => url
+                (make-url "projects.json") => url
                 (parse-http :post
                             url
                             :http-options {:form-params data-with-owner
@@ -61,8 +61,8 @@
                (let [error :error]
                  (create data username) => (throws clojure.lang.ExceptionInfo)
                  (provided
-                  (make-url "users" username) => url
-                  (make-url "projects") => url
+                  (make-url "users" ":fake-username.json") => url
+                  (make-url "projects.json") => url
                   (parse-http :post
                               url
                               :http-options {:form-params data-with-owner
@@ -73,20 +73,20 @@
          (fact "Should find project for id"
                (get-project :id) => parsed-data
                (provided
-                (make-url "projects" :id) => url
+                (make-url "projects" ":id.json") => url
                 (parse-http :get url :no-cache? nil) => data))
 
          (fact "Should handle when parse-http returns a string"
                (get-project :id) => nil
                (provided
-                (make-url "projects" :id) => url
+                (make-url "projects" ":id.json") => url
                 (parse-http :get url :no-cache? nil) => "a string")))
 
   (facts "about get-forms"
          (fact "Should find forms for id"
                (get-forms :id) => data
                (provided
-                (make-url "projects" :id "forms") => url
+                (make-url "projects" :id "forms.json") => url
                 (parse-http :get url) => data)))
 
   (facts "about share for project"
@@ -96,13 +96,13 @@
                      data-remove (merge data {:remove "True"})]
                  (share :id username role) => :204
                  (provided
-                  (make-url "projects" :id "share") => url
+                  (make-url "projects" :id "share.json") => url
                   (parse-http :put url
                               :http-options {:form-params data}) => :204)
 
                  (share :id username role true) => :204
                  (provided
-                  (make-url "projects" :id "share") => url
+                  (make-url "projects" :id "share.json") => url
                   (parse-http :put url
                               :http-options {:form-params
                                              data-remove}) => :204))))
@@ -115,7 +115,7 @@
                      data {:owner owner :name name :metadata metadata}]
                  (update :id data) => :updated-project
                  (provided
-                  (make-url "projects" :id) => url
+                  (make-url "projects" ":id.json") => url
                   (parse-http :patch
                               url
                               :http-options {:form-params data
@@ -126,7 +126,7 @@
          (fact "Should call parse-http with tags"
                (add-tags :id [:tag1 :tag2]) => :response
                (provided
-                (make-url "projects" :id "labels") => url
+                (make-url "projects" :id "labels.json") => url
                 (parse-http :post url
                             :http-options {:form-params {:tags ":tag1,:tag2"}
                                            :content-type :json})
@@ -136,52 +136,52 @@
          (fact "add-star should post star"
                (add-star :id) => :response
                (provided
-                (make-url "projects" :id "star") => url
+                (make-url "projects" :id "star.json") => url
                 (parse-http :post url :callback nil) => :response))
 
          (fact "add-star with callback should also post star"
                (add-star :id :callback callback) => :response
                (provided
-                (make-url "projects" :id "star") => url
+                (make-url "projects" :id "star.json") => url
                 (parse-http :post url :callback callback) => :response))
 
          (fact "remove-star should delete to star"
                (remove-star :id) => :response
                (provided
-                (make-url "projects" :id "star") => url
+                (make-url "projects" :id "star.json") => url
                 (parse-http :delete url :callback nil) => :response))
 
          (fact "remove-star with callback should also delete star"
                (remove-star :id :callback callback) => :response
                (provided
-                (make-url "projects" :id "star") => url
+                (make-url "projects" :id "star.json") => url
                 (parse-http :delete url :callback callback) => :response))
 
          (fact "get-starred should get to star no id"
                (get-starred username) => :response
                (provided
-                (make-url "user" username "starred") => url
+                (make-url "user" username "starred.json") => url
                 (parse-http :get url) => :response))
 
          (fact "starred-by should get to star with id"
                (starred-by :id) => :response
                (provided
-                (make-url "projects" :id "star") => url
+                (make-url "projects" :id "star.json") => url
                 (parse-http :get url) => :response)))
 
   (facts "about delete"
          (fact "should call parse-http with delete"
                (delete :id) => :response
                (provided
-                (make-url "projects" :id) => url
+                (make-url "projects" ":id.json") => url
                 (parse-http :delete url) => :response)))
 
   (facts "about project owner transfer"
          (fact "should call parse-http with patch"
                (transfer-owner :id :new_owner) => :response
                (provided
-                (make-url "projects" :id) => url
-                (make-url "users" :new_owner) => :user-url
+                (make-url "projects" ":id.json") => url
+                (make-url "users" ":new_owner.json") => :user-url
                 (parse-http :patch
                             url
                             :http-options {:form-params {:owner :user-url}
@@ -191,7 +191,7 @@
         (upload-file :project-id {:filename "image.png"}) => :response
         (provided
          (f/uploaded->file {:filename "image.png"}) => :file
-         (make-url "metadata") => url
+         (make-url "metadata.json") => url
          (parse-http :post
                      url
                      :http-options {:multipart [{:name "data_value"

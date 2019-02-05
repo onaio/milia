@@ -6,9 +6,10 @@
 
 (def xform-id 1)
 (def rest-service-id 1)
-(def base-url (make-url "restservices"))
-(def single-rest-service-url (make-url "restservices" rest-service-id))
-(def form-rest-service-url (make-url (str "restservices?xform=" xform-id)))
+(def base-url (make-url "restservices.json"))
+(def single-rest-service-url (make-url "restservices"
+                                       (str rest-service-id ".json")))
+(def form-rest-service-url (make-url (str "restservices.json?xform=" xform-id)))
 (def service-url "http://example.org/webhook")
 
 (fact "create calls parse-http with the correct parameters"

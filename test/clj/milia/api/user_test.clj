@@ -44,7 +44,10 @@
                             :website    "fake-website"})
       data {:form-params params}
       updated-data {:form-params update-params
-                    :content-type :json}]
+                    :content-type :json}
+      url-path-for-multiple-profiles
+      (str "profiles.json?users="
+           (join "," [username username2 username3]))]
 
   (facts "About email verification"
          (fact "Should throw error if verification-key is missing"
@@ -54,7 +57,7 @@
                (verify-email verification-key) => :something
                (provided
                 (make-url "profiles"
-                          (str "verify_email?verification_key="
+                          (str "verify_email.json?verification_key="
                                verification-key)) => url
                 (parse-http :get url
                             :suppress-4xx-exceptions? true) => :something))
@@ -63,7 +66,7 @@
                (verify-email verification-key) => nil
                (provided
                 (make-url "profiles"
-                          (str "verify_email?verification_key="
+                          (str "verify_email.json?verification_key="
                                verification-key)) => url
                 (parse-http :get url
                             :suppress-4xx-exceptions? true) =>
@@ -76,7 +79,7 @@
          (fact "Should post email verification data"
                (send-verification-email username) => :something
                (provided
-                (make-url "profiles" "send_verification_email") => url
+                (make-url "profiles" "send_verification_email.json") => url
                 (parse-http
                  :post url
                  :http-options
@@ -89,14 +92,14 @@
          (fact "Should get correct url"
                (profile username) => :something
                (provided
-                (make-url "profiles" username) => url
+                (make-url "profiles" (str username ".json")) => url
                 (parse-http :get url
                             :suppress-4xx-exceptions? true) => :something))
 
          (fact "Should get correct url"
                (profile username) => nil
                (provided
-                (make-url "profiles" username) => url
+                (make-url "profiles" (str username ".json")) => url
                 (parse-http :get url
                             :suppress-4xx-exceptions? true) =>
                 {:detail :error})))
@@ -107,11 +110,7 @@
                                                 username2
                                                 username3]) => :something
                (provided
-                (make-url (str "profiles"
-                               "?users="
-                               (join "," [username
-                                          username2
-                                          username3]))) => url
+                (make-url url-path-for-multiple-profiles) => url
                 (parse-http :get url
                             :suppress-4xx-exceptions? true) => :something))
          (fact "Should not allow an empty list of users"
@@ -122,7 +121,7 @@
          (fact "Should get correct url"
                (user false) => :something
                (provided
-                (make-url "user") => url
+                (make-url "user.json") => url
                 (parse-http :get url
                             :suppress-4xx-exceptions? false) => :something)))
 
@@ -130,21 +129,21 @@
          (fact "Should register a new user"
                (create params) => :someone
                (provided
-                (make-url "profiles") => url
+                (make-url "profiles.json") => url
                 (parse-http :post url :http-options data) => :someone)))
 
   (facts "About all"
          (fact "Should get users")
          (all) => :userlist
          (provided
-          (make-url "users") => url
+          (make-url "users.json") => url
           (parse-http :get url) => :userlist))
 
   (facts "About update"
          (fact "Should put to profiles"
                (update username update-params) => :updated-profile
                (provided
-                (make-url "profiles" username) => url
+                (make-url "profiles" (str username ".json")) => url
                 (parse-http :put url
                             :http-options updated-data
                             :as-map? true)
@@ -155,7 +154,7 @@
                (change-password username
                                 :current_password :new_password) => :updated
                (provided
-                (make-url "profiles" username "change_password") => url
+                (make-url "profiles" username "change_password.json") => url
                 (parse-http :post
                             url
                             :http-options
@@ -174,7 +173,7 @@
          (fact "should update metadata"
                (update-user-metadata username {:first-login false}) => :metadata
                (provided
-                (make-url "profiles" username) => url
+                (make-url "profiles" (str username ".json")) => url
                 (retrieve-metadata username) => {:random "test"}
                 (parse-http :patch
                             url
@@ -189,7 +188,7 @@
          (fact "Should get users for username"
                (get :username) => :user
                (provided
-                (make-url "users" :username) => url
+                (make-url "users" (str :username ".json")) => url
                 (parse-http :get url)
                 => :user)))
 
@@ -197,7 +196,7 @@
          (fact "Should get users for email address"
                (get-by-email :email) => :user
                (provided
-                (make-url "users") => url
+                (make-url "users.json") => url
                 (parse-http :get url
                             :http-options {:query-params {:search :email}}
                             :suppress-4xx-exceptions? true)
@@ -211,7 +210,7 @@
             params {:email_subject subject :reset_url reset-url :email email}]
         (trigger-password-reset-email email reset-url subject) => nil
         (provided
-         (make-url "user" "reset") => api-endpoint-url
+         (make-url "user" "reset.json") => api-endpoint-url
          (parse-http
           :post api-endpoint-url :http-options {:form-params params}) => nil)))
 
@@ -222,13 +221,13 @@
             params {:new_password new-password :token token :uid uid}]
         (reset-password new-password token uid) => nil
         (provided
-         (make-url "user" "reset") => :url
+         (make-url "user" "reset.json") => :url
          (parse-http :post :url :http-options {:form-params params}) => nil)))
 
 (fact "patch should submit a patch request"
       (patch username :params) => :response
       (provided
-       (make-url "profiles" username) => :url
+       (make-url "profiles" (str username ".json")) => :url
        (parse-http :patch
                    :url
                    :http-options {:form-params :params
@@ -245,14 +244,14 @@
 (fact "expire-temp-token should call delete on the expire endpoint"
       (expire-temp-token) => :response
       (provided
-       (make-url "user" "expire") => :url
+       (make-url "user" "expire.json") => :url
        (parse-http :delete :url) => :response))
 
 (fact "expire-temp-token should call delete on the expire endpoint"
       (google-sheet-authorization :code :redirect_uri) => :response
       (provided
        (make-url "google"
-                 (format "google_auth?code=%s&redirect_uri=%s"
+                 (format "google_auth.json?code=%s&redirect_uri=%s"
                          :code :redirect_uri)) => :url
        (parse-http :get :url :as-map? true :suppress-4xx-exceptions? true)
        => :response))

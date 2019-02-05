@@ -562,7 +562,7 @@
              (files :instance-id :project-id :dataset-id 1)
              => :response
              (provided
-              (make-url "metadata") => :url
+              (make-url "metadata.json") => :url
               (parse-http :get :url :no-cache? nil
                           :http-options {:query-params {:instance :instance-id
                                                         :project :project-id
@@ -574,7 +574,7 @@
       (upload-file :submission-id {:filename "image.png"}) => :response
       (provided
        (f/uploaded->file {:filename "image.png"}) => :file
-       (make-url "metadata") => :url
+       (make-url "metadata.json") => :url
        (parse-http :post
                    :url
                    :http-options {:multipart [{:name "data_value"
@@ -601,7 +601,7 @@
       (update-xform-meta-permissions 1 10 "editor-minor" "dataentry-only")
       => :response
       (provided (parse-http
-                 :put (make-url "metadata" (str 10 ".json"))
+                 :put (make-url "metadata" "10.json")
                  :http-options
                  {:form-params {:data_type  "xform_meta_perms"
                                 :xform      1

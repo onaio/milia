@@ -17,7 +17,7 @@
 (fact "about create dataview"
       (create params) => :response
       (provided
-       (make-url "dataviews") => url
+       (make-url "dataviews.json") => url
        (parse-http :post
                    url
                    :http-options {:form-params params}
@@ -26,7 +26,7 @@
 (fact "about get dataview"
       (get dataview-id) => :response
       (provided
-       (make-url "dataviews" dataview-id) => url
+       (make-url "dataviews" (str dataview-id ".json")) => url
        (parse-http :get url :no-cache? nil
                    :suppress-4xx-exceptions? true) => :response))
 
@@ -49,41 +49,41 @@
 (fact "about get dataview's form details"
       (form-details dataview-id) => :response
       (provided
-       (make-url "dataviews" dataview-id "form_details") => url
+       (make-url "dataviews" dataview-id "form_details.json") => url
        (parse-http :get url :suppress-4xx-exceptions? true) => :response))
 
 (fact "about count data returned by dataview"
       (let [options {:query-params {:count true}}]
         (count-data dataview-id) => :response
         (provided
-         (make-url "dataviews" dataview-id "data") => url
+         (make-url "dataviews" dataview-id "data.json") => url
          (parse-http :get url :http-options options
                      :suppress-4xx-exceptions? true) => :response)))
 
 (fact "about all dataviews"
       (all) => :response
       (provided
-       (make-url "dataviews") => url
+       (make-url "dataviews.json") => url
        (parse-http :get url :suppress-4xx-exceptions? true) => :response))
 
 (fact "about update dataview"
       (let [options {:form-params params}]
         (update dataview-id params) => :response
         (provided
-         (make-url "dataviews" dataview-id) => url
+         (make-url "dataviews" (str dataview-id ".json")) => url
          (parse-http :put url :http-options options
                      :suppress-4xx-exceptions? true) => :response)))
 
 (fact "about delete dataview"
       (delete dataview-id) => :response
       (provided
-       (make-url "dataviews" dataview-id) => url
+       (make-url "dataviews" (str dataview-id ".json")) => url
        (parse-http :delete url) => :response))
 
 (fact "about dataview xls report export"
       (let [dataset-id "1"
             meta-id "2"
-            url-suffix (str dataset-id "/xls_export?"
+            url-suffix (str dataset-id "/xls_export.json?"
                             "meta=" meta-id
                             "&data_id=" dataview-id)
             filename "filename"]
