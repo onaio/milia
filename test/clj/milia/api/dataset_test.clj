@@ -31,14 +31,14 @@
                (let [username "bob"]
                  (all username) => :something
                  (provided
-                  (make-url "forms?owner=bob") => url
+                  (make-url "forms.json?owner=bob") => url
                   (parse-http :get url) => :something))))
 
   (facts "about datasets-update"
          (fact "Should get correct url"
                (update :dataset-id params) => :something
                (provided
-                (make-url "forms" :dataset-id) => url
+                (make-url "forms" (str :dataset-id ".json")) => url
                 (parse-http :put url
                             :http-options {:form-params params})
                 => :something)))
@@ -122,19 +122,19 @@
   (fact "about dataset-getrecord"
         (record :dataset-id :record-id) => :something
         (provided
-         (make-url "data" :dataset-id :record-id) => url
+         (make-url "data" :dataset-id (str :record-id ".json")) => url
          (parse-http :get url) => :something))
 
   (fact "about dataset-get-tags"
         (tags :dataset-id) => :something
         (provided
-         (make-url "forms" :dataset-id "labels") => url
+         (make-url "forms" :dataset-id "labels.json") => url
          (parse-http :get url) => :something))
 
   (fact "about dataset-add-tag"
         (add-tags :dataset-id :tags) => :something
         (provided
-         (make-url "forms" :dataset-id "labels") => url
+         (make-url "forms" :dataset-id "labels.json") => url
          (parse-http :post url
                      :http-options {:form-params :tags}) => :something))
 
@@ -252,7 +252,7 @@
   (fact "about online-data-entry-link"
         (online-data-entry-link :dataset-id) => {:enketo_url :enketo_url}
         (provided
-         (make-url "forms" :dataset-id "enketo") => url
+         (make-url "forms" :dataset-id "enketo.json") => url
          (#'milia.api.io/http-request :get url nil) =>
          {:body :body
           :request :request
@@ -265,7 +265,7 @@
   (fact "about dataset delete"
         (delete :dataset-id) => :response
         (provided
-         (make-url "forms" :dataset-id "delete_async") => url
+         (make-url "forms" :dataset-id "delete_async.json") => url
          (parse-http :delete url) => :response))
 
   (fact "about create dataset"
@@ -274,7 +274,7 @@
           (create {:xls_file :uploaded-file}) => :response
           (provided
            (multipart-options :uploaded-file "xls_file") => options
-           (make-url "forms") => url
+           (make-url "forms.json") => url
            (parse-http :post
                        url
                        :http-options options
@@ -283,7 +283,7 @@
   (fact "about move dataset to project"
         (move-to-project 1 :project-id) => :form
         (provided
-         (make-url "projects" :project-id "forms") => url
+         (make-url "projects" :project-id "forms.json") => url
          (parse-http :post
                      url
                      :http-options {:form-params {:formid 1}}) => :form))
@@ -291,7 +291,7 @@
   (fact "should change form owner"
         (new-form-owner :id :new_owner) => :response
         (provided
-         (make-url "forms" :id) => url
+         (make-url "forms" (str :id ".json")) => url
          (make-url "users" :new_owner) => :user-url
          (parse-http :patch
                      url
@@ -307,7 +307,7 @@
                                  username
                                  role) => :sharing-updated
                  (provided
-                  (make-url "forms" :dataset-id "share") => url
+                  (make-url "forms" :dataset-id "share.json") => url
                   (parse-http :post url :http-options
                               {:form-params data})
                   => :sharing-updated))))
@@ -316,7 +316,7 @@
         (upload-media :dataset-id {:filename "image.png"}) => :response
         (provided
          (f/uploaded->file {:filename "image.png"}) => :media-file
-         (make-url "metadata") => url
+         (make-url "metadata.json") => url
          (parse-http :post
                      url
                      :http-options {:multipart [{:name "data_value"
@@ -334,7 +334,7 @@
         (link-xform-or-dataview-as-media
          "dataview" "123" "dataview-example" "45") => :response
         (provided
-         (make-url "metadata") => url
+         (make-url "metadata.json") => url
          (parse-http :post
                      url
                      :http-options {:form-params {:data_type "media"
@@ -356,7 +356,7 @@
            (fact "Should call parse-http with patch"
                  (patch :dataset-id nil) => :response
                  (provided
-                  (make-url "forms" :dataset-id) => url
+                  (make-url "forms" (str :dataset-id ".json")) => url
                   (parse-http :patch
                               url
                               :http-options options
@@ -365,7 +365,7 @@
            (fact "Should call parse-http with multipart options"
                  (patch :dataset-id file) => :response
                  (provided
-                  (make-url "forms" :dataset-id) => url
+                  (make-url "forms" (str :dataset-id ".json")) => url
                   (multipart-options :uploaded-file "xls_file")
                   => multipart-options-map
                   (parse-http :patch
@@ -377,7 +377,7 @@
                  (patch :dataset-id file :suppress-4xx-exceptions? false)
                  => :response
                  (provided
-                  (make-url "forms" :dataset-id) => url
+                  (make-url "forms" (str :dataset-id ".json")) => url
                   (multipart-options :uploaded-file "xls_file")
                   => multipart-options-map
                   (parse-http :patch
@@ -398,7 +398,7 @@
                                  :filename)
                  => (contains add-xls-response)
                  (provided
-                  (make-url "metadata") => url
+                  (make-url "metadata.json") => url
                   (parse-http :post url
                               :http-options {:form-params
                                              {:xform :dataset-id
@@ -416,7 +416,7 @@
                   (get-media-file-extension "file.csv") => :csv
                   (make-url "forms"
                             :dataset-id
-                            "import?overwrite=true") => url
+                            "import.json?overwrite=true") => url
                   (multipart-options media-file "csv_file")
                   => multipart-options-map
                   (parse-http :post :fake-url
@@ -431,7 +431,7 @@
                  (file-import :dataset-id media-file) => :response
                  (provided
                   (get-media-file-extension "file.csv") => :csv
-                  (make-url "forms" :dataset-id "import") => url
+                  (make-url "forms" :dataset-id "import.json") => url
                   (multipart-options media-file "csv_file")
                   => multipart-options-map
                   (parse-http :post :fake-url
@@ -448,7 +448,7 @@
                   (get-media-file-extension "file.xls") => :xls
                   (make-url "forms"
                             :dataset-id
-                            "import?overwrite=true") => url
+                            "import.json?overwrite=true") => url
                   (multipart-options media-file "xls_file")
                   => multipart-options-map
                   (parse-http :post :fake-url
@@ -463,7 +463,7 @@
                  (file-import :dataset-id media-file) => :response
                  (provided
                   (get-media-file-extension "file.xls") => :xls
-                  (make-url "forms" :dataset-id "import") => url
+                  (make-url "forms" :dataset-id "import.json") => url
                   (multipart-options media-file "xls_file")
                   => multipart-options-map
                   (parse-http :post :fake-url
@@ -519,7 +519,7 @@
        (fact "Should clone a dataset"
              (clone :dataset-id :username) => :response
              (provided
-              (make-url "forms" :dataset-id "clone") => :url
+              (make-url "forms" :dataset-id "clone.json") => :url
               (parse-http :post
                           :url
                           :http-options {:form-params {:username :username}}
@@ -528,7 +528,7 @@
        (fact "Should clone a dataset to project id"
              (clone :dataset-id :username :project-id :project-id) => :response
              (provided
-              (make-url "forms" :dataset-id "clone") => :url
+              (make-url "forms" :dataset-id "clone.json") => :url
               (parse-http :post
                           :url
                           :http-options {:form-params
@@ -548,13 +548,13 @@
          (make-url "data"
                    :dataset-id
                    :instance-id
-                   "enketo?return_url=:zebra-url") => :url
+                   "enketo.json?return_url=:zebra-url") => :url
          (parse-http :get :url) => {:url :response})))
 
 (fact "about edit-history"
       (edit-history :dataset-id :instance-id) => :response
       (provided
-       (make-url "data" :dataset-id :instance-id "history") => :url
+       (make-url "data" :dataset-id :instance-id "history.json") => :url
        (parse-http :get :url) => :response))
 
 (facts "about listing submission files"
@@ -591,7 +591,7 @@
       (create-xform-meta-permissions 1 "editor-minor" "dataentry-only")
       => :response
       (provided (parse-http
-                 :post (make-url "metadata")
+                 :post (make-url "metadata.json")
                  :http-options
                  {:form-params {:data_type  "xform_meta_perms"
                                 :xform      1
@@ -601,7 +601,7 @@
       (update-xform-meta-permissions 1 10 "editor-minor" "dataentry-only")
       => :response
       (provided (parse-http
-                 :put (make-url "metadata" 10)
+                 :put (make-url "metadata" (str 10 ".json"))
                  :http-options
                  {:form-params {:data_type  "xform_meta_perms"
                                 :xform      1
@@ -623,7 +623,7 @@
                => :response
                (provided
                 (parse-http
-                 :post (make-url "submissionreview")
+                 :post (make-url "submissionreview.json")
                  :http-options
                  {:form-params
                   {:status status
@@ -635,19 +635,21 @@
                :response
                (provided
                 (parse-http
-                 :post (make-url "submissionreview")
+                 :post (make-url "submissionreview.json")
                  :http-options {:body (generate-string json-vec)
                                 :content-type :json}) => :response))
          (fact "get submission review"
                (get-submission-review submission-review-id) => :response
                (provided
                 (parse-http
-                 :get (make-url "submissionreview" submission-review-id))
+                 :get (make-url "submissionreview" (str submission-review-id
+                                                        ".json")))
                 => :response))
          (fact "list submission reviews"
                (list-submission-reviews) => :response
                (provided
-                (parse-http :get (make-url "submissionreview")) => :response))
+                (parse-http
+                 :get (make-url "submissionreview.json")) => :response))
          (fact "update submission review"
                (update-submission-review
                 {:submission-review-id submission-review-id
@@ -655,7 +657,8 @@
                  :note note}) => :response
                (provided
                 (parse-http
-                 :patch (make-url "submissionreview" submission-review-id)
+                 :patch (make-url "submissionreview" (str submission-review-id
+                                                          ".json"))
                  :http-options
                  {:form-params
                   {:status status :note note}}) => :response))
@@ -663,5 +666,6 @@
                (delete-submission-review instance) => :response
                (provided
                 (parse-http
-                 :delete (make-url "submissionreview" submission-review-id))
+                 :delete (make-url "submissionreview" (str submission-review-id
+                                                           ".json") ))
                 => :response))))
