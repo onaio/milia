@@ -17,13 +17,13 @@
        (fact "should get correct url"
              (all) => :something
              (provided
-              (make-url "orgs") => url
+              (make-url "orgs.json") => url
               (parse-http :get url) => :something))
 
        (fact "should pass shared-with param is username given"
              (all username) => :something
              (provided
-              (make-url (str "orgs?shared_with=" username)) => url
+              (make-url (str "orgs.json?shared_with=" username)) => url
               (parse-http :get url) => :something)))
 
 (facts "about org metadata"
@@ -36,7 +36,7 @@
        (fact "should associate data"
              (create :data) => :something
              (provided
-              (make-url "orgs") => url
+              (make-url "orgs.json") => url
               (parse-http :post
                           url
                           :http-options {:form-params :data}
@@ -44,7 +44,7 @@
                           :as-map? true) => :something)))
 
 (facts "about teams-all"
-       (let [base-url (make-url "teams")
+       (let [base-url (make-url "teams.json")
              organization-name "some-organization"
              url-with-filter (str base-url "?org=" organization-name)]
          (fact "calls parse-http without org filter when called without an
@@ -62,7 +62,7 @@
        (fact "should get correct url"
              (teams org-name) => fake-teams
              (provided
-              (make-url "teams") => url
+              (make-url "teams.json") => url
               (parse-http :get url) => fake-teams))
 
        (fact "should filter out internal team"
@@ -74,20 +74,21 @@
        (fact "should get correct url"
              (team-info :fake-orgname :fake-team-id) => :something
              (provided
-              (make-url "teams" :fake-orgname :fake-team-id) => url
+              (make-url "teams" :fake-orgname (str :fake-team-id ".json"))
+              => url
               (parse-http :get url) => :something)))
 
 (facts "about team-members"
        (fact "should get correct url"
              (team-members :fake-team-id) => :something
              (provided
-              (make-url "teams" :fake-team-id "members") => url
+              (make-url "teams" :fake-team-id "members.json") => url
               (parse-http :get url) => :something)))
 
 (fact "about create-team"
       (create-team :params) => :something
       (provided
-       (make-url "teams") => url
+       (make-url "teams.json") => url
        (parse-http :post url
                    :http-options {:form-params :params}) => :something))
 
@@ -96,21 +97,21 @@
                        :fake-team-id
                        :user) => :something
       (provided
-       (make-url "teams" :fake-orgname :fake-team-id "members") => url
+       (make-url "teams" :fake-orgname :fake-team-id "members.json") => url
        (parse-http :post url :http-options {:form-params :user}) => :something))
 
 (facts "about members"
        (fact "should get correct url"
              (members :fake-orgname) => :something
              (provided
-              (make-url "orgs" :fake-orgname "members") => url
+              (make-url "orgs" :fake-orgname "members.json") => url
               (parse-http :get url) => :something)))
 
 (facts "about add-member"
        (fact "should add a member with default role"
              (add-member :orgname :member) => :something
              (provided
-              (make-url "orgs" :orgname "members") => url
+              (make-url "orgs" :orgname "members.json") => url
               (parse-http :post
                           url
                           :http-options {:form-params
@@ -123,7 +124,7 @@
        (fact "should add a member"
              (add-member :orgname :member :role) => :something
              (provided
-              (make-url "orgs" :orgname "members") => url
+              (make-url "orgs" :orgname "members.json") => url
               (parse-http :post
                           url
                           :http-options {:form-params
@@ -137,7 +138,7 @@
              (change-org-member-role fake-member :orgname nil)
              => :something
              (provided
-              (make-url "orgs" :orgname "members") => url
+              (make-url "orgs" :orgname "members.json") => url
               (parse-http :put
                           url
                           :callback nil
@@ -152,7 +153,7 @@
        (fact "should remove a member"
              (remove-member :orgname :member nil) => :something
              (provided
-              (make-url "orgs" :orgname "members") => url
+              (make-url "orgs" :orgname "members.json") => url
               (parse-http :delete
                           url
                           :http-options {:query-params
@@ -161,7 +162,7 @@
        (fact "should remove a member from a team"
              (remove-member :orgname :member :team-id) => :something
              (provided
-              (make-url "teams" :orgname :team-id "members") => url
+              (make-url "teams" :orgname :team-id "members.json") => url
               (parse-http :delete url
                           :http-options {:query-params
                                          {:username :member}}) => :something)))
@@ -179,7 +180,7 @@
                   :content-type :json}]
         (update params) => org-profile
         (provided
-         (make-url "orgs" org-name) => :url
+         (make-url "orgs" (str org-name ".json")) => :url
          (parse-http :patch
                      :url
                      :http-options data
@@ -189,14 +190,14 @@
       (get-team org-name internal-members-team-name)
       => {:teamid 1 :name internal-members-team-name}
       (provided
-       (make-url (str "teams?org=" org-name)) => :url
+       (make-url (str "teams.json?org=" org-name)) => :url
        (parse-http :get :url :suppress-4xx-exceptions? true)
        => [{:teamid 1 :name internal-members-team-name}]))
 
 (fact "should change default_role permissions on a project for a team"
       (share-team :team-id :data) => :updated-team
       (provided
-       (make-url "teams" :team-id "share") => :url
+       (make-url "teams" :team-id "share.json") => :url
        (parse-http :post :url
                    :http-options {:form-params :data
                                   :content-type :json}

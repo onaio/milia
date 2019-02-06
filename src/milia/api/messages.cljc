@@ -5,12 +5,15 @@
 (defn create-message
   "Create message"
   [params]
-  (let [url (make-url "messaging")]
+  (let [url (make-url "messaging.json")]
     (parse-http :post url :http-options {:form-params params})))
 
 (defn get-all-messages
   "List all the messages belonging to a particular formid."
   [form-id & {:keys [target-type] :or {target-type "xform"}}]
   (let [url (make-url
-             (str "messaging?target_type=" target-type "&target_id=" form-id))]
+             (str "messaging.json?target_type="
+                  target-type
+                  "&target_id="
+                  form-id))]
     (parse-http :get url)))

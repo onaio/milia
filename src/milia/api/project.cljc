@@ -18,11 +18,11 @@
 (defn get-forms
   "Get the forms for this account and owner of the user."
   [id]
-  (let [url (make-url "projects" id "forms")]
+  (let [url (make-url "projects" id "forms.json")]
     (parse-http :get url)))
 
 (defn get-project [id & {:keys [no-cache?]}]
-  (let [url (make-url "projects" id)
+  (let [url (make-url "projects" (str id ".json"))
         data (parse-http :get url :no-cache? no-cache?)]
     #?(:clj (add-id data) :cljs data)))
 
@@ -31,7 +31,7 @@
   ([]
    (all nil))
   ([owner & {:keys [no-cache? logged-in-username]}]
-   (let [url (make-url "projects")
+   (let [url (make-url "projects.json")
          options (->
                   {:query-params nil}
                   (#(if owner (assoc-in % [:query-params :owner] owner) %))
@@ -44,8 +44,8 @@
 (defn create
   "Create a project for this account and owner or the user."
   [data owner]
-   (let [owner-url {:owner (make-url "users" owner)}
-         url (make-url "projects")
+   (let [owner-url {:owner (make-url "users" (str owner ".json"))}
+         url (make-url "projects.json")
          form-params (merge owner-url data)
          #?(:clj project-data)
          #?(:clj (parse-http :post
@@ -62,7 +62,7 @@
 (defn update
   "Update project metadata"
   [project-id data]
-  (let [url (make-url "projects" project-id)]
+  (let [url (make-url "projects" (str project-id ".json"))]
     (parse-http :patch url :http-options
                 #?(:clj  {:form-params data
                           :content-type :json})
@@ -71,7 +71,7 @@
 (defn share
   "Share project with specific user or remove specific user from project"
   [project-id username role & [remove?]]
-  (let [url         (make-url "projects" project-id "share")
+  (let [url         (make-url "projects" project-id "share.json")
         data        {:username username :role role}
         form-params (if remove? (merge data {:remove "True"}) data)]
     (parse-http :put url :http-options {:form-params form-params})))
@@ -79,27 +79,27 @@
 (defn add-tags
   "Add tags to a project."
   [id tags]
-  (let [url (make-url "projects" id "labels")]
+  (let [url (make-url "projects" id "labels.json")]
     (parse-http :post url :http-options {:form-params {:tags (join "," tags)}
                                          :content-type :json})))
 
 (defn with-tag
   "Get projects with given tags."
   [tags]
-  (let [url (make-url "projects")]
+  (let [url (make-url "projects.json")]
     (parse-http :get url
                 :http-options {:query-params {:tags (join "," tags)}})))
 
 (defn add-star
   "Add star to project for this user."
   [id & {:keys [callback]}]
-  (let [url (make-url "projects" id "star")]
+  (let [url (make-url "projects" id "star.json")]
     (parse-http :post url :callback callback)))
 
 (defn remove-star
   "Remove star from project for this user."
   [id & {:keys [callback]}]
-  (let [url (make-url "projects" id "star")]
+  (let [url (make-url "projects" id "star.json")]
     (parse-http :delete url :callback callback)))
 
 (defn toggle-star
@@ -110,26 +110,26 @@
 (defn get-starred
   "Get projects this user has starred."
   ([username]
-     (let [url (make-url "user" username "starred")]
+     (let [url (make-url "user" username "starred.json")]
        (parse-http :get url))))
 
 (defn starred-by
   "Get user that starred this project."
   [id]
-  (let [url (make-url "projects" id "star")]
+  (let [url (make-url "projects" id "star.json")]
     (parse-http :get url)))
 
 (defn delete
   "Delete a project"
   [id]
-  (let [url (make-url "projects" id)]
+  (let [url (make-url "projects" (str id ".json"))]
     (parse-http :delete url)))
 
 (defn transfer-owner
   "Set new project owner"
   [id new-owner]
-  (let [url (make-url "projects" id)
-        new-owner (make-url "users" new-owner)
+  (let [url (make-url "projects" (str id ".json"))
+        new-owner (make-url "users" (str new-owner ".json"))
         form-params {:owner new-owner}]
     (parse-http :patch url :http-options {:form-params form-params
                                           :content-type :json})))

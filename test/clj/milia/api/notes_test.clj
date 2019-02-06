@@ -8,9 +8,9 @@
 (def note "This is a note.")
 (def instance-id :instance-id)
 (def note-id :note-id)
-(def notes-url (make-url "notes"))
-(def single-notes-url (make-url "notes" note-id))
-(def instance-notes-url (make-url (str "notes?instance=" instance-id)))
+(def notes-url (make-url "notes.json"))
+(def single-notes-url (make-url "notes" (str note-id ".json")))
+(def instance-notes-url (make-url (str "notes.json?instance=" instance-id)))
 (def instance-note {:note note
                     :instance instance-id})
 (def instance-field :instance-field)

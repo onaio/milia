@@ -15,7 +15,7 @@
   (make-url (case content-type
              :form "forms"
              :dataview "dataviews")
-            content-id))
+            (str content-id ".json")))
 
 (defn create
   "Create a new widget.
@@ -36,8 +36,7 @@
            content_id]
     :as widget-definition}
    & {:keys [with-data?]}]
-  (let [url (make-url (str "widgets" (when with-data?
-                                       "?data=true")))
+  (let [url (make-url (str "widgets.json" (when with-data? "?data=true")))
         processed-widget-definition
         (assoc widget-definition
           :content_object
@@ -53,7 +52,7 @@
    existing values for the associated keys"
   [widget-id patch-map]
   (parse-http :patch
-              (make-url "widgets" widget-id)
+              (make-url "widgets" (str widget-id ".json"))
               :http-options {:json-params patch-map}))
 
 (defn list
@@ -63,15 +62,15 @@
   [& {:keys [dataview-id xform-id with-data?]}]
   (parse-http :get
               (make-url (cond
-                          dataview-id (str "widgets?dataview="
+                          dataview-id (str "widgets.json?dataview="
                                            dataview-id
                                            (when with-data?
                                              "&data=true"))
-                          xform-id (str "widgets?xform="
+                          xform-id (str "widgets.json?xform="
                                         xform-id
                                         (when with-data?
                                           "&data=true"))
-                          :else (str "widgets"
+                          :else (str "widgets.json"
                                      (when with-data?
                                        "?data=true"))))
               :http-options {:content-type :json}))
@@ -80,7 +79,7 @@
   "Deletes a widget, given a widget id."
   [widget-id]
   (parse-http :delete
-              (make-url "widgets" widget-id)))
+              (make-url "widgets" (str widget-id ".json"))))
 
 (defn get
   "Returns specific widget, given the ID"
@@ -89,5 +88,6 @@
               (make-url "widgets"
                         (str
                          widget-id
+                         ".json"
                          (when with-data?
                            "?data=true")))))

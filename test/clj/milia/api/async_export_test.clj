@@ -5,7 +5,7 @@
             [milia.utils.remote :refer [make-url *credentials*]]))
 
 (fact "get-exports-per-form calls parse-http with the correct parameters"
-      (let [url (str "export?xform="
+      (let [url (str "export.json?xform="
                      :dataset-id
                      "&temp_token="
                      :my-temp-token)]

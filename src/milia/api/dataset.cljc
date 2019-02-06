@@ -21,13 +21,13 @@
 (defn all
   "Return all the datasets for an account."
   [username]
-  (let [url (make-url (str "forms?owner=" username))]
+  (let [url (make-url (str "forms.json?owner=" username))]
     (parse-http :get url)))
 
 (defn public
   "Return all public datasets for a specific user."
   [username]
-  (let [url (make-url "forms" username)]
+  (let [url (make-url "forms" (str username ".json"))]
     (parse-http :get url)))
 
 #?(:clj
@@ -46,8 +46,8 @@
        (create params nil))
       ([params project-id]
        (let [url (apply make-url (if project-id
-                                   ["projects" project-id "forms"]
-                                   ["forms"]))]
+                                   ["projects" project-id "forms.json"]
+                                   ["forms.json"]))]
          (send-file-or-params :post url params false)))))
 
 #?(:clj
@@ -56,13 +56,13 @@
       required parameters are needed."
       [dataset-id params & {:keys [suppress-4xx-exceptions?]
                             :or {suppress-4xx-exceptions? true}}]
-      (let [url (make-url "forms" dataset-id)]
+      (let [url (make-url "forms" (str dataset-id ".json"))]
         (send-file-or-params :patch url params suppress-4xx-exceptions?))))
 
 (defn clone
   "Clone the dataset given by ID into the account with the given username."
   [dataset-id username & {:keys [project-id]}]
-  (let [url (make-url "forms" dataset-id "clone")
+  (let [url (make-url "forms" dataset-id "clone.json")
         data-base {:form-params {:username username}}
         data (if project-id
                (assoc-in data-base [:form-params :project_id] project-id)
@@ -81,7 +81,7 @@
                             :public_data
                             :title
                             :uuid])]}
-  (let [url (make-url "forms" dataset-id)]
+  (let [url (make-url "forms" (str dataset-id ".json"))]
     (parse-http :put url :http-options {:form-params params})))
 
 (defn update-form-name
@@ -111,19 +111,19 @@
 (defn record
   "Retrieve a record from the dataset."
   [dataset-id record-id]
-  (let [url (make-url "data" dataset-id record-id)]
+  (let [url (make-url "data" dataset-id (str record-id ".json"))]
     (parse-http :get url)))
 
 (defn tags
   "Returns tags for a dataset"
   [dataset-id]
-  (let [url (make-url "forms" dataset-id "labels")]
+  (let [url (make-url "forms" dataset-id "labels.json")]
     (parse-http :get url)))
 
 (defn add-tags
   "Add tags to a dataset"
   [dataset-id tags]
-  (let [url (make-url "forms" dataset-id "labels")]
+  (let [url (make-url "forms" dataset-id "labels.json")]
     (parse-http :post url :http-options {:form-params tags})))
 
 (defn filename-for-format
@@ -207,7 +207,7 @@
 (defn online-data-entry-link
   "Return link to online data entry."
   [dataset-id]
-  (let [url (make-url "forms" dataset-id "enketo")]
+  (let [url (make-url "forms" dataset-id "enketo.json")]
     #?(:clj
         (parse-http :get url :suppress-4xx-exceptions? true)
         :cljs
@@ -221,32 +221,32 @@
                                     dataset-id
                                     "submission-editing-complete")
         url (make-url "data" dataset-id instance-id
-                      (str "enketo?return_url=" return-url))]
+                      (str "enketo.json?return_url=" return-url))]
     (:url (parse-http :get url))))
 
 (defn delete
   "Delete a dataset by ID."
   [dataset-id]
-  (let [url (make-url "forms" dataset-id "delete_async")]
+  (let [url (make-url "forms" dataset-id "delete_async.json")]
     (parse-http :delete url)))
 
 (defn move-to-project
   "Move a dataset to a project use account if no owner passed."
   [dataset-id project-id]
-  (let [url (make-url "projects" project-id "forms")]
+  (let [url (make-url "projects" project-id "forms.json")]
     (parse-http :post url :http-options {:form-params {:formid dataset-id}})))
 
 (defn new-form-owner
   "Set a new form owner"
   [dataset-id new-owner]
-  (let [url (make-url "forms" dataset-id)
+  (let [url (make-url "forms" (str dataset-id ".json"))
         new-owner (make-url "users" new-owner)]
     (parse-http :patch url :http-options {:form-params {:owner new-owner}})))
 
 (defn update-sharing
   "Share dataset with specific user"
   [dataset-id username role]
-  (let [url (make-url "forms" dataset-id "share")
+  (let [url (make-url "forms" dataset-id "share.json")
         data {:username username :role role}]
     (parse-http :post url :http-options {:form-params data})))
 
@@ -254,7 +254,7 @@
     (defn upload-media
       "Upload media for a form"
       [datasetd-id media-file]
-      (let [url (make-url "metadata")
+      (let [url (make-url "metadata.json")
             data-file (file-utils/uploaded->file media-file)
             muiltipart [{:name "data_value"
                          :content (:filename media-file)}
@@ -271,7 +271,7 @@
 (defn link-xform-or-dataview-as-media
   "Link xform or dataview as media"
   [object-type object-id media-filename xform-id]
-  (let [url (make-url "metadata")
+  (let [url (make-url "metadata.json")
         form-params {:data_type "media"
                      :data_value
                      (str (join " " [object-type object-id media-filename]))
@@ -284,7 +284,7 @@
   "Add xls report link to dataset"
   [dataset-id uuid filename]
   (let [xls-url (make-j2x-url "xls" uuid)
-        url (make-url "metadata")
+        url (make-url "metadata.json")
         data {:xform dataset-id
               :data_type "external_export"
               :data_value (str filename "|" xls-url)}]
@@ -319,7 +319,7 @@
       (let [media-file-extension (get-media-file-extension filename)
             url (make-url "forms"
                           dataset-id
-                          (cond-> "import"
+                          (cond-> "import.json"
                             overwrite? (str "?overwrite=true")))
             multipart (multipart-options media-file
                                          (->> media-file-extension
@@ -332,7 +332,7 @@
 (defn edit-history
   "Returns a submission's edit history"
   [dataset-id instance-id]
-  (parse-http :get (make-url "data" dataset-id instance-id "history")))
+  (parse-http :get (make-url "data" dataset-id instance-id "history.json")))
 
 #?(:clj
     (defn upload-file
@@ -351,7 +351,7 @@
   "Integer Integer String String -> Channel HttpResponse"
   [dataset-id metadata-id editor-meta-role dataentry-meta-role]
   (parse-http
-   :put (make-url "metadata" metadata-id)
+   :put (make-url "metadata" (str metadata-id ".json"))
    :http-options
    {:form-params
     {:data_type  "xform_meta_perms"
@@ -362,7 +362,7 @@
   "Integer String String -> Channel HttpResponse"
   [dataset-id editor-meta-role dataentry-meta-role]
   (parse-http
-   :post (make-url "metadata")
+   :post (make-url "metadata.json")
    :http-options
    {:form-params
     {:data_type  "xform_meta_perms"
@@ -373,7 +373,7 @@
   "Create a submission review"
   [{:keys [status instance note]}]
   (parse-http
-   :post (make-url "submissionreview")
+   :post (make-url "submissionreview.json")
    :http-options
    {:form-params
     {:status status
@@ -387,7 +387,7 @@
                          {:note note :status status :instance instance})
                        instances)]
     (parse-http
-     :post (make-url "submissionreview")
+     :post (make-url "submissionreview.json")
      :http-options
      #?(:clj {:body
                (generate-string json-vec)
@@ -397,19 +397,20 @@
 (defn get-submission-review
   "Get a submission review"
   [submission-review-id]
-  (parse-http :get (make-url "submissionreview" submission-review-id)))
+  (parse-http :get (make-url "submissionreview"
+                             (str submission-review-id ".json"))))
 
 (defn list-submission-reviews
   "List a submission review"
   []
-  (parse-http :get (make-url "submissionreview")))
+  (parse-http :get (make-url "submissionreview.json")))
 
 (defn update-submission-review
   "Update a submission review"
   [{:keys [submission-review-id status note]}]
   (when (not-every? nil? [status note])
     (parse-http
-     :patch (make-url "submissionreview" submission-review-id)
+     :patch (make-url "submissionreview" (str submission-review-id ".json"))
      :http-options
      {:form-params
       (cond-> {}
@@ -425,8 +426,8 @@
            (not-nil? status) (assoc :status status)
            (not-nil? note) (assoc :note note)))]
     (parse-http
-     :get (make-url (str "submissionreview" query-params-str)))))
+     :get (make-url (str "submissionreview.json" query-params-str)))))
 
 (defn delete-submission-review
   [instance]
-  (parse-http :delete (make-url "submissionreview" instance)))
+  (parse-http :delete (make-url "submissionreview" (str instance ".json"))))

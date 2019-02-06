@@ -19,7 +19,7 @@
     4. `:contacts` - The contact in the flow"
   [xform-id name service-url & [options]]
   (parse-http :post
-              (make-url "restservices")
+              (make-url "restservices.json")
               :http-options
               {:form-params
                (merge
@@ -32,7 +32,7 @@
   "Updates a rest service."
   [id xform-id name service-url & [options]]
   (parse-http :put
-              (make-url "restservices" id)
+              (make-url "restservices" (str id ".json"))
               :http-options
               {:form-params
                              (merge
@@ -44,21 +44,21 @@
 (defn delete
   "Delete a rest service"
   [id]
-  (parse-http :delete (make-url "restservices" id)))
+  (parse-http :delete (make-url "restservices" (str id ".json") )))
 
 (defn get-all
   "Get all rest services the requesting user has access to"
   []
-  (parse-http :get (make-url "restservices")))
+  (parse-http :get (make-url "restservices.json")))
 
 (defn get-by-id
   "Get information for a specific rest service"
   [id  & {:keys [no-cache?]}]
-  (parse-http :get (make-url "restservices" id)
+  (parse-http :get (make-url "restservices" (str id ".json"))
               :no-cache? no-cache?))
 
 (defn get-by-form-id
   "Get rest services for a form"
   [formid  & {:keys [no-cache?]}]
-  (parse-http :get (make-url (str "restservices?xform="formid))
+  (parse-http :get (make-url (str "restservices.json?xform="formid))
               :no-cache? no-cache?))

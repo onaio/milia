@@ -5,7 +5,7 @@
             [milia.api.widgets :refer :all]
             [milia.utils.remote :refer [hosts make-url]]))
 
-(def widgets-url "https://stage-api.ona.io/api/v1/widgets")
+(def widgets-url (make-url "widgets.json"))
 
 (let [widget-definition {:title "A Widgy Widgy Woo"
                          :description "The Widget to end all Widgets"
@@ -13,7 +13,7 @@
                          :content_id 12345
                          :widget_type "charts"
                          :view_type "horizontal-bar-chart"}
-      content-object-url "https://stage-api.ona.io/api/v1/forms/12345"
+      content-object-url (make-url "forms" "12345.json")
       widgets-url-with-data (str widgets-url "?data=true")]
 
   (fact "widgets/generate-content-object-url"
@@ -46,7 +46,7 @@
 (def xform-id 1)
 (def xform-filter-url (str widgets-url "?xform=" xform-id))
 (def widget-id 1)
-(def single-widget-url (make-url "widgets" widget-id))
+(def single-widget-url (make-url "widgets" (str widget-id ".json")))
 
 (facts "about widgets/list"
        (fact "widgets/list returns the API response without filters"

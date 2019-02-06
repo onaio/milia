@@ -8,7 +8,7 @@
   optional instance ID is proviced"
   [& {:keys [instance-id no-cache?]}]
   (parse-http :get (make-url
-                    (str "notes"
+                    (str "notes.json"
                          (when instance-id (str "?instance=" instance-id))))
               :no-cache? no-cache?))
 
@@ -16,7 +16,7 @@
   "Creates a note for a submission instance given the note and instance-id.
    Takes an options instance-field argument if note added for specific field."
   [note instance-id & [instance-field]]
-  (let [url (make-url "notes")
+  (let [url (make-url "notes.json")
         params {:note note
                 :instance instance-id}
         form-params (if instance-field
@@ -29,9 +29,9 @@
 (defn get
   "Returns a note object given a note ID."
   [note-id]
-  (parse-http :get (make-url "notes" note-id)))
+  (parse-http :get (make-url "notes" (str note-id ".json"))))
 
 (defn delete
   "Deletes a note given a note ID."
   [note-id]
-  (parse-http :delete (make-url "notes" note-id)))
+  (parse-http :delete (make-url "notes" (str note-id ".json"))))

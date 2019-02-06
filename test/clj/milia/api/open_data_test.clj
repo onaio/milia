@@ -14,7 +14,7 @@
          (fact "Should create a new open-data object"
                (create object-id name data-type) => :something
                (provided
-                (make-url "open-data") => url
+                (make-url "open-data.json") => url
                 (parse-http
                  :post url
                  :http-options {:form-params
@@ -26,7 +26,7 @@
          (fact "Should update an existing open-data-object"
                (update object-id data-type uuid) => :something
                (provided
-                (make-url "open-data" uuid) => url
+                (make-url "open-data" "fake-uuid.json") => url
                 (parse-http
                  :patch url
                  :http-options {:form-params {:object_id object-id
@@ -37,7 +37,7 @@
          (fact "Should delete an existing open-data object"
                (delete uuid) => :something
                (provided
-                (make-url "open-data" uuid) => url
+                (make-url "open-data" "fake-uuid.json") => url
                 (parse-http :delete url) => :something)))
 
   (facts "About getting open data uuid"
@@ -45,6 +45,9 @@
          (get-open-data-uuid object-id data-type) => :something
          (provided
           (make-url
-           (str "open-data/uuid?object_id=" object-id "&data_type=" data-type))
+           (str "open-data/uuid.json?object_id="
+                object-id
+                "&data_type="
+                data-type))
           => url
           (parse-http :get url) => :something)))

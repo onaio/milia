@@ -10,7 +10,7 @@
 
 (defn patch
   [username params & {:keys [suppress-4xx-exceptions?]}]
-  (let [url (make-url "profiles" username)
+  (let [url (make-url "profiles" (str username ".json"))
         options {#?(:clj :form-params
                     :cljs :json-params) params
                  #?(:clj :content-type) #?(:clj :json)}]
@@ -21,7 +21,7 @@
   "Return the profile for the account username or the passed username."
   [username]
   {:pre [username]}
-  (let [url (make-url "profiles" username)
+  (let [url (make-url "profiles" (str username ".json"))
         response (retry-parse-http :get url
                                    :suppress-4xx-exceptions? true
                                    :max-retries 2)]
@@ -31,7 +31,8 @@
   [verification-key]
   {:pre [verification-key]}
   (let [url (make-url "profiles"
-                      (str "verify_email?verification_key=" verification-key))
+                      (str "verify_email.json?verification_key="
+                           verification-key))
         response (retry-parse-http :get url
                                    :suppress-4xx-exceptions? true
                                    :max-retries 2)]
@@ -40,7 +41,7 @@
 (defn send-verification-email
   [username & [redirect-url]]
   {:pre [username]}
-  (let [url (make-url "profiles" "send_verification_email")
+  (let [url (make-url "profiles" "send_verification_email.json")
         form-params
         (cond-> {:username username}
             (not-nil? redirect-url) (assoc :redirect_url redirect-url))]
@@ -50,14 +51,14 @@
   "Return the profile for the account username or the passed username."
   [users]
   {:pre [(seq users)]}
-  (let [url (make-url (str "profiles" "?users=" (join "," users)))
+  (let [url (make-url (str "profiles.json?users=" (join "," users)))
         response (parse-http :get url :suppress-4xx-exceptions? true)]
      (if-let [error (:detail response)] error response)))
 
 (defn user
   "Return the user profile with authentication details."
   [& [suppress-4xx-exceptions?]]
-  (let [url (make-url "user")]
+  (let [url (make-url "user.json")]
     (parse-http :get url
                 :suppress-4xx-exceptions? suppress-4xx-exceptions?)))
 
@@ -84,13 +85,13 @@
                                      :username
                                      :email
                                      :password])
-        url (make-url "profiles")]
+        url (make-url "profiles.json")]
     (parse-http :post url :http-options {:form-params profile})))
 
 (defn all
   "return all users"
   []
-  (let [url (make-url "users")] (parse-http :get url)))
+  (let [url (make-url "users.json")] (parse-http :get url)))
 
 (defn update
   "update user profile"
@@ -110,7 +111,7 @@
                             :username
                             :website
                             :organization])]}
-  (let [url (make-url "profiles" username)]
+  (let [url (make-url "profiles" (str username ".json"))]
     (parse-http :put url
                 :http-options {:form-params params
                                :content-type :json}
@@ -119,7 +120,7 @@
 (defn change-password
   "Change user password"
   [username current-password new-password]
-  (let [url (make-url "profiles" username "change_password")
+  (let [url (make-url "profiles" username "change_password.json")
         options {:form-params {:current_password current-password
                                :new_password new-password}}]
     (parse-http :post url :http-options options
@@ -143,13 +144,13 @@
 (defn get
   "Return the user for this username"
   [username]
-  (let [url (make-url "users" username)]
+  (let [url (make-url "users" (str username ".json"))]
     (parse-http :get url)))
 
 (defn get-by-email
   "Return the users that match this email address"
   [email]
-  (let [url (make-url "users")]
+  (let [url (make-url "users.json")]
     (parse-http :get url
                 :http-options {:query-params {:search email}}
                 :suppress-4xx-exceptions? true)))
@@ -160,7 +161,7 @@
   ([email reset-url]
    (trigger-password-reset-email email reset-url nil))
   ([email reset-url reset-subject]
-   (let [url (make-url "user" "reset")
+   (let [url (make-url "user" "reset.json")
          form-params (merge {:email email :reset_url reset-url}
                             (when reset-subject
                               {:email_subject reset-subject}))]
@@ -169,7 +170,7 @@
 
 (defn reset-password
   [new-password token uid]
-  (let [url (make-url "user" "reset")]
+  (let [url (make-url "user" "reset.json")]
     (parse-http :post url
                 :http-options {:form-params {:new_password new-password
                                              :token token
@@ -186,13 +187,13 @@
 (defn expire-temp-token
   "Expire the user's temporary token."
   []
-  (let [url (make-url "user" "expire")]
+  (let [url (make-url "user" "expire.json")]
     (parse-http :delete url)))
 
 (defn google-sheet-authorization
   "Send a code to authorize a user to use google sheets"
   [code redirect_uri]
   (let [url (make-url "google"
-                      (format "google_auth?code=%s&redirect_uri=%s"
+                      (format "google_auth.json?code=%s&redirect_uri=%s"
                               code redirect_uri))]
     (parse-http :get url :as-map? true :suppress-4xx-exceptions? true)))

@@ -10,9 +10,12 @@
 (def params {:target_type target-type
              :target_id form-id
              :message message})
-(def post-message-url (make-url "messaging"))
+(def post-message-url (make-url "messaging.json"))
 (def get-messages-url
-  (make-url (str "messaging?target_type=" target-type "&target_id=" form-id)))
+  (make-url (str "messaging.json?target_type="
+                 target-type
+                 "&target_id="
+                 form-id)))
 
 (facts "about messages/get-all-messages"
        (fact "messages/get-all-messages returns response"
