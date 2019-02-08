@@ -8,13 +8,13 @@
    :milia-http-default-per-route "10"
    :milia-http-threads "20"})
 
-(defproject onaio/milia "0.3.44-SNAPSHOT"
+(defproject onaio/milia "0.3.44"
   :description "The ona.io Clojure Web API Client."
   :dependencies [;; CORE MILIA REQUIREMENTS
                  [cheshire "5.6.3"]
                  [clj-http "3.4.1" :exclusions [org.clojure/tools.reader]]
                  [environ "1.1.0"]
-                 [onaio/chimera "0.0.9-SNAPSHOT"]
+                 [onaio/chimera "0.0.9"]
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  ;;cljs
