@@ -39,7 +39,7 @@
          ;; protocol to use in all requests
          :request-protocol "https"
          ;; thumbor url for images
-         :image "images.ona.io"}))
+         :images "images.ona.io"}))
 
 (def timeouts
   "Store customizable timeouts to use in the http libraries. In milliseconds."
