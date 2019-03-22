@@ -37,7 +37,9 @@
          ;; XLSReport server URL
          :j2x "j2x.ona.io"
          ;; protocol to use in all requests
-         :request-protocol "https"}))
+         :request-protocol "https"
+         ;; thumbor url for images
+         :images "images.ona.io"}))
 
 (def timeouts
   "Store customizable timeouts to use in the http libraries. In milliseconds."
@@ -78,8 +80,7 @@
   [resources] (-> [(:request-protocol @hosts) "://" resources]
                   flatten join))
 
-(def thumbor-host "images.ona.io")
-(def thumbor-server (protocol-prefixed thumbor-host))
+(def thumbor-server (protocol-prefixed (:image @hosts)))
 
 (defn url-join
   [host args]
