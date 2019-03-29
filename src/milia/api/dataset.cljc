@@ -305,7 +305,9 @@
                  :as-map? true
                  :filename filename))))
 
-(def file-ext-query-param-map {:csv "csv_file" :xls "xls_file"})
+(def file-ext-query-param-map {:csv "csv_file"
+                               :xls "xls_file"
+                               :xlsx "xls_file"})
 
 (defn get-media-file-extension [filename]
   (-> filename
