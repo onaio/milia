@@ -470,6 +470,38 @@
                               :http-options multipart-options-map
                               :suppress-4xx-exceptions? true
                               :as-map? true)
+                  => :response)))
+         (fact "should import xlsx file to dataset endpoint when overwrite? is
+                true"
+               (let [multipart-options-map {:multi :part}
+                     media-file {:filename "file.xlsx"}]
+                 (file-import :dataset-id media-file true) => :response
+                 (provided
+                  (get-media-file-extension "file.xlsx") => :xlsx
+                  (make-url "forms"
+                            :dataset-id
+                            "import.json?overwrite=true") => url
+                  (multipart-options media-file "xls_file")
+                  => multipart-options-map
+                  (parse-http :post :fake-url
+                              :http-options multipart-options-map
+                              :suppress-4xx-exceptions? true
+                              :as-map? true)
+                  => :response)))
+         (fact "should import xlsx file to dataset endpoint when overwrite? is
+                false"
+               (let [multipart-options-map {:multi :part}
+                     media-file {:filename "file.xlsx"}]
+                 (file-import :dataset-id media-file) => :response
+                 (provided
+                  (get-media-file-extension "file.xlsx") => :xlsx
+                  (make-url "forms" :dataset-id "import.json") => url
+                  (multipart-options media-file "xls_file")
+                  => multipart-options-map
+                  (parse-http :post :fake-url
+                              :http-options multipart-options-map
+                              :suppress-4xx-exceptions? true
+                              :as-map? true)
                   => :response))))
 
   (fact "Should download xls report"
