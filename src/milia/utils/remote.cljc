@@ -80,7 +80,7 @@
   [resources] (-> [(:request-protocol @hosts) "://" resources]
                   flatten join))
 
-(def thumbor-server (protocol-prefixed (:image @hosts)))
+(def thumbor-server (protocol-prefixed (:images @hosts)))
 
 (defn url-join
   [host args]
