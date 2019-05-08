@@ -67,6 +67,13 @@
   (let [url (make-url "pricing" "subscriptions" username)]
     (parse-http :get url :suppress-4xx-exceptions? true)))
 
+(defn update-subscription
+  [username contactpersons]
+  (let [url (make-url "pricing" "subscriptions" username)]
+    (parse-http :patch url
+                :http-options {:form-params {:contactpersons contactpersons}}
+                :suppress-4xx-exceptions? true)))
+
 (defn get-subscription-payment
   [username]
   (let [url (make-url "pricing" "payments" username)]
