@@ -255,3 +255,24 @@
                          :code :redirect_uri)) => :url
        (parse-http :get :url :as-map? true :suppress-4xx-exceptions? true)
        => :response))
+
+(facts "about subscription"
+       (let [username "fake-user"
+                   contactpersons [{:contactperson_id "622783000000599003"
+                                    :email "goodgreat@ona.io"}
+                                   {:contactperson_id "622783000000689005"
+                                    :email "goodbetter@gmail.com"}]]
+       (fact "should get subscription"
+             (get-subscription username) => :body
+             (provided
+              (make-url "pricing" "subscriptions" username) => :url
+              (parse-http :get :url
+                          :suppress-4xx-exceptions? true) => :body))
+       (fact "should update subscription"
+             (update-subscription username contactpersons) => :contactpersons
+             (provided
+              (make-url "pricing" "subscriptions" username) => :url
+              (parse-http
+               :patch :url
+               :http-options {:form-params {:contactpersons contactpersons}}
+               :suppress-4xx-exceptions? true) => :contactpersons))))
