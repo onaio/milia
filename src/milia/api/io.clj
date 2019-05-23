@@ -36,16 +36,19 @@
 (defn- req+auth
   "Add authorization to options"
   [http-options]
-  (let [{:keys [temp-token token username password]} *credentials*
+  (let [{:keys [temp-token token access-token username password]} *credentials*
         {:keys [auth-token]} http-options]
-    (if (or temp-token token auth-token)
+    (if (or temp-token token auth-token access-token)
       (assoc http-options
              :headers {"Authorization"
                        (join
                         " "
-                        (if (and temp-token (not auth-token))
-                          ["TempToken" temp-token]
-                          ["Token" (or auth-token token)]))})
+                        (cond (and temp-token (not auth-token))
+                              ["TempToken" temp-token]
+                              access-token
+                              ["Bearer" (:access-token access-token)]
+                              :else
+                              ["Token" (or auth-token token)]))})
       (merge http-options
              (when password {:digest-auth [username password]})))))
 
