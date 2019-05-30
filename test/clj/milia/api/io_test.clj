@@ -23,7 +23,7 @@
 (def empty-account {:password password
                     :username username})
 (def api-token "api token")
-(def access-token-map {:access-token "access token"})
+(def access-token "access token")
 (def temp-token "temp token")
 (def auth-token "auth token for external api")
 (def options
@@ -187,9 +187,8 @@
 
        (fact "should add access-token if access-token exists while auth-token
               and temp-token do not exist. "
-             (binding [*credentials* (assoc {} :access-token access-token-map)]
-               (let [access-token (:access-token access-token-map)
-                     appended-options (assoc options :headers
+             (binding [*credentials* (assoc {} :access-token access-token)]
+               (let [appended-options (assoc options :headers
                                              {"Authorization"
                                               (str "Bearer "
                                                    access-token)})]
