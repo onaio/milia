@@ -46,7 +46,7 @@
                         (cond (and temp-token (not auth-token))
                               ["TempToken" temp-token]
                               access-token
-                              ["Bearer" (:access-token access-token)]
+                              ["Bearer" access-token]
                               :else
                               ["Token" (or auth-token token)]))})
       (merge http-options
