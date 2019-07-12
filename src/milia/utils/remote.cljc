@@ -27,6 +27,10 @@
           (read-env-string :milia-http-default-per-route)))
 #?(:clj (def http-threads (read-env-string :milia-http-threads)))
 
+(def images-url
+ #?(:clj "images.ona.io"
+    :cljs (str "images." (aget js/window "location" "hostname"))))
+
 (def hosts
   "Store remote hosts that requests are made to."
   (atom {
@@ -39,7 +43,7 @@
          ;; protocol to use in all requests
          :request-protocol "https"
          ;; thumbor url for images
-         :images "images.ona.io"}))
+         :images images-url}))
 
 (def timeouts
   "Store customizable timeouts to use in the http libraries. In milliseconds."
