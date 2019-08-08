@@ -90,13 +90,17 @@
   a core.async channel where result message will be put
   and (optionally) an id to include in the result message. Returns the
   XhrIo object that can be used to abort request. More XhrIo API
-  docs at: https://goo.gl/B0fm2a"
+  docs at: https://developers.google.com/closure/library/docs/xhrio"
   [form chan & {:keys [headers id require-json?] :or {:require-json? true}}]
   (let [io-obj (XhrIo.)
         data   (when id {:id id})
         url    (.-action form)]
     (.setProgressEventsEnabled io-obj true)
     ;; event handlers
+    (gev/listen io-obj goog.net.EventType.COMPLETE
+                #(put! chan (assoc data
+                                   :data (get-xhr-io-response io-obj
+                                                              require-json?))))
     (gev/listen io-obj goog.net.EventType.SUCCESS
                 #(put! chan (assoc data
                                    :data (get-xhr-io-response io-obj

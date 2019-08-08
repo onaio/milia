@@ -1,5 +1,8 @@
 language: clojure
+lein: 2.8.1
+jdk: openjdk8
 script:
+    - lein --version
     - lein bikeshed
     - lein cljfmt check
     - lein eastwood
