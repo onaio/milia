@@ -162,6 +162,10 @@
                 :http-options {:query-params {:search email}}
                 :suppress-4xx-exceptions? true)))
 
+(defn generate-odk-token []
+  (let [url (make-url "user/odk_token")]
+    (parse-http :post url)))
+
 (defn trigger-password-reset-email
   "Trigger a password reset email to the given email and given return URL.
    Also takes an optional subject for the email message."
