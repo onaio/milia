@@ -142,7 +142,7 @@
   (fact "About generating odk token"
         (generate-odk-token) => :response
         (provided
-         (make-url "user/odk_token") => :url
+         (make-url "user" "odk_token.json") => :url
          (parse-http :post :url) => :response))
 
   (facts "About update"
