@@ -163,7 +163,7 @@
                 :suppress-4xx-exceptions? true)))
 
 (defn generate-odk-token []
-  (let [url (make-url "user/odk_token")]
+  (let [url (make-url "user" "odk_token.json")]
     (parse-http :post url)))
 
 (defn trigger-password-reset-email
