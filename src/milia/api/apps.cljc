@@ -16,7 +16,7 @@
 (defn get-textit-api-url
   "Returns host url appended with API path"
   [server]
-  (str (get-textit-host server) "/api/v2"))
+  (str server "/api/v2"))
 
 (defn make-textit-url
   "Build a texit server API url."
