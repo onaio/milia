@@ -28,7 +28,7 @@
 #?(:clj (def http-threads (read-env-string :milia-http-threads)))
 
 (def images-url
- #?(:clj "images.ona.io"
+ #?(:clj "images.moda.wfp.org"
     :cljs (str "images." (aget js/window "location" "hostname"))))
 
 (def hosts
