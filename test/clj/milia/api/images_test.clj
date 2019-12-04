@@ -11,6 +11,10 @@
                            :headers {"Slug" :filename}))
 (def location-leading-slash "/location")
 (def location-url (str thumbor-server location-leading-slash))
+(def image-server-url "http://test.image.com")
+(def custom-upload-url (or (and image-server-url
+                                (str image-server-url "/image"))
+                           upload-url))
 
 (facts "about upload"
        (fact "should return nil if file is nil"
@@ -27,6 +31,18 @@
              (provided
               (multipart-options image-map "media") => multipart-options-map
               (parse-http :post upload-url
+                          :http-options  merged-options
+                          :as-map? true
+                          :suppress-4xx-exceptions? true)
+              => {:status 201 :headers {"Location" location-leading-slash}}))
+
+       (fact "should call parse-http if file is not nil and optional image url
+              is passed as an arg"
+             (upload image-map image-server-url) =>
+             (str image-server-url location-leading-slash)
+             (provided
+              (multipart-options image-map "media") => multipart-options-map
+              (parse-http :post custom-upload-url
                           :http-options  merged-options
                           :as-map? true
                           :suppress-4xx-exceptions? true)
