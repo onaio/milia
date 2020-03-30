@@ -225,10 +225,15 @@
             token "aT0k3n"
             uid "MtJs"
             params {:new_password new-password :token token :uid uid}]
-        (reset-password new-password token uid) => nil
+        (reset-password new-password
+                        token
+                        uid
+                        :suppress-4xx-exceptions? true) => nil
         (provided
          (make-url "user" "reset.json") => :url
-         (parse-http :post :url :http-options {:form-params params}) => nil)))
+         (parse-http :post :url
+                     :suppress-4xx-exceptions? true
+                     :http-options {:form-params params}) => nil)))
 
 (fact "patch should submit a patch request"
       (patch username :params) => :response

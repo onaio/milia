@@ -180,9 +180,10 @@
      (parse-http :post url :http-options {:form-params form-params}))))
 
 (defn reset-password
-  [new-password token uid]
+  [new-password token uid & {:keys [suppress-4xx-exceptions?]}]
   (let [url (make-url "user" "reset.json")]
     (parse-http :post url
+                :suppress-4xx-exceptions? suppress-4xx-exceptions?
                 :http-options {:form-params {:new_password new-password
                                              :token token
                                              :uid uid}})))
