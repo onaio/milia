@@ -24,7 +24,7 @@
   (let [url (make-url "profiles" (str username ".json"))
         response (retry-parse-http :get url
                                    :suppress-4xx-exceptions? true
-                                   :max-retries 2)]
+                                   :max-retries 4)]
     (if-let [error (:detail response)] nil response)))
 
 (defn verify-email
@@ -59,7 +59,7 @@
   "Return the user profile with authentication details."
   [& [suppress-4xx-exceptions?]]
   (let [url (make-url "user.json")]
-    (parse-http :get url
+    (parse-http :post url
                 :suppress-4xx-exceptions? suppress-4xx-exceptions?)))
 
 (defn get-subscription
