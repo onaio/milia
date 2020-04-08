@@ -59,7 +59,7 @@
   "Return the user profile with authentication details."
   [& [suppress-4xx-exceptions?]]
   (let [url (make-url "user.json")]
-    (parse-http :get url
+    (parse-http :post url
                 :suppress-4xx-exceptions? suppress-4xx-exceptions?)))
 
 (defn get-subscription
