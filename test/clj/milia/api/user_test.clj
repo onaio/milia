@@ -122,7 +122,7 @@
                (user false) => :something
                (provided
                 (make-url "user.json") => url
-                (parse-http :get url
+                (parse-http :post url
                             :suppress-4xx-exceptions? false) => :something)))
 
   (facts "About create"
