@@ -24,7 +24,7 @@
   (let [url (make-url "profiles" (str username ".json"))
         response (retry-parse-http :get url
                                    :suppress-4xx-exceptions? true
-                                   :max-retries 2)]
+                                   :max-retries 5)]
     (if-let [error (:detail response)] nil response)))
 
 (defn verify-email
