@@ -1,7 +1,7 @@
 (ns milia.api.http-test
-  (:require [midje.sweet :refer :all]
+  (:require [midje.sweet :refer [fact facts => provided throws]]
             [milia.api.http :refer [parse-http]]
-            [milia.api.io :refer [debug-api http-request parse-response]]))
+            [milia.api.io :refer [http-request parse-response]]))
 
 (def http-4xx-codes
   "Valid HTTP 4xx codes
@@ -16,11 +16,11 @@
   [500 501 502 503 504 505 506 507 508 509 510 511 520 522 598 599])
 
 (defn make-exception-str
-  [reason status-code body]
+  [reason status-code form-params]
   (str
    "throw+: {:reason " reason ", :detail {:status-code "
    status-code ", :response nil, :method :method, :url :url, "
-   ":http-options nil}}"))
+   ":http-options {:form-params " form-params "}}}"))
 
 (def auth-token "auth-token")
 
@@ -38,7 +38,7 @@
              (parse-http :method :url)
              => (throws (make-exception-str :no-http-status
                                             "nil"
-                                            :body))
+                                            "nil"))
              (provided
               (http-request :method :url nil) => {:body :body}
               (parse-response :body nil nil nil) => nil))
@@ -49,7 +49,7 @@
           (parse-http :method :url)
           => (throws (make-exception-str :http-client-error
                                          status-code
-                                         :body))
+                                         "nil"))
           (provided
            (http-request :method :url nil) => {:body :body
                                                :status status-code}
@@ -61,11 +61,37 @@
           (parse-http :method :url)
           => (throws (make-exception-str :http-server-error
                                          status-code
-                                         :something-nasty))
+                                         "nil"))
           (provided
            (http-request :method :url nil) => {:body :something-nasty
                                                :status status-code}
            (parse-response :something-nasty status-code nil nil) => nil)))
+
+       (fact
+        "sets form params to nil when an exception is thrown"
+        (doseq [status-code http-5xx-codes]
+          (parse-http :method :url :http-options
+                      {:form-params
+                       {:username "Frankline"
+                        :password "bob8"
+                        :email "bobsemail@mail.com"}})
+          => (throws (make-exception-str :http-server-error
+                                         status-code
+                                         "{:username \"Frankline\"}"))
+          (provided
+           (http-request :method :url
+                         {:form-params
+                          {:username "Frankline"
+                           :password "bob8"
+                           :email "bobsemail@mail.com"}})
+           => {:body :something-nasty
+               :status status-code}
+           (parse-response
+            :something-nasty
+            status-code
+            nil
+            nil) => nil)))
+
 
        (fact "http-request request includes auth-token"
              (parse-http :method :url :http-options
