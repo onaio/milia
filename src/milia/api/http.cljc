@@ -58,9 +58,16 @@
                                             status
                                             filename
                                             raw-response?))
+           filter-http-options
+          (fn [http-options]
+            (update-in http-options [:form-params]
+                       (fn [form-params]
+                         (apply dissoc form-params [:email :password]))))
            error-fn #(throw-error
                       % status parsed-response
-                      {:method method :url url :http-options http-options})]
+                      {:method method
+                       :url url
+                       :http-options (filter-http-options http-options)})]
        (debug-api method url http-options response)
        ;; Assume that a nil status indicates an exception
        (when-not json-file?
