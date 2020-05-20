@@ -92,7 +92,6 @@
             nil
             nil) => nil)))
 
-
        (fact "http-request request includes auth-token"
              (parse-http :method :url :http-options
                          {:auth-token auth-token})
