@@ -30,6 +30,11 @@
                {:object_id object-id
                 :data_type data-type}}))
 
+(defn get-open-data-object
+  "Get an open-data object."
+  [uuid]
+  (parse-http :get (make-url "open-data" (str uuid ".json"))))
+
 (defn delete
   "Delete an open-data object"
   [uuid]
