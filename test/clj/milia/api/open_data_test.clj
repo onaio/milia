@@ -33,6 +33,13 @@
                                               :data_type data-type}})
                 => :something)))
 
+  (facts "About getting open data object"
+         (fact "Should get an existing open-data-object"
+               (get-open-data-object uuid) => :something
+               (provided
+                (make-url "open-data" "fake-uuid.json") => url
+                (parse-http :get url) => :something)))
+
   (facts "About delete"
          (fact "Should delete an existing open-data object"
                (delete uuid) => :something
