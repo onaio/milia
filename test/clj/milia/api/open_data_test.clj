@@ -35,7 +35,7 @@
 
   (facts "About getting open data object"
          (fact "Should get an existing open-data-object"
-               (get uuid) => :something
+               (get-open-data-object uuid) => :something
                (provided
                 (make-url "open-data" "fake-uuid.json") => url
                 (parse-http :get url) => :something)))
