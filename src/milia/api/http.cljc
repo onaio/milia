@@ -1,12 +1,11 @@
 (ns milia.api.http
-  (:require [clojure.set :refer [rename-keys]]
-            #?@(:clj [[milia.api.io :refer [build-req parse-response
+  (:require #?@(:clj [[milia.api.io :refer [parse-response
                                             http-request debug-api
                                             parse-binary-response]]
-                      [slingshot.slingshot :refer [throw+]]]
+                      [slingshot.slingshot :refer [throw+]]
+                      [milia.utils.remote :refer [*read-from-master-db* multidb-write-cookie]]]
                 :cljs [[milia.api.io :refer [build-http-options token->headers
                                              http-request raw-request]]
-                       [cljs-hash.md5  :refer [md5]]
                        [cljs-http.client :as http]
                        [cljs.core.async :as async :refer [<!]]]))
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]])))
@@ -46,7 +45,9 @@
           (when-not json-file?
             (http-request method
                           url
-                          http-options))
+                           (merge http-options
+                                  (when *read-from-master-db*
+                                    {:cookies multidb-write-cookie}))))
           ;; Call parse-binary-response if filename extension is of type json
           ;; which will then handle the http request
           parsed-response (if json-file?
