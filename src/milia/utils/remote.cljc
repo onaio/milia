@@ -11,6 +11,12 @@
    :username nil
    :password nil})
 
+(def ^:dynamic *read-from-master-db*
+  false)
+
+(def multidb-write-cookie
+  {"multidb_pin_writes" {:path "/", :value "y"}})
+
 ;; Token expiry API response messages
 (def invalid-token-msg "Invalid token")
 (def token-expired-msg "Token expired")
