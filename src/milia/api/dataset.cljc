@@ -9,9 +9,9 @@
             [milia.utils.remote
              :refer [make-j2x-url make-client-url make-url]]
             #?@(:clj [[milia.api.io :refer [multipart-options]]
-                       [milia.utils.file :as file-utils]
-                       [milia.utils.metadata :refer [upload-metadata-file]]
-                       [cheshire.core :refer [generate-string]]])))
+                      [milia.utils.file :as file-utils]
+                      [milia.utils.metadata :refer [upload-metadata-file]]
+                      [cheshire.core :refer [generate-string]]])))
 
 (defmulti type->endpoint (fn [datatype & _] datatype))
 (defmethod type->endpoint :default [_ & {:keys [async] :or {async true}}]
@@ -31,33 +31,38 @@
     (parse-http :get url)))
 
 #?(:clj
-    (defn- send-file-or-params
-      "Send request with file or params"
-      [method url params suppress-4xx-exceptions?]
-      (let [options (if-let [xls_file  (:xls_file params)]
-                      (multipart-options xls_file "xls_file")
-                      {:form-params params})]
-        (parse-http method url :http-options options
-                    :suppress-4xx-exceptions? suppress-4xx-exceptions?))))
+   (defn- send-file-or-params
+     "Send request with file or params"
+     [method
+      url
+      {:keys [xls_file xml_file] :as params}
+      suppress-4xx-exceptions?]
+     (let [options
+           (cond
+             (not-nil? xls_file) (multipart-options xls_file "xls_file")
+             (not-nil? xml_file) (multipart-options xml_file "xml_file")
+             :else {:form-params params})]
+       (parse-http method url :http-options options
+                   :suppress-4xx-exceptions? suppress-4xx-exceptions?))))
 #?(:clj
-    (defn create
-      "Create a new dataset from a file."
-      ([params]
-       (create params nil))
-      ([params project-id]
-       (let [url (apply make-url (if project-id
-                                   ["projects" project-id "forms.json"]
-                                   ["forms.json"]))]
-         (send-file-or-params :post url params false)))))
+   (defn create
+     "Create a new dataset from a file."
+     ([params]
+      (create params nil))
+     ([params project-id]
+      (let [url (apply make-url (if project-id
+                                  ["projects" project-id "forms.json"]
+                                  ["forms.json"]))]
+        (send-file-or-params :post url params false)))))
 
 #?(:clj
-    (defn patch
-      "Set the metadata for a dataset using PATCH. Only a subset of the
+   (defn patch
+     "Set the metadata for a dataset using PATCH. Only a subset of the
       required parameters are needed."
-      [dataset-id params & {:keys [suppress-4xx-exceptions?]
-                            :or {suppress-4xx-exceptions? true}}]
-      (let [url (make-url "forms" (str dataset-id ".json"))]
-        (send-file-or-params :patch url params suppress-4xx-exceptions?))))
+     [dataset-id params & {:keys [suppress-4xx-exceptions?]
+                           :or {suppress-4xx-exceptions? true}}]
+     (let [url (make-url "forms" (str dataset-id ".json"))]
+       (send-file-or-params :patch url params suppress-4xx-exceptions?))))
 
 (defn clone
   "Clone the dataset given by ID into the account with the given username."
@@ -152,19 +157,19 @@
   [dataset-id (str "data." format)])
 
 #?(:clj
-    (defn download
-      "Download dataset in specified format."
-      [dataset-id format & [async data-type export-options]]
-      (let [options (options-for-format format)
-            endpoint (type->endpoint data-type :async async)
-            url (apply make-url
-                       (cons endpoint
-                             (type->download-path data-type
-                                                  dataset-id
-                                                  format
-                                                  export-options)))
-            filename (filename-for-format dataset-id format)]
-        (parse-http :get url :http-options options :filename filename))))
+   (defn download
+     "Download dataset in specified format."
+     [dataset-id format & [async data-type export-options]]
+     (let [options (options-for-format format)
+           endpoint (type->endpoint data-type :async async)
+           url (apply make-url
+                      (cons endpoint
+                            (type->download-path data-type
+                                                 dataset-id
+                                                 format
+                                                 export-options)))
+           filename (filename-for-format dataset-id format)]
+       (parse-http :get url :http-options options :filename filename))))
 
 (defn download-synchronously
   "Download form data in specified format. The synchronicity here refers to the
@@ -209,9 +214,9 @@
   [dataset-id]
   (let [url (make-url "forms" dataset-id "enketo.json")]
     #?(:clj
-        (parse-http :get url :suppress-4xx-exceptions? true)
-        :cljs
-        (parse-http :get url))))
+       (parse-http :get url :suppress-4xx-exceptions? true)
+       :cljs
+       (parse-http :get url))))
 
 (defn edit-link
   "Return link to online data entry."
@@ -251,22 +256,22 @@
     (parse-http :post url :http-options {:form-params data})))
 
 #?(:clj
-    (defn upload-media
-      "Upload media for a form"
-      [datasetd-id media-file]
-      (let [url (make-url "metadata.json")
-            data-file (file-utils/uploaded->file media-file)
-            muiltipart [{:name "data_value"
-                         :content (:filename media-file)}
-                        {:name "data_type"
-                         :content "media"}
-                        {:name "xform"
-                         :content datasetd-id}
-                        {:name "data_file"
-                         :content data-file}]]
-        (parse-http :post url
-                    :http-options {:multipart muiltipart}
-                    :suppress-4xx-exceptions? true))))
+   (defn upload-media
+     "Upload media for a form"
+     [datasetd-id media-file]
+     (let [url (make-url "metadata.json")
+           data-file (file-utils/uploaded->file media-file)
+           muiltipart [{:name "data_value"
+                        :content (:filename media-file)}
+                       {:name "data_type"
+                        :content "media"}
+                       {:name "xform"
+                        :content datasetd-id}
+                       {:name "data_file"
+                        :content data-file}]]
+       (parse-http :post url
+                   :http-options {:multipart muiltipart}
+                   :suppress-4xx-exceptions? true))))
 
 (defn link-xform-or-dataview-as-media
   "Link xform or dataview as media"
@@ -315,21 +320,21 @@
       peek))
 
 #?(:clj
-    (defn file-import
-      "Import csv or xls file data to existing form"
-      [dataset-id {:keys [filename] :as media-file} & [overwrite?]]
-      (let [media-file-extension (get-media-file-extension filename)
-            url (make-url "forms"
-                          dataset-id
-                          (cond-> "import.json"
-                            overwrite? (str "?overwrite=true")))
-            multipart (multipart-options media-file
-                                         (->> media-file-extension
-                                              keyword
-                                              (get file-ext-query-param-map)))]
-        (parse-http :post url :http-options multipart
-                    :suppress-4xx-exceptions? true
-                    :as-map? true))))
+   (defn file-import
+     "Import csv or xls file data to existing form"
+     [dataset-id {:keys [filename] :as media-file} & [overwrite?]]
+     (let [media-file-extension (get-media-file-extension filename)
+           url (make-url "forms"
+                         dataset-id
+                         (cond-> "import.json"
+                           overwrite? (str "?overwrite=true")))
+           multipart (multipart-options media-file
+                                        (->> media-file-extension
+                                             keyword
+                                             (get file-ext-query-param-map)))]
+       (parse-http :post url :http-options multipart
+                   :suppress-4xx-exceptions? true
+                   :as-map? true))))
 
 (defn edit-history
   "Returns a submission's edit history"
@@ -337,10 +342,10 @@
   (parse-http :get (make-url "data" dataset-id instance-id "history.json")))
 
 #?(:clj
-    (defn upload-file
-      "Upload metadata file for a submission"
-      [submission-id file]
-      (upload-metadata-file "instance" submission-id file)))
+   (defn upload-file
+     "Upload metadata file for a submission"
+     [submission-id file]
+     (upload-metadata-file "instance" submission-id file)))
 
 (defn files
   [instance-id project-id & {:keys [no-cache? dataset-id]}]
@@ -392,8 +397,8 @@
      :post (make-url "submissionreview.json")
      :http-options
      #?(:clj {:body
-               (generate-string json-vec)
-               :content-type :json})
+              (generate-string json-vec)
+              :content-type :json})
      #?(:cljs {:json-params json-vec}))))
 
 (defn get-submission-review
