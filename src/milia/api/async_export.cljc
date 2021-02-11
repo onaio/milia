@@ -114,14 +114,14 @@
    "include_hxl" "include_images" "remove_group_name" version-key "query"
    "export_id" "include_labels" "include_labels_only" "win_excel_utf8"
    "redirect_uri" "binary_select_multiples" "value_select_multiples"
-   "show_choice_labels" "include_reviews"])
+   "show_choice_labels" "include_reviews" "language"])
 
 (def export-option-values
   [:meta-id :data-id :group-delimiter :do-not-split-multi-selects?
    :include-hxl? :include-images? :remove-group-name? :version :query :export_id
    :include-labels? :labels-only? :windows-compatible-csv? :redirect-uri
    :binary-select-multiples? :value-select-multiples? :show-choice-labels?
-   :include-reviews?])
+   :include-reviews? :language])
 
 (defn- get-param [key value]
   (if (= key version-key)
@@ -159,7 +159,6 @@
         (let [export-suffix (build-export-suffix export-async-url
                                                  data-format
                                                  export-options)
-              _ (js/console.log "export-suffix: ", (clj->js export-suffix))
               export-url (make-url (type->endpoint data-type)
                                    dataset-id
                                    export-suffix)
