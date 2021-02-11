@@ -3,7 +3,7 @@
   (:require [chimera.seq :refer [select-values]]
             [chimera.string :refer [is-not-null?]]
             #?@(:cljs [[goog.string.format]
-                      [cljs.core.async :refer [<! chan put! timeout]]])
+                       [cljs.core.async :refer [<! chan put! timeout]]])
             [clojure.string :refer [join]]
             [milia.api.dataset :refer [type->endpoint]]
             [milia.api.http :refer [parse-http]]
@@ -21,9 +21,9 @@
    the first or a subsequenty query parameter."
   [& s]
   (let [temp-token (:temp-token *credentials*)]
-        (join (if (is-not-null? temp-token)
-                (conj (vec s) "temp_token=" temp-token)
-                s))))
+    (join (if (is-not-null? temp-token)
+            (conj (vec s) "temp_token=" temp-token)
+            s))))
 
 (defn- handle-response
   "Handles API server's response and acts according to given callbacks."
@@ -63,26 +63,26 @@
 
 #?(:cljs
    (defn- monitor-async-export!
-    "Repeatedly polls the async export progress for the given job_uuid,
+     "Repeatedly polls the async export progress for the given job_uuid,
     When export_url is returned, fires callback on-export-url."
-    [dataset-id job-id & {:keys [on-error on-export-url
-                                 data-type]}]
-    (go
-      (loop [polling-interval initial-polling-interval]
-        (let [job-suffix (str "export_async.json?job_uuid=" job-id)
-              job-url (make-url (type->endpoint data-type)
-                                dataset-id
-                                job-suffix)
-              response (<! (retry-parse-http :get job-url :no-cache? true))]
+     [dataset-id job-id & {:keys [on-error on-export-url
+                                  data-type]}]
+     (go
+       (loop [polling-interval initial-polling-interval]
+         (let [job-suffix (str "export_async.json?job_uuid=" job-id)
+               job-url (make-url (type->endpoint data-type)
+                                 dataset-id
+                                 job-suffix)
+               response (<! (retry-parse-http :get job-url :no-cache? true))]
           ;; Never use `on-job-id` here b/c `on-job-id` should only be
           ;; triggered once in `trigger-async-export!` where it starts
           ;; `monitor-async-export!` itself
-          (when (not= (handle-response response {:on-stop #(constantly :stop)
-                                                 :on-error on-error
-                                                 :on-export-url on-export-url})
-                 :stop)
-            (<! (timeout polling-interval))
-            (recur (* polling-interval 2))))))))
+           (when (not= (handle-response response {:on-stop #(constantly :stop)
+                                                  :on-error on-error
+                                                  :on-export-url on-export-url})
+                       :stop)
+             (<! (timeout polling-interval))
+             (recur (* polling-interval 2))))))))
 
 #?(:cljs
    (defn monitor-async-exports-per-form!
@@ -123,7 +123,7 @@
    :binary-select-multiples? :value-select-multiples? :show-choice-labels?
    :include-reviews?])
 
-  (defn- get-param [key value]
+(defn- get-param [key value]
   (if (= key version-key)
     #?(:cljs (goog.string.format "&query={\"%s\":\"%s\"}" key value))
     (str "&" key "=" value)))
@@ -159,6 +159,7 @@
         (let [export-suffix (build-export-suffix export-async-url
                                                  data-format
                                                  export-options)
+              _ (js/console.log "export-suffix: ", (clj->js export-suffix))
               export-url (make-url (type->endpoint data-type)
                                    dataset-id
                                    export-suffix)
@@ -181,20 +182,20 @@
 
 #?(:cljs
    (defn get-async-export-url
-    "Returns a channel, which will have the async export url when ready."
-    [dataset-id data-format]
-    (let [ch (chan 1)]
-      (trigger-async-export! dataset-id {:data-format   data-format
-                                         :on-export-url #(put! ch %)})
-      ch)))
+     "Returns a channel, which will have the async export url when ready."
+     [dataset-id data-format]
+     (let [ch (chan 1)]
+       (trigger-async-export! dataset-id {:data-format   data-format
+                                          :on-export-url #(put! ch %)})
+       ch)))
 
 #?(:cljs
    (defn get-async-export-data
-    "Returns a channel, which will have the async _data_
+     "Returns a channel, which will have the async _data_
     downloaded using http-method when ready."
-    [dataset-id fmt http-method & args]
-    (go (let [url (<! (get-async-export-url dataset-id fmt))]
-          (<! (apply parse-http (concat [http-method url] args)))))))
+     [dataset-id fmt http-method & args]
+     (go (let [url (<! (get-async-export-url dataset-id fmt))]
+           (<! (apply parse-http (concat [http-method url] args)))))))
 
 (defn get-exports-per-form
   "Get exports based on a form id."
