@@ -17,7 +17,7 @@
                                accept-header
                                query-params
                                data-id]
-                        #?@(:cljs [:or {:format "json"}])}]
+                        #?@(:cljs [:or {format "json"}])}]
   (let [url (make-url "merged-datasets"
                       merged-dataset-id
                       "data"

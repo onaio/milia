@@ -19,3 +19,8 @@ resources/public/js/lib
 .lein-failures
 .nrepl-port
 .#*
+
+.clj-kondo
+.lsp
+hs_err_pid*
+replay_pid*
