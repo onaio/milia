@@ -30,4 +30,7 @@ jobs:
           lein eastwood
           lein kibit
           lein midje
+          lein cljsbuild once dev
+          lein cljsbuild once prod
+          lein cljsbuild test
 

@@ -152,7 +152,9 @@
                (join "&"
                      (for [[option val] export-options]
                        (str (name option) "="
-                            #?(:clj (URLEncoder/encode val)
+                            #?(:clj (if (seq? val)
+                                      (URLEncoder/encode val)
+                                      val)
                                :cljs val)))))))])
 
 (defmethod type->download-path :filtered-dataset
