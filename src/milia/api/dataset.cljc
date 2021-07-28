@@ -1,4 +1,5 @@
 (ns milia.api.dataset
+  #? (:clj (:import [java.net URLEncoder]))
   (:refer-clojure :exclude [clone update])
   (:require [chimera.seq :refer [has-keys? in?]]
             [chimera.core :refer [not-nil?]]
@@ -150,7 +151,11 @@
           (str "?"
                (join "&"
                      (for [[option val] export-options]
-                       (str (name option) "=" val))))))])
+                       (str (name option) "="
+                            #?(:clj (if (seq? val)
+                                      (URLEncoder/encode val)
+                                      val)
+                               :cljs val)))))))])
 
 (defmethod type->download-path :filtered-dataset
   [_ dataset-id format export-options]
