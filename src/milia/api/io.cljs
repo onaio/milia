@@ -65,7 +65,7 @@
 (defn get-xhr-io-response
   "Get the response out of an object that watches an async/xhr request.
    JsIoObject, Maybe {Keyword Bool} -> {:keyword }"
-  [io-obj & [{:keys [require-json?] :or {require-json? true}}]]
+  [io-obj & [{:keys [require-json?] :or {require-json? false}}]]
   (if require-json?
     (try
       (.getResponseJson io-obj)
@@ -91,7 +91,7 @@
   and (optionally) an id to include in the result message. Returns the
   XhrIo object that can be used to abort request. More XhrIo API
   docs at: https://developers.google.com/closure/library/docs/xhrio"
-  [form chan & {:keys [headers id require-json?] :or {require-json? true}}]
+  [form chan & {:keys [headers id require-json?] :or {require-json? false}}]
   (let [io-obj (XhrIo.)
         data   (when id {:id id})
         url    (.-action form)]
