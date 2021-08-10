@@ -12,6 +12,10 @@ Install via clojars with:
 
 [![Clojars Project](http://clojars.org/onaio/milia/latest-version.svg)](http://clojars.org/onaio/milia)
 
+## Deploying to clojars
+
+lein deploy clojars
+
 ## Current API Endpoints
 * charts
 * forms
