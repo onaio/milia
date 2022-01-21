@@ -20,6 +20,11 @@ jobs:
         with:
           lein: 2.8.1
 
+      - name: Install node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "12"
+
       - name: Get leiningen version
         run: lein -v
 
@@ -32,4 +37,9 @@ jobs:
           lein midje
           lein cljsbuild once dev
           lein cljsbuild once prod
+          npm install -g karma-cli
+          npm install karma --save-dev
+          npm install karma-cljs-test --save-dev
+          npm install karma-chrome-launcher --save-dev
           lein doo chrome-headless test once
+
