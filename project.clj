@@ -27,18 +27,19 @@
                  [cljs-http "0.1.46" :exclusions [com.cognitect/transit-cljs]]]
   :license "Apache 2"
   :url "https://github.com/onaio/milia"
-  :plugins [[jonase/eastwood "0.2.1"]
-            [lein-bikeshed-ona "0.2.1"]
-            [lein-cljfmt "0.3.0"]
+  :plugins [[jonase/eastwood "1.1.1"]
+            [lein-bikeshed "0.5.2"]
+            [lein-cljfmt "0.8.0"]
             [lein-cljsbuild "1.1.8"]
             [lein-environ "1.0.1"]
-            [lein-kibit "0.1.2"]
+            [lein-kibit "0.1.8"]
             [lein-midje "3.1.3"]
             [lein-doo "0.1.11"]]
+  :bikeshed {:var-redefs false
+             :name-collisions false}
   :cljfmt {:file-pattern #"[^\.#]*\.clj[s]?$"}
-  :eastwood {:exclude-linters [:constant-test]
-             :add-linters [:unused-fn-args :unused-locals :unused-namespaces
-                           :unused-private-vars]
+  :eastwood {:exclude-linters [:constant-test :unused-locals :unused-fn-args :unused-private-vars]
+             :add-linters [:unused-fn-args :unused-namespaces]
              :namespaces [:source-paths]}
   :profiles {:dev {:dependencies [[midje "1.10.5" :exclusions [joda-time org.clojure/tools.namespace clj-time]]]
                    :env ~project-env}
