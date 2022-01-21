@@ -1,14 +1,13 @@
 (ns milia.api.async-export
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]]))
-  (:require [chimera.seq :refer [select-values]]
-            [chimera.string :refer [is-not-null?]]
+  (:require [chimera.string :refer [is-not-null?]]
             #?@(:cljs [[goog.string.format]
-                       [cljs.core.async :refer [<! chan put! timeout]]])
+                       [cljs.core.async :refer [<! chan put! timeout]]
+                       [milia.utils.retry :refer [retry-parse-http]]
+                       [milia.api.dataset :refer [type->endpoint]]])
             [clojure.string :refer [join]]
-            [milia.api.dataset :refer [type->endpoint]]
             [milia.api.http :refer [parse-http]]
-            [milia.utils.remote :refer [make-url *credentials*]]
-            [milia.utils.retry :refer [retry-parse-http]]))
+            [milia.utils.remote :refer [make-url *credentials*]]))
 
 (def export-async-url "export_async.json?format=")
 (def export-failure-status-msg "FAILURE")

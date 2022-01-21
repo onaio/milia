@@ -158,14 +158,14 @@
   [params]
   (let [url (make-url "orgs" (str (:org params) ".json"))
         params (dissoc params :org)]
-        (parse-http
-          :patch
-          url
-          :http-options
-          #?(:clj   {:form-params params
-                     :content-type :json})
-          #?(:cljs  {:json-params params})
-          :as-map? true)))
+    (parse-http
+     :patch
+     url
+     :http-options
+     #?(:clj   {:form-params params
+                :content-type :json})
+     #?(:cljs  {:json-params params})
+     :as-map? true)))
 
 (defn get-team
   "Returns an Organizaion team given the team name."
@@ -174,8 +174,9 @@
         teams (parse-http :get url :suppress-4xx-exceptions? true)]
     (first (remove #(not= team-name (:name %)) teams))))
 
-(defn share-team [team-id data]
+(defn share-team
   "Changes default_role permissions on a project for a team"
+  [team-id data]
   (let [url (make-url "teams" team-id "share.json")]
     (parse-http :post url
                 :http-options

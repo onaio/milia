@@ -1,6 +1,5 @@
 (ns milia.api.apps
-  (:require [chimera.seq :refer [in?]]
-            [milia.api.http :refer [parse-http]]
+  (:require [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [url-join]]))
 
 (def rapidpro-hosts {"rapidpro-ona" "rapidpro.ona.io"
