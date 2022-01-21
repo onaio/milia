@@ -32,5 +32,4 @@ jobs:
           lein midje
           lein cljsbuild once dev
           lein cljsbuild once prod
-          lein cljsbuild test
-
+          lein doo chrome-headless test once
