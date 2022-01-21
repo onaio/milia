@@ -18,7 +18,7 @@ jobs:
       - name: Install clojure tools
         uses: DeLaGuardo/setup-clojure@3.4
         with:
-          lein: 2.8.1
+          lein: 2.9.8
 
       - name: Install node
         uses: actions/setup-node@v2
