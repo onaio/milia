@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/onaio/milia.svg?branch=master)](https://travis-ci.org/onaio/milia)
+[![example workflow](https://github.com/onaio/milia/actions/workflows/ci.yml/badge.svg?branch=feature-1)](https://github.com/onaio/milia/actions/workflows/ci.yml)
 
 # milia
 Ona API client library in Clojure and ClojureScript
