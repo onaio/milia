@@ -1,12 +1,10 @@
 (ns milia.api.http
-  (:require [clojure.set :refer [rename-keys]]
-            #?@(:clj [[milia.api.io :refer [build-req parse-response
+  (:require #?@(:clj [[milia.api.io :refer [parse-response
                                             http-request debug-api
                                             parse-binary-response]]
                       [slingshot.slingshot :refer [throw+]]]
                 :cljs [[milia.api.io :refer [build-http-options token->headers
                                              http-request raw-request]]
-                       [cljs-hash.md5  :refer [md5]]
                        [cljs-http.client :as http]
                        [cljs.core.async :as async :refer [<!]]]))
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]])))
@@ -40,7 +38,7 @@
   #?(:clj
      (let [json-file?
           (when (and filename (not raw-response?))
-            (.endsWith filename ".json"))
+            (.endsWith ^String filename ".json"))
           ;; Call http-request if filename extension is not of type json
           {:keys [body status] :as response}
           (when-not json-file?

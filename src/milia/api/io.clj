@@ -82,8 +82,6 @@
   [^String body]
   (try+
    (json/parse-string body true)
-   (catch ClassCastException _
-     (parse-json-response (String. body "UTF-8")))
    (catch JsonParseException _
      (str "Improperly formatted API response: " body))))
 
@@ -96,7 +94,7 @@
         ;; Stream the http-request to avoid out of memory errors when the data
         ;; to copy is large
         json-file?
-        (when filename (.endsWith filename ".json"))
+        (when filename (.endsWith ^String filename ".json"))
         {streamed-body :body status :status}
         (when json-file?
           (client/get url

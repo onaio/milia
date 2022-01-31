@@ -1,5 +1,6 @@
 (ns milia.api.dataset
-  #? (:clj (:import [java.net URLEncoder]))
+  #? (:clj (:import [java.net URLEncoder]
+                    [java.nio.charset StandardCharsets]))
   (:refer-clojure :exclude [clone update])
   (:require [chimera.seq :refer [has-keys? in?]]
             [chimera.core :refer [not-nil?]]
@@ -153,7 +154,9 @@
                      (for [[option val] export-options]
                        (str (name option) "="
                             #?(:clj (if (seq? val)
-                                      (URLEncoder/encode val)
+                                      (URLEncoder/encode
+                                       val
+                                       (.toString (StandardCharsets/UTF_8)))
                                       val)
                                :cljs val)))))))])
 

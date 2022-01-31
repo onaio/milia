@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/onaio/milia.svg?branch=master)](https://travis-ci.org/onaio/milia)
+[![example workflow](https://github.com/onaio/milia/actions/workflows/ci.yml/badge.svg?branch=feature-1)](https://github.com/onaio/milia/actions/workflows/ci.yml)
 
 # milia
 Ona API client library in Clojure and ClojureScript
@@ -170,3 +170,13 @@ Convert remaining API endpoint files to cljc:
 * charts
 * images
 * j2x
+## running CLJS tests
+- Install node version `12.x.x` (you can use nvm)
+- Install karma cli
+    - `npm install -g karma-cli`
+- install npm test dependencies
+    - `npm install karma --save-dev`
+    - `npm install karma-cljs-test --save-dev`
+    - `npm install karma-chrome-launcher --save-dev`
+- Run the tests
+    - `lein doo chrome-headless test once` or `lein doo chrome-headless test auto`
