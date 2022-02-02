@@ -40,7 +40,6 @@
                             field-xpath  "charts/%s.json?field_xpath=%s"
                             :else "charts/%s.json?field_name=%s")
         url-template (str base-url-template (when group-by "&group_by=%s"))
-        url (if field-xpath
-              (make-url (format url-template id field-xpath group-by))
-              (make-url (format url-template id field-name group-by)))]
+        url (make-url
+             (format url-template id (or field-xpath field-name) group-by))]
     (parse-http :get url)))
