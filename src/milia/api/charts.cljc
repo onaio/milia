@@ -33,11 +33,13 @@
 
 (defn get
   "Given a field name, return chart data associated with a dataset or dataview"
-  [field-name & {:keys [dataview-id dataset-id group-by]}]
+  [field-name & {:keys [dataview-id dataset-id group-by field-xpath]}]
   (let [id (or dataview-id dataset-id)
-        base-url-template (if dataview-id
-                            "dataviews/%s/charts.json?field_name=%s"
-                            "charts/%s.json?field_name=%s")
+        base-url-template (cond
+                            dataview-id "dataviews/%s/charts.json?field_name=%s"
+                            field-xpath  "charts/%s.json?field_xpath=%s"
+                            :else "charts/%s.json?field_name=%s")
         url-template (str base-url-template (when group-by "&group_by=%s"))
-        url (make-url (format url-template id field-name group-by))]
+        url (make-url
+             (format url-template id (or field-xpath field-name) group-by))]
     (parse-http :get url)))
