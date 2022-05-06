@@ -138,7 +138,7 @@
        ((apply juxt export-option-values))
        (map add-param export-option-keys)
        #?(:cljs js/encodeURIComponent
-         :clj identity)
+          :clj identity)
        (concat [url data-format])
        (apply str)))
 
