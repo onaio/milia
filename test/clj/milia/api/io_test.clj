@@ -28,7 +28,7 @@
 (def auth-token "auth token for external api")
 (def options
   {:socket-timeout (:socket-timeout @timeouts)
-   :conn-timeout (:conn-timeout @timeouts)
+   :connection-timeout (:connection-timeout @timeouts)
    :save-request? debug-api?
    :debug debug-api?
    :debug-body debug-api?})

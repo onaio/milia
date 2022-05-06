@@ -20,7 +20,7 @@
 #?(:clj (defn read-env-string
           "Read a string using env return nil if nil."
           [k]
-          (if-let [v (env k)] (read-string v))))
+          (when-let [v (env k)] (read-string v))))
 
 #?(:clj (def debug-api? (read-env-string :debug-api)))
 #?(:clj (def http-default-per-route
@@ -28,13 +28,12 @@
 #?(:clj (def http-threads (read-env-string :milia-http-threads)))
 
 (def images-url
- #?(:clj "images.ona.io"
-    :cljs (str "images." (aget js/window "location" "hostname"))))
+  #?(:clj "images.ona.io"
+     :cljs (str "images." (aget js/window "location" "hostname"))))
 
 (def hosts
   "Store remote hosts that requests are made to."
-  (atom {
-         ;; used to create URLs that return to the client
+  (atom {;; used to create URLs that return to the client
          :client "zebra.ona.io"
          ;; Ona compatible API to request data from
          :data "stage-api.ona.io"
@@ -47,8 +46,8 @@
 
 (def timeouts
   "Store customizable timeouts to use in the http libraries. In milliseconds."
-  (atom {:conn-timeout   60000
-         :socket-timeout 60000}))
+  (atom {:connection-timeout 120000
+         :socket-timeout 120000}))
 
 (defn ^:export set-hosts
   "Swap values into hosts atom, requires data-host, other args are option but
