@@ -56,7 +56,7 @@
   ([] (build-req nil))
   ([http-options]
    (assoc (req+auth (or http-options {}))
-          :conn-timeout (:conn-timeout @timeouts)
+          :connection-timeout (:connection-timeout @timeouts)
           :socket-timeout (:socket-timeout @timeouts)
           :save-request? debug-api?
           :debug debug-api?
