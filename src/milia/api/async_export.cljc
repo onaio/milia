@@ -127,18 +127,20 @@
     #?(:cljs (goog.string.format "&query={\"%s\":\"%s\"}" key value))
     (str "&" key "=" value)))
 
-(defn- add-param [key value]
+(defn- add-param [no-url-encode key value]
   (when (or value (= value false))
-    (get-param key value)))
+    (let [param (get-param key value)]
+      (cond-> param
+        (not no-url-encode)
+        #?(:cljs js/encodeURIComponent
+           :clj identity)))))
 
 (defn build-export-suffix
   "Build the export options string to pass to the Ona API."
-  [url data-format & [export-options]]
-  (->> export-options
+  [url data-format & [{:keys [no-url-encode] :as export-options}]]
+  (->> (dissoc export-options :no-url-encode)
        ((apply juxt export-option-values))
-       (map add-param export-option-keys)
-       #?(:cljs js/encodeURIComponent
-          :clj identity)
+       (map (partial add-param no-url-encode) export-option-keys)
        (concat [url data-format])
        (apply str)))
 

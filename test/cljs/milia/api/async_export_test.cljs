@@ -83,17 +83,33 @@
                    :redirect-uri url
                    :include-reviews? include-reviews}
           export-suffix (async-export/build-export-suffix
-                         async-export/export-async-url fmt options)]
-      ;; be text below is equivalent to export_async.json?format=format
-      ;; ("&meta=meta-id" "&data_id=data-id" nil nil nil nil nil
-      ;; "&query={\"_version\":\"20160627\"}" nil nil nil nil
-      ;; "&win_excel_utf8=true" "&redirect_uri=http://test.me/"
-      ;; nil nil nil "&include_reviews=true" nil)
-      (is (= export-suffix
-             (str
-              "export_async.json?format=format(%22%26meta%3Dmeta-id%22%20%22"
-              "%26data_id%3Ddata-id%22%20nil%20nil%20nil%20nil%20nil%20%22"
-              "%26query%3D%7B%5C%22_version%5C%22%3A%5C%2220160627%5C%22%7D"
-              "%22%20nil%20nil%20nil%20nil%20%22%26win_excel_utf8%3Dtrue%22"
-              "%20%22%26redirect_uri%3Dhttp%3A%2F%2Ftest.me%2F%22%20nil%"
-              "20nil%20nil%20%22%26include_reviews%3Dtrue%22%20nil)"))))))
+                         async-export/export-async-url fmt options)
+          export-suffix-no-encode
+          (async-export/build-export-suffix
+           async-export/export-async-url fmt
+           (assoc options :no-url-encode true))]
+      (is
+       (=
+        export-suffix
+        (str
+         "export_async.json?format=format%26meta%3Dmeta-id%26data_id"
+         "%3Ddata-id%26query%3D%7B%22_version%22%3A%2220160627%22%7D"
+         "%26win_excel_utf8%3Dtrue%26redirect_uri%3Dhttp%3A%2F%2Ftest"
+         ".me%2F%26include_reviews%3Dtrue")))
+      (is
+       (=
+        (js/decodeURIComponent
+         export-suffix)
+        (str
+         "export_async.json?format=format&meta"
+         "=meta-id&data_id=data-id&query={"
+         "\"_version\":\"20160627\"}&win_excel_utf8=true&redirect_uri"
+         "=http://test.me/&include_reviews=true")))
+      (is
+       (=
+        export-suffix-no-encode
+        (str
+         "export_async.json?format=format&meta"
+         "=meta-id&data_id=data-id&query={"
+         "\"_version\":\"20160627\"}&win_excel_utf8=true&redirect_uri"
+         "=http://test.me/&include_reviews=true"))))))
