@@ -159,9 +159,10 @@
                              on-error
                              on-done]}]]
       (go
-        (let [export-suffix (build-export-suffix export-async-url
-                                                 data-format
-                                                 export-options)
+        (let [export-suffix (build-export-suffix
+                             export-async-url
+                             data-format
+                             (assoc export-options :no-url-encode true))
               export-url (make-url (type->endpoint data-type)
                                    dataset-id
                                    export-suffix)
