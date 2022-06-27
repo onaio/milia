@@ -30,7 +30,7 @@
   "Return all public datasets for a specific user."
   [username]
   (let [url (make-url "forms" (str username ".json"))]
-    (when username
+    (when (seq username)
       (parse-http :get url))))
 
 #?(:clj
@@ -161,8 +161,8 @@
                      (for [[option val] export-options]
                        (str (name option) "="
                             #?(:clj (if (seq? val)
-                                      (URLEncoder/encode
-                                       val
+                                      (java.net.URLEncoder/encode
+                                       (str val)
                                        (.toString (StandardCharsets/UTF_8)))
                                       val)
                                :cljs val)))))))])

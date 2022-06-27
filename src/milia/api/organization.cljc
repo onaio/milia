@@ -27,7 +27,7 @@
                 :as-map? true)))
 (defn profile
   [org-name & {:keys [no-cache?]}]
-  (when org-name
+  (when (seq org-name)
     (let [url (make-url "orgs" (str org-name ".json"))]
       (parse-http :get url :no-cache? no-cache?))))
 
@@ -160,7 +160,7 @@
   (let [org-name (:org params)
         url (make-url "orgs" (str org-name ".json"))
         params (dissoc params :org)]
-    (when org-name
+    (when (seq org-name)
       (parse-http
        :patch
        url

@@ -14,7 +14,7 @@
         options {#?(:clj :form-params
                     :cljs :json-params) params
                  #?(:clj :content-type) #?(:clj :json)}]
-    (when username
+    (when (seq username)
       (parse-http :patch url :http-options options :as-map? true
                   :suppress-4xx-exceptions? suppress-4xx-exceptions?))))
 
@@ -23,7 +23,7 @@
   [username]
   {:pre [username]}
   (let [url (make-url "profiles" (str username ".json"))
-        response (when username
+        response (when (seq username)
                    (retry-parse-http :get url
                                      :suppress-4xx-exceptions? true
                                      :max-retries 4))]
@@ -122,7 +122,7 @@
                             :organization])]}
 
   (let [url (make-url "profiles" (str username ".json"))]
-    (when username
+    (when (seq username)
       (parse-http :put url
                   :http-options {:form-params params
                                  :content-type :json}
