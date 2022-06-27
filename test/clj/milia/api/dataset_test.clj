@@ -556,22 +556,23 @@
 
   (facts "about clone"
          (fact "Should clone a dataset"
-               (clone dataset-id :username) => :response
+               (clone dataset-id "username") => :response
                (provided
                 (make-url "forms" dataset-id "clone.json") => :url
                 (parse-http :post
                             :url
-                            :http-options {:form-params {:username :username}}
+                            :http-options {:form-params {:username "username"}}
                             :suppress-4xx-exceptions? true) => :response))
 
          (fact "Should clone a dataset to project id"
-               (clone dataset-id :username :project-id :project-id) => :response
+               (clone dataset-id
+                      "username" :project-id :project-id) => :response
                (provided
                 (make-url "forms" dataset-id "clone.json") => :url
                 (parse-http :post
                             :url
                             :http-options {:form-params
-                                           {:username :username
+                                           {:username "username"
                                             :project_id :project-id}}
                             :suppress-4xx-exceptions? true) => :response)))
 

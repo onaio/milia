@@ -71,7 +71,7 @@
 (defn clone
   "Clone the dataset given by ID into the account with the given username."
   [dataset-id username & {:keys [project-id]}]
-  (when dataset-id
+  (when (and dataset-id (seq username))
     (let [url (make-url "forms" dataset-id "clone.json")
           data-base {:form-params {:username username}}
           data (if project-id
