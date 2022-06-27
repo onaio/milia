@@ -27,8 +27,9 @@
                 :as-map? true)))
 (defn profile
   [org-name & {:keys [no-cache?]}]
-  (let [url (make-url "orgs" (str org-name ".json"))]
-    (parse-http :get url :no-cache? no-cache?)))
+  (when org-name
+    (let [url (make-url "orgs" (str org-name ".json"))]
+      (parse-http :get url :no-cache? no-cache?))))
 
 (defn retrieve-org-metadata
   [username]
@@ -156,16 +157,18 @@
 (defn update
   "update organization profile"
   [params]
-  (let [url (make-url "orgs" (str (:org params) ".json"))
+  (let [org-name (:org params)
+        url (make-url "orgs" (str org-name ".json"))
         params (dissoc params :org)]
-    (parse-http
-     :patch
-     url
-     :http-options
-     #?(:clj   {:form-params params
-                :content-type :json})
-     #?(:cljs  {:json-params params})
-     :as-map? true)))
+    (when org-name
+      (parse-http
+       :patch
+       url
+       :http-options
+       #?(:clj   {:form-params params
+                  :content-type :json})
+       #?(:cljs  {:json-params params})
+       :as-map? true))))
 
 (defn get-team
   "Returns an Organizaion team given the team name."

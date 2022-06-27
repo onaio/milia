@@ -5,10 +5,10 @@
             [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]))
 
-(def url :fake-url)
-(def username :fake-username)
-(def password :fake-password)
-(def org-name :fake-org-name)
+(def url "fake-url")
+(def username "fake-username")
+(def password "fake-password")
+(def org-name "fake-org-name")
 (def fake-teams [{:organization org-name :name "name"}])
 (def fake-member {:username :username :role :role})
 (def org-profile {:org org-name})
@@ -71,12 +71,13 @@
               (teams-all) => fake-teams)))
 
 (facts "about team-info"
-       (fact "should get correct url"
-             (team-info :fake-orgname :fake-team-id) => :something
-             (provided
-              (make-url "teams" :fake-orgname (str :fake-team-id ".json"))
-              => url
-              (parse-http :get url) => :something)))
+       (let [fake-team-id-uri (str :fake-team-id ".json")]
+         (fact "should get correct url"
+               (team-info :fake-orgname :fake-team-id) => :something
+               (provided
+                (make-url "teams" :fake-orgname fake-team-id-uri)
+                => url
+                (parse-http :get url) => :something))))
 
 (facts "about team-members"
        (fact "should get correct url"
@@ -177,10 +178,11 @@
 (fact "should update org settings"
       (let [params {:org org-name :description "test"}
             data {:form-params {:description "test"}
-                  :content-type :json}]
+                  :content-type :json}
+            org-name-uri (str org-name ".json")]
         (update params) => org-profile
         (provided
-         (make-url "orgs" (str org-name ".json")) => :url
+         (make-url "orgs" org-name-uri) => :url
          (parse-http :patch
                      :url
                      :http-options data

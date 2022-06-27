@@ -14,17 +14,19 @@
         options {#?(:clj :form-params
                     :cljs :json-params) params
                  #?(:clj :content-type) #?(:clj :json)}]
-    (parse-http :patch url :http-options options :as-map? true
-                :suppress-4xx-exceptions? suppress-4xx-exceptions?)))
+    (when username
+      (parse-http :patch url :http-options options :as-map? true
+                  :suppress-4xx-exceptions? suppress-4xx-exceptions?))))
 
 (defn profile
   "Return the profile for the account username or the passed username."
   [username]
   {:pre [username]}
   (let [url (make-url "profiles" (str username ".json"))
-        response (retry-parse-http :get url
-                                   :suppress-4xx-exceptions? true
-                                   :max-retries 4)]
+        response (when username
+                   (retry-parse-http :get url
+                                     :suppress-4xx-exceptions? true
+                                     :max-retries 4))]
     (if-let [error (:detail response)] nil response)))
 
 (defn verify-email
@@ -44,7 +46,7 @@
   (let [url (make-url "profiles" "send_verification_email.json")
         form-params
         (cond-> {:username username}
-            (not-nil? redirect-url) (assoc :redirect_url redirect-url))]
+          (not-nil? redirect-url) (assoc :redirect_url redirect-url))]
     (parse-http :post url :http-options {:form-params form-params})))
 
 (defn get-profiles-for-list-of-users
@@ -53,7 +55,7 @@
   {:pre [(seq users)]}
   (let [url (make-url (str "profiles.json?users=" (join "," users)))
         response (parse-http :get url :suppress-4xx-exceptions? true)]
-     (if-let [error (:detail response)] error response)))
+    (if-let [error (:detail response)] error response)))
 
 (defn user
   "Return the user profile with authentication details."
@@ -118,11 +120,13 @@
                             :username
                             :website
                             :organization])]}
+
   (let [url (make-url "profiles" (str username ".json"))]
-    (parse-http :put url
-                :http-options {:form-params params
-                               :content-type :json}
-                :as-map? true)))
+    (when username
+      (parse-http :put url
+                  :http-options {:form-params params
+                                 :content-type :json}
+                  :as-map? true))))
 
 (defn change-password
   "Change user password"
@@ -141,7 +145,7 @@
 
 (defn update-user-metadata
   [username metadata & {:keys [suppress-4xx-exceptions?]
-                       :or {suppress-4xx-exceptions? nil}}]
+                        :or {suppress-4xx-exceptions? nil}}]
   (let [current-metadata (retrieve-metadata username)
         updated-metadata (merge current-metadata metadata)]
     (patch username

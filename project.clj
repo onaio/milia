@@ -33,7 +33,7 @@
             [lein-cljsbuild "1.1.8"]
             [lein-environ "1.0.1"]
             [lein-kibit "0.1.8"]
-            [lein-midje "3.1.3"]
+            [lein-midje "3.2.2"]
             [lein-doo "0.1.11"]]
   :bikeshed {:var-redefs false
              :name-collisions false}

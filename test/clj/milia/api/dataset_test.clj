@@ -1,17 +1,18 @@
-  (ns milia.api.dataset-test
-    (:refer-clojure :exclude [update])
-    (:require [cheshire.core :refer [generate-string]]
-              [clojure.string :refer [join]]
-              [chimera.core :refer [not-nil?]]
-              [midje.sweet :refer :all]
-              [milia.api.dataset :refer :all]
-              [milia.utils.file :as f]
-              [milia.utils.remote :refer [make-j2x-url
-                                          make-url
-                                          make-client-url]]
-              [milia.api.http :refer [parse-http]]
-              [milia.utils.remote :refer [*credentials*]]
-              [milia.api.io :refer [multipart-options]]))
+(ns milia.api.dataset-test
+;;   (:refer-clojure :exclude [update])
+  (:require [cheshire.core :refer [generate-string]]
+            [clojure.string :refer [join]]
+            [midje.sweet :refer :all]
+            [milia.api.dataset :refer :all]
+            [milia.utils.file :as f]
+            [milia.utils.remote :refer [make-j2x-url
+                                        make-url
+                                        make-client-url]]
+            [milia.api.http :refer [parse-http]]
+            [milia.api.io :refer [multipart-options]]))
+
+(def dataset-id 123)
+(def dataset-id-url (str dataset-id ".json"))
 
 (let [url :fake-url
       username :fake-username
@@ -36,31 +37,32 @@
 
   (facts "about datasets-update"
          (fact "Should get correct url"
-               (update :dataset-id params) => :something
+               (update dataset-id params) => :something
                (provided
-                (make-url "forms" (str :dataset-id ".json")) => url
+                (make-url "forms" dataset-id-url) => url
                 (parse-http :put url
                             :http-options {:form-params params})
                 => :something)))
 
   (facts "about dataset metadata"
          (fact "should get dataset metadata"
-               (metadata :dataset-id) => :fake-metadata
+               (metadata dataset-id) => :fake-metadata
                (provided
-                (make-url "forms" ":dataset-id.json") => url
+                (make-url "forms" dataset-id-url) => url
                 (parse-http :get url :no-cache? nil) => :fake-metadata)))
 
   (facts "about dataset metadata with cache"
          (fact "should get dataset metadata and show caching was true"
-               (metadata :dataset-id :no-cache? true) => :fake-metadata-cache
+               (metadata dataset-id :no-cache? true) => :fake-metadata-cache
                (provided
-                (make-url "forms" ":dataset-id.json") => url
-                (parse-http :get url :no-cache? true) => :fake-metadata-cache)))
+                (make-url "forms" dataset-id-url) => url
+                (parse-http :get url :no-cache? true)
+                => :fake-metadata-cache)))
 
   (fact "about dataset-getdata"
-        (data :dataset-id) => :something
+        (data dataset-id) => :something
         (provided
-         (make-url "data" :dataset-id) => url
+         (make-url "data" dataset-id) => url
          (parse-http :get
                      url
                      :http-options {:query-params nil}
@@ -70,9 +72,9 @@
                      :auth-token nil) => :something))
 
   (fact "about dataset get dataset datum"
-        (data :dataset-id :datum-id 1 :format "json") => :something
+        (data dataset-id :datum-id 1 :format "json") => :something
         (provided
-         (make-url "data"  ":dataset-id.json") => url
+         (make-url "data"  dataset-id-url) => url
          (parse-http :get
                      url
                      :http-options {:query-params nil}
@@ -82,9 +84,9 @@
                      :auth-token nil) => :something))
 
   (fact "about dataset-getdata :raw"
-        (data :dataset-id :raw? true :must-revalidate? true) => :something
+        (data dataset-id :raw? true :must-revalidate? true) => :something
         (provided
-         (make-url "data" :dataset-id) => url
+         (make-url "data" dataset-id) => url
          (parse-http :get
                      url
                      :http-options {:query-params nil}
@@ -94,10 +96,10 @@
                      :auth-token nil) => :something))
 
   (fact "about dataset-getdata with :accept-header"
-        (data :dataset-id :accept-header "text/*"
+        (data dataset-id :accept-header "text/*"
               :must-revalidate? true) => :something
         (provided
-         (make-url "data" :dataset-id) => url
+         (make-url "data" dataset-id) => url
          (parse-http :get
                      url
                      :http-options {:query-params nil}
@@ -108,9 +110,9 @@
 
   (fact "about dataset-getdata with :query"
         (let [query (str "{\"_submitted_by\":\"" username "\"}")]
-          (data :dataset-id :query-params {:query query}) => :something
+          (data dataset-id :query-params {:query query}) => :something
           (provided
-           (make-url "data" :dataset-id) => url
+           (make-url "data" dataset-id) => url
            (parse-http :get
                        url
                        :http-options {:query-params {:query query}}
@@ -120,29 +122,29 @@
                        :auth-token nil) => :something)))
 
   (fact "about dataset-getrecord"
-        (record :dataset-id :record-id) => :something
+        (record dataset-id :record-id) => :something
         (provided
-         (make-url "data" :dataset-id (str :record-id ".json")) => url
+         (make-url "data" 123 ":record-id.json") => url
          (parse-http :get url) => :something))
 
   (fact "about dataset-get-tags"
-        (tags :dataset-id) => :something
+        (tags dataset-id) => :something
         (provided
-         (make-url "forms" :dataset-id "labels.json") => url
+         (make-url "forms" dataset-id "labels.json") => url
          (parse-http :get url) => :something))
 
   (fact "about dataset-add-tag"
-        (add-tags :dataset-id :tags) => :something
+        (add-tags dataset-id :tags) => :something
         (provided
-         (make-url "forms" :dataset-id "labels.json") => url
+         (make-url "forms" dataset-id "labels.json") => url
          (parse-http :post url
                      :http-options {:form-params :tags}) => :something))
 
   (facts "About dataset download"
          (fact "Should make data URL and parse response"
                (let [format "csv"
-                     filename (str :dataset-id "." format)]
-                 (download :dataset-id format) => :fake-file
+                     filename (str dataset-id "." format)]
+                 (download dataset-id format) => :fake-file
                  (provided
                   (make-url "data" filename) => url
                   (parse-http :get url :http-options {}
@@ -150,8 +152,8 @@
 
          (fact "Should change URL for async"
                (let [format "csv"
-                     filename (str :dataset-id "." format)]
-                 (download :dataset-id format true) => :fake-file
+                     filename (str dataset-id "." format)]
+                 (download dataset-id format true) => :fake-file
                  (provided
                   (make-url "forms" filename) => url
                   (parse-http :get url :http-options {}
@@ -159,8 +161,8 @@
 
          (fact "Should handle XLS as byte array"
                (let [format "xls"
-                     filename (str :dataset-id "." format)]
-                 (download :dataset-id format) => :fake-file
+                     filename (str dataset-id "." format)]
+                 (download dataset-id format) => :fake-file
                  (provided
                   (make-url "data" filename) => url
                   (parse-http :get
@@ -170,21 +172,22 @@
 
          (fact "Should handle csvzip zip extension"
                (let [format "csvzip"
-                     path (str :dataset-id "." format)
-                     filename (str :dataset-id ".zip")]
-                 (download :dataset-id format) => :fake-file
+                     path (str dataset-id "." format)
+                     filename (str dataset-id ".zip")]
+                 (download dataset-id format) => :fake-file
                  (provided
                   (make-url "data" path) => url
                   (parse-http :get url :http-options {:as :byte-array}
                               :filename filename) => :fake-file)))
+
          (fact "Should add extra download options to request"
                (let [format "csv"
-                     filename (str :dataset-id "." format)
-                     uri (str :dataset-id "." format
+                     filename (str dataset-id "." format)
+                     uri (str dataset-id "." format
                               "?remove-group-names=true&group-delimiter=/")
                      export-options {:remove-group-names true
                                      :group-delimiter "/"}]
-                 (download :dataset-id format true false export-options)
+                 (download dataset-id format true false export-options)
                  => :fake-file
                  (provided
                   (make-url "forms" uri) => url
@@ -211,16 +214,17 @@
                   (parse-http :get form-data-url
                               :accept-header accept-header
                               :http-options {}) => :response))
-           (fact "calls parse-http with the correct parameters for forms given a
+           (fact
+            "calls parse-http with the correct parameters for forms given a
                   submission-id"
-                 (download-synchronously dataset-id format
-                                         :accept-header accept-header
-                                         :submission-id submission-id)
-                 => :response
-                 (provided
-                  (parse-http :get form-data-url-with-submission-id
-                              :accept-header accept-header
-                              :http-options {}) => :response))
+            (download-synchronously dataset-id format
+                                    :accept-header accept-header
+                                    :submission-id submission-id)
+            => :response
+            (provided
+             (parse-http :get form-data-url-with-submission-id
+                         :accept-header accept-header
+                         :http-options {}) => :response))
            (fact "calls parse-http with the correct parameters for filtered
                   dataview"
                  (download-synchronously dataset-id format
@@ -234,25 +238,25 @@
 
   (facts "about dataset form"
          (fact "Return JSON string"
-               (form :dataset-id) => :json
+               (form dataset-id) => :json
                (provided
-                (make-url "forms" :dataset-id "form.json") => url
+                (make-url "forms" dataset-id "form.json") => url
                 (parse-http :get url) => :json))
 
          (fact "Download as format"
                (let [format "csv"
                      suffix (str "form." format)
-                     filename (str :dataset-id "_" suffix)]
-                 (form :dataset-id format) => :fake-file
+                     filename (str dataset-id "_" suffix)]
+                 (form dataset-id format) => :fake-file
                  (provided
-                  (make-url "forms" :dataset-id suffix) => url
+                  (make-url "forms" dataset-id suffix) => url
                   (parse-http :get url :http-options {}
                               :filename filename) => :fake-file))))
 
   (fact "about online-data-entry-link"
-        (online-data-entry-link :dataset-id) => {:enketo_url :enketo_url}
+        (online-data-entry-link dataset-id) => {:enketo_url :enketo_url}
         (provided
-         (make-url "forms" :dataset-id "enketo.json") => url
+         (make-url "forms" dataset-id "enketo.json") => url
          (#'milia.api.io/http-request :get url nil) =>
          {:body :body
           :request :request
@@ -263,9 +267,9 @@
                                       nil) => {:enketo_url :enketo_url}))
 
   (fact "about dataset delete"
-        (delete :dataset-id) => :response
+        (delete dataset-id) => :response
         (provided
-         (make-url "forms" :dataset-id "delete_async.json") => url
+         (make-url "forms" dataset-id "delete_async.json") => url
          (parse-http :delete url) => :response))
 
   (fact "about create dataset"
@@ -291,7 +295,7 @@
   (fact "should change form owner"
         (new-form-owner :id :new_owner) => :response
         (provided
-         (make-url "forms" (str :id ".json")) => url
+         (make-url "forms" ":id.json") => url
          (make-url "users" :new_owner) => :user-url
          (parse-http :patch
                      url
@@ -303,17 +307,17 @@
                role :fake-role
                data {:username username :role role}]
            (fact "Should return result of parse-http"
-                 (update-sharing :dataset-id
+                 (update-sharing dataset-id
                                  username
                                  role) => :sharing-updated
                  (provided
-                  (make-url "forms" :dataset-id "share.json") => url
+                  (make-url "forms" dataset-id "share.json") => url
                   (parse-http :post url :http-options
                               {:form-params data})
                   => :sharing-updated))))
 
   (fact "about upload media"
-        (upload-media :dataset-id {:filename "image.png"}) => :response
+        (upload-media dataset-id {:filename "image.png"}) => :response
         (provided
          (f/uploaded->file {:filename "image.png"}) => :media-file
          (make-url "metadata.json") => url
@@ -324,7 +328,7 @@
                                                 {:name "data_type"
                                                  :content "media"}
                                                 {:name "xform"
-                                                 :content :dataset-id}
+                                                 :content dataset-id}
                                                 {:name "data_file"
                                                  :content :media-file}]}
                      :suppress-4xx-exceptions? true)
@@ -352,38 +356,41 @@
   (facts "About patch"
          (let [options {:form-params nil}
                file {:xls_file :uploaded-file}
-               multipart-options-map {:multi :part}]
+               multipart-options-map {:multi :part}
+               dataset-id-url "123.json"]
            (fact "Should call parse-http with patch"
-                 (patch :dataset-id nil) => :response
+                 (patch dataset-id nil) => :response
                  (provided
-                  (make-url "forms" (str :dataset-id ".json")) => url
+                  (make-url "forms" dataset-id-url) => url
                   (parse-http :patch
                               url
                               :http-options options
                               :suppress-4xx-exceptions? true) => :response))
+           (comment
 
-           (fact "Should call parse-http with multipart options"
-                 (patch :dataset-id file) => :response
-                 (provided
-                  (make-url "forms" (str :dataset-id ".json")) => url
-                  (multipart-options :uploaded-file "xls_file")
-                  => multipart-options-map
-                  (parse-http :patch
-                              url
-                              :http-options multipart-options-map
-                              :suppress-4xx-exceptions? true) => :response))
+             (fact "Should call parse-http with multipart options"
+                   (patch dataset-id file) => :response
+                   (provided
+                    (make-url "forms" dataset-id-url) => url
+                    (multipart-options :uploaded-file "xls_file")
+                    => multipart-options-map
+                    (parse-http :patch
+                                url
+                                :http-options multipart-options-map
+                                :suppress-4xx-exceptions? true) => :response))
 
-           (fact "Should respect suppress option"
-                 (patch :dataset-id file :suppress-4xx-exceptions? false)
-                 => :response
-                 (provided
-                  (make-url "forms" (str :dataset-id ".json")) => url
-                  (multipart-options :uploaded-file "xls_file")
-                  => multipart-options-map
-                  (parse-http :patch
-                              url
-                              :http-options multipart-options-map
-                              :suppress-4xx-exceptions? false) => :response))))
+             (fact "Should respect suppress option"
+                   (patch dataset-id file :suppress-4xx-exceptions? false)
+                   => :response
+                   (provided
+                    (make-url "forms" dataset-id-url) => url
+                    (multipart-options :uploaded-file "xls_file")
+                    => multipart-options-map
+                    (parse-http
+                     :patch
+                     url
+                     :http-options multipart-options-map
+                     :suppress-4xx-exceptions? false) => :response)))))
 
   (facts "about xls template reports"
          (let [media-file {:filename "filename"}
@@ -393,7 +400,7 @@
                byte-array [0,1]
                data-value (str ":filename|" (make-j2x-url "xls" ":uuid"))]
            (fact "Should add xls report to Ona"
-                 (add-xls-report :dataset-id
+                 (add-xls-report dataset-id
                                  :uuid
                                  :filename)
                  => (contains add-xls-response)
@@ -401,7 +408,7 @@
                   (make-url "metadata.json") => url
                   (parse-http :post url
                               :http-options {:form-params
-                                             {:xform :dataset-id
+                                             {:xform dataset-id
                                               :data_type "external_export"
                                               :data_value data-value}})
                   => add-xls-response))))
@@ -411,11 +418,11 @@
                 true"
                (let [multipart-options-map {:multi :part}
                      media-file {:filename "file.csv"}]
-                 (file-import :dataset-id media-file true) => :response
+                 (file-import dataset-id media-file true) => :response
                  (provided
                   (get-media-file-extension "file.csv") => :csv
                   (make-url "forms"
-                            :dataset-id
+                            dataset-id
                             "import.json?overwrite=true") => url
                   (multipart-options media-file "csv_file")
                   => multipart-options-map
@@ -428,10 +435,10 @@
                 false"
                (let [multipart-options-map {:multi :part}
                      media-file {:filename "file.csv"}]
-                 (file-import :dataset-id media-file) => :response
+                 (file-import dataset-id media-file) => :response
                  (provided
                   (get-media-file-extension "file.csv") => :csv
-                  (make-url "forms" :dataset-id "import.json") => url
+                  (make-url "forms" dataset-id "import.json") => url
                   (multipart-options media-file "csv_file")
                   => multipart-options-map
                   (parse-http :post :fake-url
@@ -443,11 +450,11 @@
                 true"
                (let [multipart-options-map {:multi :part}
                      media-file {:filename "file.xls"}]
-                 (file-import :dataset-id media-file true) => :response
+                 (file-import dataset-id media-file true) => :response
                  (provided
                   (get-media-file-extension "file.xls") => :xls
                   (make-url "forms"
-                            :dataset-id
+                            dataset-id
                             "import.json?overwrite=true") => url
                   (multipart-options media-file "xls_file")
                   => multipart-options-map
@@ -460,10 +467,10 @@
                 false"
                (let [multipart-options-map {:multi :part}
                      media-file {:filename "file.xls"}]
-                 (file-import :dataset-id media-file) => :response
+                 (file-import dataset-id media-file) => :response
                  (provided
                   (get-media-file-extension "file.xls") => :xls
-                  (make-url "forms" :dataset-id "import.json") => url
+                  (make-url "forms" dataset-id "import.json") => url
                   (multipart-options media-file "xls_file")
                   => multipart-options-map
                   (parse-http :post :fake-url
@@ -475,11 +482,11 @@
                 true"
                (let [multipart-options-map {:multi :part}
                      media-file {:filename "file.xlsx"}]
-                 (file-import :dataset-id media-file true) => :response
+                 (file-import dataset-id media-file true) => :response
                  (provided
                   (get-media-file-extension "file.xlsx") => :xlsx
                   (make-url "forms"
-                            :dataset-id
+                            dataset-id
                             "import.json?overwrite=true") => url
                   (multipart-options media-file "xls_file")
                   => multipart-options-map
@@ -492,10 +499,10 @@
                 false"
                (let [multipart-options-map {:multi :part}
                      media-file {:filename "file.xlsx"}]
-                 (file-import :dataset-id media-file) => :response
+                 (file-import dataset-id media-file) => :response
                  (provided
                   (get-media-file-extension "file.xlsx") => :xlsx
-                  (make-url "forms" :dataset-id "import.json") => url
+                  (make-url "forms" dataset-id "import.json") => url
                   (multipart-options media-file "xls_file")
                   => multipart-options-map
                   (parse-http :post :fake-url
@@ -505,8 +512,8 @@
                   => :response))))
 
   (fact "Should download xls report"
-        (let [form-xls-url (str :dataset-id ".xls?meta=" :meta-id)]
-          (download-xls-report :dataset-id
+        (let [form-xls-url (str dataset-id ".xls?meta=" :meta-id)]
+          (download-xls-report dataset-id
                                :meta-id
                                :filename)
           => :byte-array
@@ -516,89 +523,90 @@
                        :url
                        :http-options {:as :byte-array}
                        :as-map? true
-                       :filename :filename) => :byte-array))))
+                       :filename :filename) => :byte-array)))
 
-(fact "Should download xls report"
-      (let [form-xls-url (str :dataset-id ".xls?meta=" :meta-id)]
-        (download-xls-report :dataset-id
-                             :meta-id
-                             :filename) => :byte-array
+  (fact "Should download xls report"
+        (let [form-xls-url (str dataset-id ".xls?meta=" :meta-id)]
+          (download-xls-report dataset-id
+                               :meta-id
+                               :filename) => :byte-array
+          (provided
+           (make-url "forms"  form-xls-url) => :url
+           (parse-http :get
+                       :url
+                       :http-options {:as :byte-array}
+                       :as-map? true
+                       :filename :filename) => :byte-array)))
+
+  (fact "Should download xls report for single submission"
+        (let [form-xls-url (str dataset-id
+                                ".xls?meta=" :meta-id "&data_id=" :data-id)]
+          (download-xls-report dataset-id
+                               :meta-id
+                               :filename
+                               :data-id)
+          => :byte-array
+          (provided
+           (make-url "forms"  form-xls-url) => :url
+           (parse-http :get
+                       :url
+                       :http-options {:as :byte-array}
+                       :as-map? true
+                       :filename :filename) => :byte-array)))
+
+  (facts "about clone"
+         (fact "Should clone a dataset"
+               (clone dataset-id :username) => :response
+               (provided
+                (make-url "forms" dataset-id "clone.json") => :url
+                (parse-http :post
+                            :url
+                            :http-options {:form-params {:username :username}}
+                            :suppress-4xx-exceptions? true) => :response))
+
+         (fact "Should clone a dataset to project id"
+               (clone dataset-id :username :project-id :project-id) => :response
+               (provided
+                (make-url "forms" dataset-id "clone.json") => :url
+                (parse-http :post
+                            :url
+                            :http-options {:form-params
+                                           {:username :username
+                                            :project_id :project-id}}
+                            :suppress-4xx-exceptions? true) => :response)))
+
+  (fact "should generating edit link"
+        (let [username "jane"]
+          (edit-link username :project-id dataset-id :instance-id) => :response
+          (provided
+           (make-client-url
+            username
+            :project-id
+            dataset-id
+            "submission-editing-complete") => :zebra-url
+           (make-url "data"
+                     dataset-id
+                     :instance-id
+                     "enketo.json?return_url=:zebra-url") => :url
+           (parse-http :get :url) => {:url :response})))
+
+  (fact "about edit-history"
+        (edit-history dataset-id :instance-id) => :response
         (provided
-         (make-url "forms"  form-xls-url) => :url
-         (parse-http :get
-                     :url
-                     :http-options {:as :byte-array}
-                     :as-map? true
-                     :filename :filename) => :byte-array)))
-
-(fact "Should download xls report for single submission"
-      (let [form-xls-url (str :dataset-id
-                              ".xls?meta=" :meta-id "&data_id=" :data-id)]
-        (download-xls-report :dataset-id
-                             :meta-id
-                             :filename
-                             :data-id)
-        => :byte-array
-        (provided
-         (make-url "forms"  form-xls-url) => :url
-         (parse-http :get
-                     :url
-                     :http-options {:as :byte-array}
-                     :as-map? true
-                     :filename :filename) => :byte-array)))
-
-(facts "about clone"
-       (fact "Should clone a dataset"
-             (clone :dataset-id :username) => :response
-             (provided
-              (make-url "forms" :dataset-id "clone.json") => :url
-              (parse-http :post
-                          :url
-                          :http-options {:form-params {:username :username}}
-                          :suppress-4xx-exceptions? true) => :response))
-
-       (fact "Should clone a dataset to project id"
-             (clone :dataset-id :username :project-id :project-id) => :response
-             (provided
-              (make-url "forms" :dataset-id "clone.json") => :url
-              (parse-http :post
-                          :url
-                          :http-options {:form-params
-                                         {:username :username
-                                          :project_id :project-id}}
-                          :suppress-4xx-exceptions? true) => :response)))
-
-(fact "should generating edit link"
-      (let [username "jane"]
-        (edit-link username :project-id :dataset-id :instance-id) => :response
-        (provided
-         (make-client-url
-          username
-          :project-id
-          :dataset-id
-          "submission-editing-complete") => :zebra-url
-         (make-url "data"
-                   :dataset-id
-                   :instance-id
-                   "enketo.json?return_url=:zebra-url") => :url
-         (parse-http :get :url) => {:url :response})))
-
-(fact "about edit-history"
-      (edit-history :dataset-id :instance-id) => :response
-      (provided
-       (make-url "data" :dataset-id :instance-id "history.json") => :url
-       (parse-http :get :url) => :response))
+         (make-url "data" dataset-id :instance-id "history.json") => :url
+         (parse-http :get :url) => :response)))
 
 (facts "about listing submission files"
        (fact "if dataview null send dataset ID"
-             (files :instance-id :project-id :dataset-id 1)
+             (files :instance-id :project-id
+                    :no-cache? true :dataset-id dataset-id)
              => :response
              (provided
               (make-url "metadata.json") => :url
-              (parse-http :get :url :no-cache? nil
+              (parse-http :get :url :no-cache? true
                           :http-options {:query-params {:instance :instance-id
                                                         :project :project-id
-                                                        :xform 1}
+                                                        :xform 123}
                                          :content-type :json})
               => :response)))
 
