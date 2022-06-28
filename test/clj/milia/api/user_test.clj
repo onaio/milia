@@ -1,4 +1,4 @@
-(ns milia.api.user_test
+(ns milia.api.user-test
   (:refer-clojure :exclude [get update])
   (:require [clojure.string :refer [join]]
             [midje.sweet :refer :all]
@@ -6,12 +6,15 @@
             [milia.api.http :refer [parse-http]]
             [milia.utils.remote :refer [make-url]]))
 
-(def username  :fake-username)
-(def username2 :fake-username2)
-(def username3 :fake-username3)
-(def password  :fake-password)
+(def username  "fake-username")
+(def username2 "fake-username2")
+(def username3 "fake-username3")
+(def password  "fake-password")
 (def account   {:username username :password password})
 (def verification-key :fake-verification-key)
+(def verification-key-uri (str "verify_email.json?verification_key="
+                               verification-key))
+(def username-uri  (str username ".json"))
 (def redirect-url :fake-redirect-url)
 
 (let [url :fake-url
@@ -57,8 +60,7 @@
                (verify-email verification-key) => :something
                (provided
                 (make-url "profiles"
-                          (str "verify_email.json?verification_key="
-                               verification-key)) => url
+                          verification-key-uri) => url
                 (parse-http :get url
                             :suppress-4xx-exceptions? true) => :something))
 
@@ -66,8 +68,7 @@
                (verify-email verification-key) => nil
                (provided
                 (make-url "profiles"
-                          (str "verify_email.json?verification_key="
-                               verification-key)) => url
+                          verification-key-uri) => url
                 (parse-http :get url
                             :suppress-4xx-exceptions? true) =>
                 {:detail :error})))
@@ -92,14 +93,14 @@
          (fact "Should get correct url"
                (profile username) => :something
                (provided
-                (make-url "profiles" (str username ".json")) => url
+                (make-url "profiles" username-uri) => url
                 (parse-http :get url
                             :suppress-4xx-exceptions? true) => :something))
 
          (fact "Should get correct url"
                (profile username) => nil
                (provided
-                (make-url "profiles" (str username ".json")) => url
+                (make-url "profiles" username-uri) => url
                 (parse-http :get url
                             :suppress-4xx-exceptions? true) =>
                 {:detail :error})))
@@ -149,7 +150,7 @@
          (fact "Should put to profiles"
                (update username update-params) => :updated-profile
                (provided
-                (make-url "profiles" (str username ".json")) => url
+                (make-url "profiles" username-uri) => url
                 (parse-http :put url
                             :http-options updated-data
                             :as-map? true)
@@ -179,7 +180,7 @@
          (fact "should update metadata"
                (update-user-metadata username {:first-login false}) => :metadata
                (provided
-                (make-url "profiles" (str username ".json")) => url
+                (make-url "profiles" username-uri) => url
                 (retrieve-metadata username) => {:random "test"}
                 (parse-http :patch
                             url
@@ -192,9 +193,9 @@
 
   (facts "About get-email"
          (fact "Should get users for username"
-               (get :username) => :user
+               (get username) => :user
                (provided
-                (make-url "users" (str :username ".json")) => url
+                (make-url "users" username-uri) => url
                 (parse-http :get url)
                 => :user)))
 
@@ -236,11 +237,11 @@
                      :http-options {:form-params params}) => nil)))
 
 (fact "patch should submit a patch request"
-      (patch username :params) => :response
+      (patch "username" :params) => :response
       (provided
-       (make-url "profiles" (str username ".json")) => :url
+       (make-url "profiles" "username.json") => "url"
        (parse-http :patch
-                   :url
+                   "url"
                    :http-options {:form-params :params
                                   :content-type :json}
                    :as-map? true

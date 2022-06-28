@@ -117,7 +117,7 @@
                                     :loaded            (.-loaded %)
                                     :total             (.-total %)})))
     ;; make the requests
-    (.send io-obj url "POST" form headers)
+    (.send io-obj url "POST" form (clj->js headers))
     io-obj))
 
 (defn http-request

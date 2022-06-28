@@ -8,19 +8,19 @@
    :milia-http-default-per-route "10"
    :milia-http-threads "20"})
 
-(defproject onaio/milia "0.7.6"
+(defproject onaio/milia "0.8.0"
   :description "The ona.io Clojure Web API Client."
   :dependencies [;; CORE MILIA REQUIREMENTS
-                 [cheshire "5.10.1"]
+                 [cheshire "5.11.0"]
                  [clj-http "3.12.3" :exclusions [com.cognitect/transit-cljs]]
                  [environ "1.2.0"]
-                 [onaio/chimera "0.0.14" :exclusions [log4j]]
-                 [org.clojure/clojure "1.10.3"]
+                 [onaio/chimera "0.1.2" :exclusions [log4j]]
+                 [org.clojure/clojure "1.11.1"]
                  [org.clojure/tools.logging "1.2.4"]
                  [com.fzakaria/slf4j-timbre "0.3.21"]
                  ;;cljs
                  [cljs-hash "0.0.2"]
-                 [org.clojure/clojurescript "1.11.4"]
+                 [org.clojure/clojurescript "1.11.60"]
                  [org.clojure/core.async "1.5.648" :exclusions [org.clojure/tools.reader]]
                  [slingshot "0.12.2"]
                  ;; CLIENT REQUIREMENTS
@@ -33,8 +33,9 @@
             [lein-cljsbuild "1.1.8"]
             [lein-environ "1.0.1"]
             [lein-kibit "0.1.8"]
-            [lein-midje "3.1.3"]
-            [lein-doo "0.1.11"]]
+            [lein-midje "3.2.2"]
+            [lein-doo "0.1.11"]
+            [lein-ancient "1.0.0-RC3"]]
   :bikeshed {:var-redefs false
              :name-collisions false}
   :cljfmt {:file-pattern #"[^\.#]*\.clj[s]?$"}

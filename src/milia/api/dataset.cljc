@@ -30,7 +30,8 @@
   "Return all public datasets for a specific user."
   [username]
   (let [url (make-url "forms" (str username ".json"))]
-    (parse-http :get url)))
+    (when (seq username)
+      (parse-http :get url))))
 
 #?(:clj
    (defn- send-file-or-params
@@ -64,17 +65,23 @@
      [dataset-id params & {:keys [suppress-4xx-exceptions?]
                            :or {suppress-4xx-exceptions? true}}]
      (let [url (make-url "forms" (str dataset-id ".json"))]
-       (send-file-or-params :patch url params suppress-4xx-exceptions?))))
+       (when dataset-id
+         (send-file-or-params :patch url params suppress-4xx-exceptions?)))))
 
 (defn clone
   "Clone the dataset given by ID into the account with the given username."
   [dataset-id username & {:keys [project-id]}]
-  (let [url (make-url "forms" dataset-id "clone.json")
-        data-base {:form-params {:username username}}
-        data (if project-id
-               (assoc-in data-base [:form-params :project_id] project-id)
-               data-base)]
-    (parse-http :post url :http-options data :suppress-4xx-exceptions? true)))
+  (when (and dataset-id (seq username))
+    (let [url (make-url "forms" dataset-id "clone.json")
+          data-base {:form-params {:username username}}
+          data (if project-id
+                 (assoc-in data-base [:form-params :project_id] project-id)
+                 data-base)]
+      (when dataset-id
+        (parse-http
+         :post url
+         :http-options data
+         :suppress-4xx-exceptions? true)))))
 
 (defn update
   "Set the metadata for a dataset using PUT. All parameters must be passed."
@@ -88,14 +95,17 @@
                             :public_data
                             :title
                             :uuid])]}
-  (let [url (make-url "forms" (str dataset-id ".json"))]
-    (parse-http :put url :http-options {:form-params params})))
+  (when dataset-id
+    (let [url (make-url "forms" (str dataset-id ".json"))]
+      (when dataset-id
+        (parse-http :put url :http-options {:form-params params})))))
 
 (defn update-form-name
   "Update the title of a form"
   [dataset-id params]
   (let [url (make-url "forms" dataset-id)]
-    (parse-http :put url :http-options {:form-params params})))
+    (when dataset-id
+      (parse-http :put url :http-options {:form-params params}))))
 
 (defn ^:export data
   "Return the data associated with a dataset."
@@ -125,13 +135,15 @@
   "Returns tags for a dataset"
   [dataset-id]
   (let [url (make-url "forms" dataset-id "labels.json")]
-    (parse-http :get url)))
+    (when dataset-id
+      (parse-http :get url))))
 
 (defn add-tags
   "Add tags to a dataset"
   [dataset-id tags]
   (let [url (make-url "forms" dataset-id "labels.json")]
-    (parse-http :post url :http-options {:form-params tags})))
+    (when dataset-id
+      (parse-http :post url :http-options {:form-params tags}))))
 
 (defn filename-for-format
   "Return filename taking format special cases into account."
@@ -154,8 +166,8 @@
                      (for [[option val] export-options]
                        (str (name option) "="
                             #?(:clj (if (seq? val)
-                                      (URLEncoder/encode
-                                       val
+                                      (java.net.URLEncoder/encode
+                                       (str val)
                                        (.toString (StandardCharsets/UTF_8)))
                                       val)
                                :cljs val)))))))])
@@ -203,19 +215,23 @@
   "Download form as JSON string or file in specified format if format passed."
   ([dataset-id]
    (let [url (make-url "forms" dataset-id "form.json")]
-     (parse-http :get url)))
+     (when dataset-id
+       (parse-http :get url))))
   ([dataset-id format]
    (let [suffix (str "form." format)
          options (options-for-format format)
          url (make-url "forms" dataset-id suffix)
          filename (str dataset-id "_" suffix)]
-     (parse-http :get url :http-options options :filename filename))))
+     (when dataset-id
+       (parse-http :get url :http-options options :filename filename)))))
 
 (defn metadata
   "Show dataset metadata."
   [dataset-id & {:keys [no-cache?]}]
-  (let [url (make-url "forms" (str dataset-id ".json"))]
-    (parse-http :get url :no-cache? no-cache?)))
+  (when dataset-id
+    (let [url (make-url "forms" (str dataset-id ".json"))]
+      (when dataset-id
+        (parse-http :get url :no-cache? no-cache?)))))
 
 (defn online-data-entry-link
   "Return link to online data entry."
@@ -252,16 +268,20 @@
 (defn new-form-owner
   "Set a new form owner"
   [dataset-id new-owner]
-  (let [url (make-url "forms" (str dataset-id ".json"))
-        new-owner (make-url "users" new-owner)]
-    (parse-http :patch url :http-options {:form-params {:owner new-owner}})))
+  (when dataset-id
+    (let [url (make-url "forms" (str dataset-id ".json"))
+          new-owner (make-url "users" new-owner)]
+      (when dataset-id
+        (parse-http :patch url :http-options
+                    {:form-params {:owner new-owner}})))))
 
 (defn update-sharing
   "Share dataset with specific user"
   [dataset-id username role]
   (let [url (make-url "forms" dataset-id "share.json")
         data {:username username :role role}]
-    (parse-http :post url :http-options {:form-params data})))
+    (when dataset-id
+      (parse-http :post url :http-options {:form-params data}))))
 
 #?(:clj
    (defn upload-media
