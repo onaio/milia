@@ -3,7 +3,7 @@
                                             http-request debug-api
                                             parse-binary-response]]
                       [slingshot.slingshot :refer [throw+]]
-                      [clojure.string :refer [split replace]]]
+                      [clojure.string :refer [replace]]]
                 :cljs [[milia.api.io :refer [build-http-options token->headers
                                              http-request raw-request]]
                        [cljs-http.client :as http]
@@ -49,11 +49,11 @@
            {:keys [Content-Disposition]} headers
            extension
            (when Content-Disposition
-             (-> Content-Disposition
-                 (split  #"filename=")
-                 last
-                 (split  #"\.")
-                 last))
+             (cond
+               (re-find #"\.xlsx" Content-Disposition)
+               "xlsx"
+               (re-find #"\.xls" Content-Disposition)
+               "xls"))
            ;; use content-disposition header for `.xls` file names
            filename (if extension
                       (replace filename #"\.xls$|\.xlsx$" (str "." extension))
