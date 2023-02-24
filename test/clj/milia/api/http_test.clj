@@ -25,6 +25,33 @@
 (def auth-token "auth-token")
 
 (facts "about parse-http"
+       (fact "Use Content-Disposition header to name xls file"
+             (parse-http :method :url {:filename "file-name.xlsx"}) => :response
+             (provided
+              (http-request :method :url nil) =>
+              {:body :body :status 200
+               :headers
+               {:Content-Disposition
+                "attachment; filename=\"transportation.xls; filename*=UTF-8"}}
+              (parse-response :body 200 "file-name.xls" nil) => :response))
+       (fact "Use Content-Disposition header to re-name xlsx file -> xls"
+             (parse-http :method :url {:filename "file-name.xlsx"}) => :response
+             (provided
+              (http-request :method :url nil) =>
+              {:body :body :status 200
+               :headers
+               {:Content-Disposition
+                "attachment; filename=\"transportation.xls"}}
+              (parse-response :body 200 "file-name.xls" nil) => :response))
+       (fact "Use Content-Disposition header to name xlsx file"
+             (parse-http :method :url {:filename "file-name.xlsx"}) => :response
+             (provided
+              (http-request :method :url nil) =>
+              {:body :body :status 200
+               :headers
+               {:Content-Disposition
+                "attachment; filename=\"transportation.xlsx; filename*=UTF-8"}}
+              (parse-response :body 200 "file-name.xlsx" nil) => :response))
        (fact "throws an exception when the API server is not reachable"
              (parse-http :method :url)
              => (throws (make-exception-str :no-http-response
