@@ -17,7 +17,7 @@
                  [onaio/chimera "0.1.2" :exclusions [log4j]]
                  [org.clojure/clojure "1.11.1"]
                  [org.clojure/tools.logging "1.2.4"]
-                 [com.fzakaria/slf4j-timbre "0.4.0"]
+                 [com.fzakaria/slf4j-timbre "0.3.21"]
                  ;;cljs
                  [cljs-hash "0.0.2"]
                  [org.clojure/clojurescript "1.11.60"]
@@ -42,7 +42,7 @@
   :eastwood {:exclude-linters [:constant-test :unused-locals :unused-fn-args :unused-private-vars]
              :add-linters [:unused-fn-args :unused-namespaces]
              :namespaces [:source-paths]}
-  :profiles {:dev {:dependencies [[midje "1.10.9" :exclusions [joda-time org.clojure/tools.namespace clj-time]]]
+  :profiles {:dev {:dependencies [[midje "1.10.5" :exclusions [joda-time org.clojure/tools.namespace clj-time]]]
                    :env ~project-env}
              :uberjar {:env ~project-env}}
   :test-paths ["test/clj" "target/generated/test/clj"]
