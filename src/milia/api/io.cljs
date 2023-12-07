@@ -1,18 +1,16 @@
 (ns milia.api.io
   (:import [goog.net.EventType]
            [goog.net XhrIo]
-           [goog.net IframeIo])
+           [goog.net IframeIo]
+           [goog.net Cookies])
   (:require [chimera.seq :refer [in?]]
             [chimera.string :refer [is-not-null?]]
             [cljs.core.async :refer [<! put! chan]]
             [cljs-hash.md5  :refer [md5]]
             [cljs-http.client :as http]
             [cljs-http.core :as http-core]
-            [clojure.set :refer [rename-keys]]
-            [clojure.string :refer [join split blank?]]
-            [goog.net.cookies :as cookies]
             [goog.events :as gev]
-            [milia.utils.remote :refer [*credentials* hosts bad-token-msgs]])
+            [milia.utils.remote :refer [*credentials*]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (defn build-http-options
@@ -48,7 +46,8 @@
   "Builds request headers for the HTTP request by adding
   Authorization, X-CSRFToken and Cache-control headers where necessary"
   [& {:keys [get-crsftoken? must-revalidate? accept-header auth-token]}]
-  (let [temp-token (:temp-token *credentials*)]
+  (let [temp-token (:temp-token *credentials*)
+        cookies (.getInstance Cookies)]
     (into {} [(if auth-token
                 ["Authorization" (str "Token " auth-token)]
                 (when (and (not-empty temp-token) (is-not-null?
@@ -57,7 +56,7 @@
               (when must-revalidate?
                 ["Cache-control" "must-revalidate"])
               (when-let [crsf-token (and get-crsftoken?
-                                         (cookies/get "csrftoken"))]
+                                         (.get cookies "csrftoken"))]
                 ["X-CSRFToken" crsf-token]
                 ["X-CSRF-Token" crsf-token])
               ["Accept" (or accept-header "application/json")]])))

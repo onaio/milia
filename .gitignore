@@ -19,6 +19,7 @@ resources/public/js/lib
 .lein-failures
 .nrepl-port
 .#*
+**/*.swp
 
 .clj-kondo
 .lsp
