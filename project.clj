@@ -11,20 +11,20 @@
 (defproject onaio/milia "0.9.3-rc2"
   :description "The ona.io Clojure Web API Client."
   :dependencies [;; CORE MILIA REQUIREMENTS
-                 [cheshire "5.11.0"]
-                 [clj-http "3.12.3" :exclusions [com.cognitect/transit-cljs]]
+                 [cheshire "6.2.0"]
+                 [clj-http "3.13.1" :exclusions [com.cognitect/transit-cljs]]
                  [environ "1.2.0"]
                  [onaio/chimera "0.1.2" :exclusions [log4j]]
-                 [org.clojure/clojure "1.11.1"]
-                 [org.clojure/tools.logging "1.2.4"]
+                 [org.clojure/clojure "1.12.6"]
+                 [org.clojure/tools.logging "1.3.1"]
                  [com.fzakaria/slf4j-timbre "0.3.21"]
                  ;;cljs
                  [cljs-hash "0.0.2"]
-                 [org.clojure/clojurescript "1.11.60"]
-                 [org.clojure/core.async "1.6.673" :exclusions [org.clojure/tools.reader]]
+                 [org.clojure/clojurescript "1.12.145"]
+                 [org.clojure/core.async "1.9.865" :exclusions [org.clojure/tools.reader]]
                  [slingshot "0.12.2"]
                  ;; CLIENT REQUIREMENTS
-                 [cljs-http "0.1.46" :exclusions [com.cognitect/transit-cljs]]]
+                 [cljs-http "0.1.49" :exclusions [com.cognitect/transit-cljs]]]
   :license "Apache 2"
   :url "https://github.com/onaio/milia"
   :plugins [[jonase/eastwood "1.1.1"]
