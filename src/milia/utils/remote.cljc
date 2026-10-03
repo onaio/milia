@@ -101,7 +101,10 @@
          "://"
          (configured-host host-map host-key))))
 
-(def thumbor-server (protocol-prefixed (:images @hosts)))
+(defn thumbor-server
+  "Base URL of the image server for the current hosts."
+  []
+  (host-url :images))
 
 (defn url-join
   [host args]
