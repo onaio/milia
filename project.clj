@@ -41,7 +41,8 @@
   :cljfmt {:file-pattern #"[^\.#]*\.clj[s]?$"}
   :eastwood {:exclude-linters [:constant-test :unused-locals :unused-fn-args :unused-private-vars]
              :add-linters [:unused-fn-args :unused-namespaces]
-             :namespaces [:source-paths]}
+             :namespaces [:source-paths]
+             :ignored-faults {:non-dynamic-earmuffs {milia.utils.remote true}}}
   :profiles {:dev {:dependencies [[midje "1.10.5" :exclusions [joda-time org.clojure/tools.namespace clj-time]]]
                    :env ~project-env}
              :uberjar {:env ~project-env}}

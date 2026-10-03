@@ -1,5 +1,5 @@
 (ns milia.utils.remote
-  (:require [clojure.string :refer [join]]
+  (:require [clojure.string :refer [blank? join]]
             [chimera.urls :refer [url]]
             #?(:clj [environ.core :refer [env]])))
 
@@ -31,8 +31,9 @@
   #?(:clj "images.ona.io"
      :cljs (str "images." (aget js/window "location" "hostname"))))
 
-(def hosts
-  "Store remote hosts that requests are made to."
+(def ^:dynamic hosts
+  "Store remote hosts that requests are made to. The root binding is shared by
+   every thread; bind another atom to send one thread's requests elsewhere."
   (atom {;; used to create URLs that return to the client
          :client "zebra.ona.io"
          ;; Ona compatible API to request data from
@@ -83,6 +84,23 @@
   [resources] (-> [(:request-protocol @hosts) "://" resources]
                   flatten join))
 
+(defn- configured-host
+  [host-map host-key]
+  (let [host (get host-map host-key)]
+    (if (blank? (str host))
+      (throw (ex-info (str "No host configured for " host-key)
+                      {:host-key host-key}))
+      host)))
+
+(defn- host-url
+  "Return protocol://host for the host stored under host-key in the current
+   hosts atom."
+  [host-key]
+  (let [host-map @hosts]
+    (str (configured-host host-map :request-protocol)
+         "://"
+         (configured-host host-map host-key))))
+
 (def thumbor-server (protocol-prefixed (:images @hosts)))
 
 (defn url-join
@@ -93,13 +111,13 @@
 (defn make-url
   "Build an API url."
   [& postfix]
-  (url-join (str (protocol-prefixed (:data @hosts)) "/api/v1") postfix))
+  (url-join (str (host-url :data) "/api/v1") postfix))
 
 (defn make-client-url
   "Build a URL pointing to the client."
   [& postfix]
   #?(:clj
-     (url-join (protocol-prefixed [(:client @hosts)]) postfix)
+     (url-join (host-url :client) postfix)
      :cljs
      (let [client-host (-> js/window (aget "location") (aget "origin"))]
        (url-join client-host postfix))))
@@ -112,4 +130,4 @@
 (defn make-j2x-url
   "Build an API url."
   [& postfix]
-  (url-join (protocol-prefixed (:j2x @hosts)) postfix))
+  (url-join (host-url :j2x) postfix))
