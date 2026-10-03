@@ -56,13 +56,14 @@
    swapped into hosts.
 
    Built to support setting hosts from JavaScript."
-  [data-host & [client-host j2x-host request-protocol]]
+  [data-host & [client-host j2x-host request-protocol images-host]]
   (swap! hosts merge
          (cond-> {:data data-host}
            (some? client-host) (assoc :client client-host)
            (some? j2x-host) (assoc :j2x j2x-host)
            (some? request-protocol)
-           (assoc :request-protocol request-protocol))))
+           (assoc :request-protocol request-protocol)
+           (some? images-host) (assoc :images images-host))))
 
 (defn ^:export set-credentials
   "Set the dynamic credentials to include the username and optionally
