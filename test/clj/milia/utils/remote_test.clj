@@ -44,3 +44,74 @@
                    :password :password
                    :temp-token :temp-token
                    :token :token})))
+
+(def example-hosts
+  {:client "client.example.org"
+   :data "api.example.org"
+   :j2x "j2x.example.org"
+   :images "images.example.org"
+   :request-protocol "https"})
+
+(defn- host-key-of
+  [host-key]
+  #(= {:host-key host-key} (ex-data %)))
+
+(facts "about hosts"
+       (fact "is dynamic with an atom as its root binding"
+             (-> #'hosts meta :dynamic) => true
+             (instance? clojure.lang.Atom hosts) => true)
+
+       (fact "URL builders read the bound atom at call time"
+             (binding [hosts (atom example-hosts)]
+               [(make-url "forms")
+                (make-json-url "forms")
+                (make-client-url "bob")
+                (make-j2x-url "templates")])
+             => ["https://api.example.org/api/v1/forms"
+                 "https://api.example.org/api/v1/forms.json"
+                 "https://client.example.org/bob"
+                 "https://j2x.example.org/templates"])
+
+       (fact "a binding does not change the root atom"
+             (binding [hosts (atom example-hosts)] (make-url "forms"))
+             (:data @hosts) =not=> "api.example.org"))
+
+(facts "about unconfigured hosts"
+       (fact "a nil data host throws with its key"
+             (binding [hosts (atom (assoc example-hosts :data nil))]
+               (make-url "forms"))
+             => (throws clojure.lang.ExceptionInfo
+                        "No host configured for :data"
+                        (host-key-of :data)))
+
+       (fact "make-json-url goes through the same check"
+             (binding [hosts (atom (assoc example-hosts :data nil))]
+               (make-json-url "forms"))
+             => (throws clojure.lang.ExceptionInfo (host-key-of :data)))
+
+       (fact "a blank data host throws like a nil one"
+             (binding [hosts (atom (assoc example-hosts :data ""))]
+               (make-url "forms"))
+             => (throws clojure.lang.ExceptionInfo (host-key-of :data)))
+
+       (fact "a nil client host throws with its key"
+             (binding [hosts (atom (dissoc example-hosts :client))]
+               (make-client-url "bob"))
+             => (throws clojure.lang.ExceptionInfo (host-key-of :client)))
+
+       (fact "a nil j2x host throws with its key"
+             (binding [hosts (atom (assoc example-hosts :j2x nil))]
+               (make-j2x-url "templates"))
+             => (throws clojure.lang.ExceptionInfo (host-key-of :j2x)))
+
+       (fact "a nil request protocol throws with its key"
+             (binding [hosts (atom (assoc example-hosts
+                                          :request-protocol nil))]
+               (make-url "forms"))
+             => (throws clojure.lang.ExceptionInfo
+                        (host-key-of :request-protocol)))
+
+       (fact "protocol-prefixed still accepts a nil resource"
+             (binding [hosts (atom example-hosts)]
+               (protocol-prefixed nil))
+             => "https://"))
