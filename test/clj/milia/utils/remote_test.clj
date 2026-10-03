@@ -126,3 +126,29 @@
              (binding [hosts (atom (assoc example-hosts :images nil))]
                (thumbor-server))
              => (throws clojure.lang.ExceptionInfo (host-key-of :images))))
+
+(facts "about set-hosts and the images host"
+       (fact "sets the images host from the fifth argument"
+             (binding [hosts (atom example-hosts)]
+               (set-hosts "api.other.org" nil nil nil "images.other.org"))
+             => (assoc example-hosts
+                       :data "api.other.org"
+                       :images "images.other.org"))
+
+       (fact "keeps the images host when the fifth argument is nil"
+             (binding [hosts (atom example-hosts)]
+               (set-hosts "api.other.org" nil nil nil nil))
+             => (assoc example-hosts :data "api.other.org"))
+
+       (fact "four positional arguments behave as before"
+             (binding [hosts (atom example-hosts)]
+               (set-hosts "api.other.org" "client.other.org" nil "http"))
+             => (assoc example-hosts
+                       :data "api.other.org"
+                       :client "client.other.org"
+                       :request-protocol "http"))
+
+       (fact "writes the bound atom, not the root"
+             (binding [hosts (atom example-hosts)]
+               (set-hosts "api.other.org" nil nil nil "images.other.org"))
+             (:images @hosts) =not=> "images.other.org"))
