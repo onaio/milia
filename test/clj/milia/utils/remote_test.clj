@@ -2,26 +2,27 @@
   (:require [midje.sweet :refer :all]
             [milia.utils.remote :refer :all]))
 
-(facts "about set-hosts"
-       (fact "should always swap in data-host"
-             (set-hosts :data-host) => (assoc  @hosts
-                                               :data :data-host))
+(binding [hosts (atom @hosts)]
+  (facts "about set-hosts"
+         (fact "should always swap in data-host"
+               (set-hosts :data-host) => (assoc  @hosts
+                                                 :data :data-host))
 
-       (fact "should ignore passed nils"
-             (set-hosts :data-host nil nil nil)
-             => (merge {:data :data-host} @hosts))
+         (fact "should ignore passed nils"
+               (set-hosts :data-host nil nil nil)
+               => (merge {:data :data-host} @hosts))
 
-       (fact "should only ignore passed nils"
-             (set-hosts :data-host nil :j2x-host nil)
-             => (assoc @hosts :data :data-host :j2x :j2x-host))
+         (fact "should only ignore passed nils"
+               (set-hosts :data-host nil :j2x-host nil)
+               => (assoc @hosts :data :data-host :j2x :j2x-host))
 
-       (fact "should set all args"
-             (set-hosts :data-host :client-host :j2x-host :req-proto)
-             => (assoc @hosts
-                       :data :data-host
-                       :client :client-host
-                       :j2x :j2x-host
-                       :request-protocol :req-proto)))
+         (fact "should set all args"
+               (set-hosts :data-host :client-host :j2x-host :req-proto)
+               => (assoc @hosts
+                         :data :data-host
+                         :client :client-host
+                         :j2x :j2x-host
+                         :request-protocol :req-proto))))
 
 (binding [*credentials* {}]
   (facts "about set-credentials"
