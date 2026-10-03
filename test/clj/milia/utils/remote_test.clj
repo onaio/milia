@@ -115,3 +115,13 @@
              (binding [hosts (atom example-hosts)]
                (protocol-prefixed nil))
              => "https://"))
+
+(facts "about thumbor-server"
+       (fact "follows the bound images host"
+             (binding [hosts (atom example-hosts)] (thumbor-server))
+             => "https://images.example.org")
+
+       (fact "throws when no images host is configured"
+             (binding [hosts (atom (assoc example-hosts :images nil))]
+               (thumbor-server))
+             => (throws clojure.lang.ExceptionInfo (host-key-of :images))))
