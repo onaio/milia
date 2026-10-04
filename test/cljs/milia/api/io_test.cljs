@@ -1,4 +1,5 @@
 (ns milia.api.io-test
+  (:import [goog.net Cookies])
   (:require-macros [cljs.test :refer (is deftest testing)])
   (:require [cljs.test :as t]
             [milia.api.io :as io]
@@ -68,3 +69,52 @@
       (doseq [method [:post :patch :put]]
         (is (= (io/build-http-options {:json-params params} method true)
               json-params))))))
+
+(defn- with-csrf-cookie
+  [value f]
+  (let [cookies (.getInstance Cookies)]
+    (.set cookies "csrftoken" value)
+    (try (f) (finally (.remove cookies "csrftoken")))))
+
+(deftest csrf-headers
+  (testing "precondition: the test page can set and read the cookie"
+    (with-csrf-cookie "cookie-token"
+      #(is (= "cookie-token" (.get (.getInstance Cookies) "csrftoken"))))
+    (is (nil? (.get (.getInstance Cookies) "csrftoken"))))
+
+  (testing "session token alone goes in X-CSRF-Token"
+    (binding [*credentials* {:csrf-token "session-token"}]
+      (is (= {"Accept" "application/json"
+              "X-CSRF-Token" "session-token"}
+             (io/token->headers :get-crsftoken? true)))))
+
+  (testing "cookie alone fills both CSRF headers"
+    (binding [*credentials* {}]
+      (with-csrf-cookie "cookie-token"
+        #(is (= {"Accept" "application/json"
+                 "X-CSRFToken" "cookie-token"
+                 "X-CSRF-Token" "cookie-token"}
+                (io/token->headers :get-crsftoken? true))))))
+
+  (testing "session token wins X-CSRF-Token, cookie keeps X-CSRFToken"
+    (binding [*credentials* {:csrf-token "session-token"
+                             :temp-token "temp"}]
+      (with-csrf-cookie "cookie-token"
+        #(is (= {"Accept" "application/json"
+                 "Authorization" "TempToken temp"
+                 "X-CSRFToken" "cookie-token"
+                 "X-CSRF-Token" "session-token"}
+                (io/token->headers :get-crsftoken? true))))))
+
+  (testing "an empty session token falls back to the cookie"
+    (binding [*credentials* {:csrf-token ""}]
+      (with-csrf-cookie "cookie-token"
+        #(is (= "cookie-token"
+                (get (io/token->headers :get-crsftoken? true)
+                     "X-CSRF-Token"))))))
+
+  (testing "no CSRF headers when not asked for"
+    (binding [*credentials* {:csrf-token "session-token"}]
+      (with-csrf-cookie "cookie-token"
+        #(is (= {"Accept" "application/json"}
+                (io/token->headers :get-crsftoken? false)))))))
