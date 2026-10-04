@@ -42,24 +42,35 @@
       http/wrap-method
       http/wrap-url))
 
+(defn- csrf-headers
+  "X-CSRFToken carries the API's csrftoken cookie; X-CSRF-Token carries the
+   session token from credentials, or the cookie when there is none."
+  [session-token cookie-token]
+  (let [session-token (not-empty session-token)
+        cookie-token (not-empty cookie-token)]
+    (cond-> {}
+      cookie-token (assoc "X-CSRFToken" cookie-token)
+      (or session-token cookie-token)
+      (assoc "X-CSRF-Token" (or session-token cookie-token)))))
+
 (defn token->headers
   "Builds request headers for the HTTP request by adding
-  Authorization, X-CSRFToken and Cache-control headers where necessary"
+  Authorization, X-CSRFToken, X-CSRF-Token and Cache-control headers where
+  necessary"
   [& {:keys [get-crsftoken? must-revalidate? accept-header auth-token]}]
-  (let [temp-token (:temp-token *credentials*)
-        cookies (.getInstance Cookies)]
-    (into {} [(if auth-token
-                ["Authorization" (str "Token " auth-token)]
-                (when (and (not-empty temp-token) (is-not-null?
-                                                   temp-token))
-                  ["Authorization" (str "TempToken " temp-token)]))
-              (when must-revalidate?
-                ["Cache-control" "must-revalidate"])
-              (when-let [crsf-token (and get-crsftoken?
-                                         (.get cookies "csrftoken"))]
-                ["X-CSRFToken" crsf-token]
-                ["X-CSRF-Token" crsf-token])
-              ["Accept" (or accept-header "application/json")]])))
+  (let [temp-token (:temp-token *credentials*)]
+    (merge
+     (into {} [(if auth-token
+                 ["Authorization" (str "Token " auth-token)]
+                 (when (and (not-empty temp-token) (is-not-null?
+                                                    temp-token))
+                   ["Authorization" (str "TempToken " temp-token)]))
+               (when must-revalidate?
+                 ["Cache-control" "must-revalidate"])
+               ["Accept" (or accept-header "application/json")]])
+     (when get-crsftoken?
+       (csrf-headers (:csrf-token *credentials*)
+                     (.get (.getInstance Cookies) "csrftoken"))))))
 
 (defn get-xhr-io-response
   "Get the response out of an object that watches an async/xhr request.
