@@ -1,5 +1,5 @@
 (ns milia.utils.remote
-  (:require [clojure.string :refer [join]]
+  (:require [clojure.string :refer [blank? join]]
             [chimera.urls :refer [url]]
             #?(:clj [environ.core :refer [env]])))
 
@@ -31,8 +31,9 @@
   #?(:clj "images.ona.io"
      :cljs (str "images." (aget js/window "location" "hostname"))))
 
-(def hosts
-  "Store remote hosts that requests are made to."
+(def ^:dynamic hosts
+  "Store remote hosts that requests are made to. The root binding is shared by
+   every thread; bind another atom to send one thread's requests elsewhere."
   (atom {;; used to create URLs that return to the client
          :client "zebra.ona.io"
          ;; Ona compatible API to request data from
@@ -55,13 +56,14 @@
    swapped into hosts.
 
    Built to support setting hosts from JavaScript."
-  [data-host & [client-host j2x-host request-protocol]]
+  [data-host & [client-host j2x-host request-protocol images-host]]
   (swap! hosts merge
          (cond-> {:data data-host}
            (some? client-host) (assoc :client client-host)
            (some? j2x-host) (assoc :j2x j2x-host)
            (some? request-protocol)
-           (assoc :request-protocol request-protocol))))
+           (assoc :request-protocol request-protocol)
+           (some? images-host) (assoc :images images-host))))
 
 (defn ^:export set-credentials
   "Set the dynamic credentials to include the username and optionally
@@ -83,7 +85,27 @@
   [resources] (-> [(:request-protocol @hosts) "://" resources]
                   flatten join))
 
-(def thumbor-server (protocol-prefixed (:images @hosts)))
+(defn- configured-host
+  [host-map host-key]
+  (let [host (get host-map host-key)]
+    (if (blank? (str host))
+      (throw (ex-info (str "No host configured for " host-key)
+                      {:host-key host-key}))
+      host)))
+
+(defn- host-url
+  "Return protocol://host for the host stored under host-key in the current
+   hosts atom."
+  [host-key]
+  (let [host-map @hosts]
+    (str (configured-host host-map :request-protocol)
+         "://"
+         (configured-host host-map host-key))))
+
+(defn thumbor-server
+  "Base URL of the image server for the current hosts."
+  []
+  (host-url :images))
 
 (defn url-join
   [host args]
@@ -93,13 +115,13 @@
 (defn make-url
   "Build an API url."
   [& postfix]
-  (url-join (str (protocol-prefixed (:data @hosts)) "/api/v1") postfix))
+  (url-join (str (host-url :data) "/api/v1") postfix))
 
 (defn make-client-url
   "Build a URL pointing to the client."
   [& postfix]
   #?(:clj
-     (url-join (protocol-prefixed [(:client @hosts)]) postfix)
+     (url-join (host-url :client) postfix)
      :cljs
      (let [client-host (-> js/window (aget "location") (aget "origin"))]
        (url-join client-host postfix))))
@@ -112,4 +134,4 @@
 (defn make-j2x-url
   "Build an API url."
   [& postfix]
-  (url-join (protocol-prefixed (:j2x @hosts)) postfix))
+  (url-join (host-url :j2x) postfix))

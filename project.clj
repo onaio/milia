@@ -8,7 +8,7 @@
    :milia-http-default-per-route "10"
    :milia-http-threads "20"})
 
-(defproject onaio/milia "0.9.3-rc2"
+(defproject onaio/milia "0.10.0-rc1"
   :description "The ona.io Clojure Web API Client."
   :dependencies [;; CORE MILIA REQUIREMENTS
                  [cheshire "5.11.0"]
@@ -41,7 +41,8 @@
   :cljfmt {:file-pattern #"[^\.#]*\.clj[s]?$"}
   :eastwood {:exclude-linters [:constant-test :unused-locals :unused-fn-args :unused-private-vars]
              :add-linters [:unused-fn-args :unused-namespaces]
-             :namespaces [:source-paths]}
+             :namespaces [:source-paths]
+             :ignored-faults {:non-dynamic-earmuffs {milia.utils.remote true}}}
   :profiles {:dev {:dependencies [[midje "1.10.5" :exclusions [joda-time org.clojure/tools.namespace clj-time]]]
                    :env ~project-env}
              :uberjar {:env ~project-env}}

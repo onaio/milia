@@ -3,7 +3,10 @@
             [milia.api.io :refer [multipart-options]]
             [milia.utils.remote :refer [thumbor-server]]))
 
-(def upload-url (str thumbor-server "/image"))
+(defn upload-url
+  "Image upload endpoint on the current image server."
+  []
+  (str (thumbor-server) "/image"))
 
 (defn upload
   "Process an avatar upload. Expects a binary avatar data object."
@@ -11,9 +14,9 @@
   (when (and file (:size file) (-> file :size zero? not))
     (let [{:keys [headers status]}
           (parse-http :post
-                      (or (and image-server-url
-                               (str image-server-url "/image"))
-                          upload-url)
+                      (if image-server-url
+                        (str image-server-url "/image")
+                        (upload-url))
                       :http-options
                       (merge
                        {:headers {"Slug" (:filename file)}}
@@ -22,6 +25,6 @@
                       :suppress-4xx-exceptions? true)]
       (when (= status 201)
         ;; A 201 HTTP status code indicates success
-        (str (or image-server-url thumbor-server)
+        (str (or image-server-url (thumbor-server))
              "/"
              (subs (headers "Location") 1))))))

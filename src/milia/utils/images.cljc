@@ -8,7 +8,7 @@
   ([image-url edge-px]
    (resize-image image-url edge-px edge-px))
   ([image-url width-px height-px]
-   (resize-image image-url width-px height-px thumbor-server))
+   (resize-image image-url width-px height-px (thumbor-server)))
   ([image-url width-px height-px image-server-url]
    (let [thumbor-server-prefix (str image-server-url "/image/")]
      (str image-server-url
