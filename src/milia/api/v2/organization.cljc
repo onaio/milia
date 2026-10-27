@@ -106,10 +106,12 @@
                 #?(:cljs  {:json-params data})
                 :as-map? true)))
 
-(defn single-owner-member?
-  "Is user only members in org with owner role?"
-  [org-name]
-  (->> (members org-name)
-       (filter #(= "owner" (:role %)))
-       count
-       (= 1)))
+;; CLJ only: in CLJS `members` returns a channel, not the members
+#?(:clj
+   (defn single-owner-member?
+     "Is user only members in org with owner role?"
+     [org-name]
+     (->> (members org-name)
+          (filter #(= "owner" (:role %)))
+          count
+          (= 1))))
