@@ -44,3 +44,9 @@
                    :password :password
                    :temp-token :temp-token
                    :token :token})))
+
+(facts "about make-v2-url"
+       (fact "should build a url on the v2 API"
+             (make-v2-url "orgs" "bob.json")
+             => (str (protocol-prefixed (:data @hosts))
+                     "/api/v2/orgs/bob.json")))

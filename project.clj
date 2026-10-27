@@ -8,7 +8,7 @@
    :milia-http-default-per-route "10"
    :milia-http-threads "20"})
 
-(defproject onaio/milia "0.9.3-rc2"
+(defproject onaio/milia "0.9.4-rc2"
   :description "The ona.io Clojure Web API Client."
   :dependencies [;; CORE MILIA REQUIREMENTS
                  [cheshire "6.2.0"]
